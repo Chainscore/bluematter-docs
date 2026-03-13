@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -19,8 +19,14 @@ import styles from './index.module.css';
 /* ── NAV ──────────────────────────────────────────────────────── */
 
 function Nav() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > window.innerHeight * 0.6);
+    window.addEventListener('scroll', onScroll, {passive: true});
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   return (
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav} ${show ? styles.navVisible : styles.navHidden}`}>
       <Link to={useBaseUrl('/')} className={styles.navLogo}>
         BlueMatter
       </Link>
