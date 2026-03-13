@@ -213,10 +213,28 @@
   letter-spacing: -0.05em;
   line-height: 1;
   margin: 0 0 2rem;
-  background: linear-gradient(135deg, #fff 0%, #4d8bff 50%, #1a3a8a 100%);
+  background: linear-gradient(
+    120deg,
+    #fff 0%,
+    #a8c8ff 15%,
+    #4d8bff 30%,
+    #1a3a8a 45%,
+    #4d8bff 60%,
+    #a8c8ff 75%,
+    #fff 90%,
+    #4d8bff 100%
+  );
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: shimmer 8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 .sub {
