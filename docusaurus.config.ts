@@ -39,7 +39,7 @@ const config: Config = {
       crossorigin: 'anonymous',
     },
     {
-      href: 'https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Rock+Salt&family=Permanent+Marker&family=Zeyada&family=Rubik+Wet+Paint&family=Rubik+Distressed&family=Sedgwick+Ave+Display&family=Finger+Paint&family=Londrina+Sketch&family=Inter:wght@400;500;600;700&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
       type: 'text/css',
     },
   ],
@@ -71,13 +71,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: '',
-      logo: {
-        alt: 'BlueMatter',
-        src: 'img/logo.svg',
-        width: 140,
-        height: 32,
-      },
+      title: 'BlueMatter',
       items: [
         {
           type: 'docSidebar',
