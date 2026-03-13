@@ -1,6 +1,6 @@
-# Haskell Node Architecture
+# Node Architecture
 
-This document provides a detailed technical reference of the Cardano Haskell node
+This document is a technical reference of the Cardano Haskell node
 (`cardano-node`) architecture, intended for implementers building alternative node
 implementations. It covers the four major layers (consensus, ledger, networking,
 storage), how they interact, and the node orchestration that ties them together.

@@ -41,7 +41,7 @@ Block header validation for Ouroboros Praos. Contains the central `validate_head
 
 **Key functions:**
 
-- `validate_header(header, prev_hash, prev_slot, prev_block_number, ...) -> list[str]` -- Full header validation (see detailed breakdown below).
+- `validate_header(header, prev_hash, prev_slot, prev_block_number, ...) -> list[str]` -- Header validation (see breakdown below).
 - `_verify_operational_cert(opcert, issuer_vkey) -> list[str]` -- Verifies the Ed25519 cold-key signature over `hot_vkey || seq_no(8 bytes BE) || kes_period(8 bytes BE)`.
 - `compute_pool_id(issuer_vkey: bytes) -> bytes` -- Returns `blake2b_224(issuer_vkey)`.
 - `verify_block_hash(header: ConwayHeader) -> bool` -- Checks `header.block_hash == blake2b_256(header.raw)`.

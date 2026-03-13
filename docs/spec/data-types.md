@@ -1,4 +1,4 @@
-# 2. Data Types
+# Data Types
 
 This section defines the core data types of the Bluematter ledger. All types
 are given in terms of the notation established in Section 0: B for

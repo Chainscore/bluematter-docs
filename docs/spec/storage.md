@@ -1,4 +1,4 @@
-# 13 Storage
+# Storage
 
 The Bluematter storage layer manages block persistence, ledger state
 checkpointing, and transaction buffering across three tiers. Blocks

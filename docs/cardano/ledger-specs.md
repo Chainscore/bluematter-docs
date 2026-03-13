@@ -1,6 +1,6 @@
-# Formal Ledger Specs
+# Ledger Specs
 
-This document is a comprehensive reference for the Cardano formal ledger specifications, extracted from the official `.tex` source files in the `cardano-ledger` repository, supplemented with web research on the Conway era. It covers all eras from Shelley through Conway.
+This document is a reference for the Cardano formal ledger specifications, based on the official `.tex` source files in the `cardano-ledger` repository, supplemented with web research on the Conway era. It covers all eras from Shelley through Conway.
 
 ---
 

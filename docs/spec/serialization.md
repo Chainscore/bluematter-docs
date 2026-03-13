@@ -1,4 +1,4 @@
-# 3. Serialization
+# Serialization
 
 Cardano has no canonical CBOR encoding. The same logical value may be encoded
 in multiple valid byte representations that differ in integer widths, map key

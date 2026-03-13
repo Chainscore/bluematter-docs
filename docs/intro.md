@@ -27,7 +27,7 @@ This book is the complete technical reference: protocol theory, formal specifica
 
 ## What This Book Covers
 
-### Part I - Cardano Protocol (Chapters 1–6)
+### Knowledge Base
 
 The theoretical and historical foundation. Start here if you're new to Cardano.
 
@@ -40,7 +40,7 @@ The theoretical and historical foundation. Start here if you're new to Cardano.
 | **5. Networking Protocols** | Mini-protocol state machines, multiplexer wire format, CDDL message definitions |
 | **6. Current State & Roadmap** | Where Cardano is today (2026): governance, Genesis, Leios, UTxO-HD, alternative nodes |
 
-### Part II - Formal Specification (Chapters 7–20)
+### Specification
 
 The Gray Paper. Precise equations defining every data type, validation rule, and state transition. **Someone could reimplement the entire node from Part II alone.**
 
@@ -61,7 +61,7 @@ The Gray Paper. Precise equations defining every data type, validation rule, and
 | **19. Networking** | Multiplexer framing, 5 mini-protocol state machines, peer selection governor |
 | **20. Storage** | VolatileDB (fork-aware), ImmutableDB (SQLite), LedgerDB (HMAC checkpoints), crash recovery |
 
-### Part III - Bluematter Architecture (Chapters 21–28)
+### BlueMatter
 
 How the Python implementation maps to the spec. The **Call Flows** chapter is the most important - it traces every function call from CLI entry through TCP handshake, block decode, validation, ledger update, all the way to disk write.
 
@@ -128,7 +128,7 @@ How the Python implementation maps to the spec. The **Call Flows** chapter is th
 
 ## Quick Links
 
-- [Call Flows - the most detailed chapter](./architecture/call-flows.md) - every function call traced
+- [Call Flows - the key chapter](./architecture/call-flows.md) - every function call traced
 - [Transaction Validation Rules](./spec/transactions.md) - all 19 UTxO predicates
 - [Reward Calculation Formula](./spec/rewards.md) - the complete Shelley incentive math
 - [Nonce Evolution Lifecycle](./spec/consensus.md) - UPDN + TICKN rules

@@ -1,6 +1,6 @@
-# Era Evolution
+# Eras
 
-> Comprehensive reference for all Cardano eras, hard forks, protocol versions, and
+> Reference for all Cardano eras, hard forks, protocol versions, and
 > ledger rule changes. Accurate as of March 2026.
 
 ---

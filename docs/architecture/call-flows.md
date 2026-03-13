@@ -294,7 +294,7 @@ while blocks_synced < max_blocks:                # sync_session.py:243
   │ └─────────────────────────────────────────────────────┘
 ```
 
-## 6. apply_block() - Detailed Internal Flow
+## 6. apply_block() - Internal Flow
 
 ```
 apply_block(state, block)                        # block.py:25

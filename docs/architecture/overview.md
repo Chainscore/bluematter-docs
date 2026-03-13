@@ -24,7 +24,7 @@ bluematter/
   config/       Genesis file parsing
 ```
 
-## Detailed Documentation
+## Documentation
 
 | Document | Covers |
 |----------|--------|

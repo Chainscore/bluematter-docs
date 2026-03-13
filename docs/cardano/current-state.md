@@ -2,7 +2,7 @@
 
 *Last updated: 2026-03-12*
 
-This document provides a comprehensive overview of the Cardano ecosystem as of March 2026,
+This document provides a overview of the Cardano ecosystem as of March 2026,
 covering the current network state, governance, consensus research, scaling solutions,
 alternative node implementations, and the forward-looking roadmap.
 
@@ -209,7 +209,7 @@ achieves higher throughput but requires 2-3 minute confirmations and extensive e
 |---|---|
 | Research paper published | COMPLETE |
 | CIP specification | ~67% complete (Jan 2026) |
-| Detailed specifications | IN PROGRESS |
+| Specifications | IN PROGRESS |
 | Simulations | IN PROGRESS |
 | Code implementation | IN PROGRESS |
 | Testnet deployment | PLANNED (2026) |
@@ -311,7 +311,7 @@ the original Haskell implementation through its development process.
 - Connects via Ouroboros N2N mini-protocols (via Pallas library)
 
 **Recent releases**:
-- v1.0.0-rc.10 (Feb 17, 2026): Comprehensive mempool support, OTLP integration
+- v1.0.0-rc.10 (Feb 17, 2026): Mempool support, OTLP integration
 - v1.0.0-rc.8 (Feb 7, 2026): Byron address parsing, memory caches, mainnet genesis support
 
 ### Pallas (Rust Library) -- TxPipe

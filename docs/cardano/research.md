@@ -1,6 +1,6 @@
-# Research & Foundations
+# Research
 
-A comprehensive reference covering the academic research that underpins the Cardano
+Reference covering the academic research that underpins the Cardano
 blockchain, from the founding vision through the Ouroboros consensus protocol family,
 the Extended UTXO model, formal ledger specifications, and scaling research.
 
@@ -323,7 +323,7 @@ transactions.
 - **Key-private forward-secure encryption**: Ensures privacy is maintained even
   against adaptive attacks over time.
 
-- **GUC treatment of private ledgers**: A thorough formalization of private ledger
+- **GUC treatment of private ledgers**: A formalization of private ledger
   security in the Generalized Universal Composability setting.
 
 **Relation to the running network**: Crypsinous is not deployed on Cardano mainnet but
@@ -454,7 +454,7 @@ Peras, Leios, and other innovations into a single adaptive system.
 - **Dynamic performance adaptation**: Throughput and settlement automatically adjust
   to network conditions.
 
-- **Comprehensive proof**: Aims to either find practical solutions or rigorously prove
+- **Proof**: Aims to either find practical solutions or rigorously prove
   what is and is not possible without sacrificing security.
 
 Combining Leios with the EUTXO model could theoretically support throughput of up to
@@ -576,7 +576,7 @@ incentivized participation.
 
 ### Reward Sharing Schemes (Shelley Design Specification)
 
-The reward-sharing scheme, detailed in the **Shelley Delegation and Incentives Design
+The reward-sharing scheme, described in the **Shelley Delegation and Incentives Design
 Specification (SL-D5)**, describes how to properly incentivize stake pool operators
 and delegators. Key properties:
 

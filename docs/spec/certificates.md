@@ -1,4 +1,4 @@
-# 7. Certificates
+# Certificates
 
 This chapter specifies the certificate processing rules for the Conway era.
 Certificates are the mechanism by which participants register stake credentials,

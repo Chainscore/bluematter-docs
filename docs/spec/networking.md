@@ -1,4 +1,4 @@
-# 12 Networking
+# Networking
 
 The Bluematter networking layer implements the Ouroboros family of
 mini-protocols over a single multiplexed TCP connection. Every peer

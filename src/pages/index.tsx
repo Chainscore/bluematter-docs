@@ -117,20 +117,20 @@ function Docs() {
         <div className={styles.docsGrid}>
           <Link className={styles.dCard} to={useBaseUrl('/docs/cardano/research')}>
             <span className={styles.dLabel}>01</span>
-            <h3>Cardano Protocol</h3>
-            <p>Ouroboros papers, hard fork history, Haskell node internals, networking protocols</p>
+            <h3>Knowledge Base</h3>
+            <p>Ouroboros papers, hard fork history, node architecture, networking protocols</p>
             <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
           </Link>
           <Link className={styles.dCard} to={useBaseUrl('/docs/spec/notation')}>
             <span className={styles.dLabel}>02</span>
-            <h3>Formal Specification</h3>
+            <h3>Specification</h3>
             <p>14 chapters defining every data type, validation rule, and state transition</p>
             <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
           </Link>
           <Link className={styles.dCard} to={useBaseUrl('/docs/architecture/overview')}>
             <span className={styles.dLabel}>03</span>
-            <h3>Architecture</h3>
-            <p>Function-by-function call flows, module map, storage tiers, sync pipeline</p>
+            <h3>BlueMatter</h3>
+            <p>Call flows, module map, storage tiers, sync pipeline</p>
             <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
           </Link>
         </div>

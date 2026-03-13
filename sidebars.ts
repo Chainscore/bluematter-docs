@@ -5,7 +5,7 @@ const sidebars: SidebarsConfig = {
     'intro',
     {
       type: 'category',
-      label: 'Cardano Protocol',
+      label: 'Knowledge Base',
       items: [
         'cardano/research',
         'cardano/eras',
@@ -17,7 +17,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Formal Specification',
+      label: 'Specification',
       items: [
         'spec/notation',
         'spec/crypto',
@@ -37,7 +37,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Bluematter Architecture',
+      label: 'BlueMatter',
       items: [
         'architecture/overview',
         'architecture/call-flows',

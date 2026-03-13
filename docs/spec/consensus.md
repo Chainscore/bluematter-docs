@@ -1,4 +1,4 @@
-# 10. Consensus
+# Consensus
 
 This section specifies the Ouroboros Praos consensus layer as implemented
 by Bluematter. It covers slot leader election, epoch nonce evolution,
