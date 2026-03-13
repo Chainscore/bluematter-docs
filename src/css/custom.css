@@ -226,9 +226,15 @@ article {
   max-width: 860px;
 }
 
-/* Smooth transitions */
-* {
+/* Smooth transitions (exclude landing page elements) */
+.navbar, .menu__link, .pagination-nav__link, code, pre, table td, blockquote {
   transition-property: background-color, border-color, color;
   transition-duration: 0.15s;
   transition-timing-function: ease;
+}
+
+/* Hide navbar and footer on landing page */
+.landing-page .navbar,
+.landing-page .footer {
+  display: none !important;
 }

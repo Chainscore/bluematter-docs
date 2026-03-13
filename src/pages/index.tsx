@@ -1,6 +1,6 @@
 import React from 'react';
-import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
+import Head from '@docusaurus/Head';
 import {
   Cpu,
   Shield,
@@ -8,7 +8,6 @@ import {
   Globe,
   BookOpen,
   ArrowRight,
-  Terminal,
   GitBranch,
 } from 'lucide-react';
 import styles from './index.module.css';
@@ -16,76 +15,82 @@ import styles from './index.module.css';
 function Hero() {
   return (
     <section className={styles.hero}>
+      <div className={styles.grain} />
       <div className={styles.heroInner}>
-        <p className={styles.heroTag}>CARDANO NODE IMPLEMENTATION</p>
-        <h1 className={styles.heroTitle}>
-          Bluematter
+        <div className={styles.badge}>
+          <span className={styles.badgeDot} />
+          Live on Preprod
+        </div>
+        <h1 className={styles.title}>
+          <span className={styles.titleLine}>Blue</span>
+          <span className={styles.titleLine}>matter</span>
         </h1>
-        <p className={styles.heroSub}>
-          A pure Python implementation of the full Cardano protocol stack.
-          Ouroboros Praos. Conway ledger. Plutus V1/V2/V3. Live on preprod.
+        <p className={styles.sub}>
+          Independent Cardano full-node.
+          <br />
+          Pure Python. Open source.
         </p>
-        <div className={styles.heroButtons}>
-          <Link className={styles.btnPrimary} to="/bluematter-docs/docs/intro">
-            <BookOpen size={20} />
-            Read the Specification
-            <ArrowRight size={18} />
+        <div className={styles.ctas}>
+          <Link className={styles.btnWhite} to="/bluematter-docs/docs/intro">
+            <BookOpen size={18} />
+            Specification
+            <ArrowRight size={16} />
           </Link>
-          <Link
-            className={styles.btnGhost}
-            href="https://github.com/Chainscore/bluematter-docs"
-          >
-            <GitBranch size={20} />
-            GitHub
+          <Link className={styles.btnOutline} href="https://github.com/Chainscore/bluematter-docs">
+            <GitBranch size={18} />
+            Source
           </Link>
         </div>
+      </div>
+      <div className={styles.scrollHint}>
+        <span />
       </div>
     </section>
   );
 }
 
-const capabilities = [
+const items = [
   {
-    icon: <Cpu size={28} strokeWidth={1.5} />,
-    title: 'Ouroboros Praos',
-    desc: 'VRF leader election, KES signatures, epoch nonce evolution, header validation with 12 checks.',
-    num: '01',
+    icon: <Cpu size={22} strokeWidth={1.5} />,
+    label: 'Ouroboros Praos',
+    detail: 'VRF leader election, KES forward-secure signatures, nonce evolution',
   },
   {
-    icon: <Shield size={28} strokeWidth={1.5} />,
-    title: 'Conway Ledger',
-    desc: '19 UTxO validation rules, multi-asset arithmetic, certificate processing, on-chain governance.',
-    num: '02',
+    icon: <Shield size={22} strokeWidth={1.5} />,
+    label: 'Conway Ledger',
+    detail: '19 UTxO rules, multi-asset, certificates, governance',
   },
   {
-    icon: <Zap size={28} strokeWidth={1.5} />,
-    title: 'Plutus Scripts',
-    desc: 'V1, V2, V3 evaluation via CEK machine. Correct ScriptContext, ScriptInfo, and TxCert encoding.',
-    num: '03',
+    icon: <Zap size={22} strokeWidth={1.5} />,
+    label: 'Plutus V1/V2/V3',
+    detail: 'CEK machine evaluation with correct ScriptContext encoding',
   },
   {
-    icon: <Globe size={28} strokeWidth={1.5} />,
-    title: 'Full Networking',
-    desc: 'ChainSync, BlockFetch, TxSubmission2, KeepAlive over multiplexed TCP. Live preprod sync.',
-    num: '04',
+    icon: <Globe size={22} strokeWidth={1.5} />,
+    label: 'Network Stack',
+    detail: 'ChainSync, BlockFetch, TxSubmission2 over muxed TCP',
   },
 ];
 
-function Capabilities() {
+function Stack() {
   return (
-    <section className={styles.caps}>
-      <div className={styles.capsInner}>
-        <p className={styles.capsTag}>WHAT IT DOES</p>
-        <h2 className={styles.capsTitle}>
-          Where <em>research</em> meets implementation.
-        </h2>
-        <div className={styles.capsGrid}>
-          {capabilities.map((c) => (
-            <div key={c.title} className={styles.capCard}>
-              <div className={styles.capIcon}>{c.icon}</div>
-              <h3 className={styles.capName}>{c.title}</h3>
-              <p className={styles.capDesc}>{c.desc}</p>
-              <span className={styles.capNum}>{c.num}</span>
+    <section className={styles.stack}>
+      <div className={styles.stackInner}>
+        <div className={styles.stackLeft}>
+          <p className={styles.tag}>PROTOCOL STACK</p>
+          <h2 className={styles.stackTitle}>
+            Every layer.<br />Implemented.
+          </h2>
+        </div>
+        <div className={styles.stackRight}>
+          {items.map((item, i) => (
+            <div key={item.label} className={styles.stackItem}>
+              <div className={styles.stackIcon}>{item.icon}</div>
+              <div>
+                <h3>{item.label}</h3>
+                <p>{item.detail}</p>
+              </div>
+              <span className={styles.stackNum}>0{i + 1}</span>
             </div>
           ))}
         </div>
@@ -94,33 +99,33 @@ function Capabilities() {
   );
 }
 
-function Explore() {
+function Docs() {
   return (
-    <section className={styles.explore}>
-      <div className={styles.exploreInner}>
-        <Link className={styles.exploreCard} to="/bluematter-docs/docs/cardano/research">
-          <Terminal size={24} strokeWidth={1.5} />
+    <section className={styles.docs}>
+      <div className={styles.docsInner}>
+        <Link className={styles.docCard} to="/bluematter-docs/docs/cardano/research">
+          <span className={styles.docNum}>I</span>
           <div>
             <h3>Cardano Protocol</h3>
-            <p>Ouroboros papers, era evolution, Haskell node architecture</p>
+            <p>Research papers, era history, Haskell node architecture</p>
           </div>
-          <ArrowRight size={20} />
+          <ArrowRight size={20} className={styles.docArrow} />
         </Link>
-        <Link className={styles.exploreCard} to="/bluematter-docs/docs/spec/notation">
-          <BookOpen size={24} strokeWidth={1.5} />
+        <Link className={styles.docCard} to="/bluematter-docs/docs/spec/notation">
+          <span className={styles.docNum}>II</span>
           <div>
             <h3>Formal Specification</h3>
-            <p>14 chapters defining every type, rule, and transition</p>
+            <p>14 chapters. Every type, rule, and state transition.</p>
           </div>
-          <ArrowRight size={20} />
+          <ArrowRight size={20} className={styles.docArrow} />
         </Link>
-        <Link className={styles.exploreCard} to="/bluematter-docs/docs/architecture/overview">
-          <Cpu size={24} strokeWidth={1.5} />
+        <Link className={styles.docCard} to="/bluematter-docs/docs/architecture/overview">
+          <span className={styles.docNum}>III</span>
           <div>
             <h3>Architecture</h3>
-            <p>Module map, function-by-function call flows, storage tiers</p>
+            <p>Call flows, module map, storage, networking internals</p>
           </div>
-          <ArrowRight size={20} />
+          <ArrowRight size={20} className={styles.docArrow} />
         </Link>
       </div>
     </section>
@@ -129,15 +134,22 @@ function Explore() {
 
 export default function Home(): React.ReactNode {
   return (
-    <Layout
-      title="Independent Cardano Full-Node"
-      description="Bluematter - Pure Python Cardano node implementation"
-    >
+    <>
+      <Head>
+        <title>Bluematter</title>
+        <meta name="description" content="Independent Cardano full-node implementation in pure Python" />
+        <html data-theme="dark" className="landing-page" />
+      </Head>
       <main className={styles.page}>
         <Hero />
-        <Capabilities />
-        <Explore />
+        <Stack />
+        <Docs />
+        <footer className={styles.foot}>
+          <span>Bluematter</span>
+          <span className={styles.footDot} />
+          <span>Chainscore Labs</span>
+        </footer>
       </main>
-    </Layout>
+    </>
   );
 }

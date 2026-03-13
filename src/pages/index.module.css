@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   BLUEMATTER LANDING — solid black, massive type, disruptive
+   BLUEMATTER — award-winning landing
    ═══════════════════════════════════════════════════════════════ */
 
 .page {
@@ -7,6 +7,7 @@
   color: #fff;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
+  /* Hide Docusaurus navbar + footer on landing */
 }
 
 /* ── HERO ────────────────────────────────────────────────────── */
@@ -16,286 +17,357 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem;
-  background: #000;
+  padding: 4rem 2rem;
   position: relative;
+  background: #000;
+  overflow: hidden;
 }
 
-.hero::after {
-  content: '';
+/* Film grain overlay */
+.grain {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .heroInner {
-  max-width: 900px;
+  position: relative;
+  z-index: 2;
   text-align: center;
+  max-width: 800px;
 }
 
-.heroTag {
-  font-size: 0.75rem;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem 0.4rem 0.7rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 0 0 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 3rem;
 }
 
-.heroTitle {
-  font-size: clamp(4rem, 12vw, 8rem);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.title {
   margin: 0 0 2rem;
+  line-height: 0.85;
+}
+
+.titleLine {
+  display: block;
+  font-size: clamp(5rem, 15vw, 10rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
   color: #fff;
 }
 
-.heroSub {
-  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-  color: rgba(255, 255, 255, 0.5);
-  max-width: 560px;
-  margin: 0 auto 3.5rem;
-  line-height: 1.6;
-  font-weight: 400;
+.titleLine:last-child {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.25);
 }
 
-.heroButtons {
+.sub {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.6;
+  margin: 0 auto 3rem;
+  max-width: 400px;
+}
+
+.ctas {
   display: flex;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.btnPrimary {
+.btnWhite {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 1rem 2.2rem;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
   background: #fff;
   color: #000;
   border-radius: 100px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s;
   border: 2px solid #fff;
+  transition: all 0.25s;
 }
 
-.btnPrimary:hover {
+.btnWhite:hover {
   background: transparent;
   color: #fff;
   text-decoration: none;
-  transform: scale(1.02);
 }
 
-.btnGhost {
+.btnOutline {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 1rem 2.2rem;
+  gap: 0.5rem;
+  padding: 0.9rem 2rem;
   background: transparent;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.7);
   border-radius: 100px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.25s;
 }
 
-.btnGhost:hover {
-  border-color: rgba(255, 255, 255, 0.5);
+.btnOutline:hover {
+  border-color: rgba(255, 255, 255, 0.4);
   color: #fff;
   text-decoration: none;
-  transform: scale(1.02);
 }
 
-/* ── CAPABILITIES ────────────────────────────────────────────── */
+/* Scroll hint */
+.scrollHint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
 
-.caps {
+.scrollHint span {
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+  animation: scrollDown 2s ease infinite;
+}
+
+@keyframes scrollDown {
+  0% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0.3); transform-origin: top; }
+}
+
+/* ── STACK ───────────────────────────────────────────────────── */
+
+.stack {
   padding: 8rem 2rem;
   background: #000;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.capsInner {
-  max-width: 1200px;
+.stackInner {
+  max-width: 1100px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
 }
 
-.capsTag {
-  font-size: 0.75rem;
+.stackLeft {
+  position: sticky;
+  top: 6rem;
+}
+
+.tag {
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
-  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0 0 1.2rem;
 }
 
-.capsTitle {
-  font-size: clamp(2rem, 5vw, 3.2rem);
+.stackTitle {
+  font-size: clamp(2.2rem, 4vw, 3rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  margin: 0 0 4rem;
-  max-width: 600px;
-}
-
-.capsTitle em {
-  font-style: italic;
-  color: #4d8bff;
-}
-
-.capsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.capCard {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  padding: 2.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.capCard:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: #0d0d0d;
-}
-
-.capIcon {
-  color: #4d8bff;
-  margin-bottom: 1.5rem;
-}
-
-.capName {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0 0 0.8rem;
-  letter-spacing: -0.01em;
-}
-
-.capDesc {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.45);
-  line-height: 1.65;
   margin: 0;
-  max-width: 360px;
 }
 
-.capNum {
-  position: absolute;
-  bottom: 1.5rem;
-  right: 2rem;
-  font-size: 4rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.03);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-/* ── EXPLORE ─────────────────────────────────────────────────── */
-
-.explore {
-  padding: 6rem 2rem 8rem;
-  background: #000;
-}
-
-.exploreInner {
-  max-width: 800px;
-  margin: 0 auto;
+.stackRight {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.exploreCard {
+.stackItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 1.8rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+.stackItem:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stackIcon {
+  color: #4d8bff;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.stackItem h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.stackItem p {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.stackNum {
+  position: absolute;
+  right: 0;
+  top: 1.8rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── DOCS ────────────────────────────────────────────────────── */
+
+.docs {
+  padding: 4rem 2rem 6rem;
+  background: #000;
+}
+
+.docsInner {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.docCard {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   text-decoration: none;
   color: #fff;
   transition: all 0.2s;
 }
 
-.exploreCard:first-child {
+.docCard:first-child {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.exploreCard:hover {
+.docCard:hover {
   text-decoration: none;
   color: #fff;
-  padding-left: 1rem;
+  padding-left: 0.8rem;
 }
 
-.exploreCard > svg:first-child {
-  color: rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
-}
-
-.exploreCard > div {
-  flex: 1;
-}
-
-.exploreCard h3 {
-  font-size: 1.15rem;
+.docNum {
+  font-size: 0.8rem;
   font-weight: 700;
-  margin: 0 0 0.3rem;
-  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.15);
+  min-width: 2rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.exploreCard p {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.4);
+.docCard h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+}
+
+.docCard p {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.35);
   margin: 0;
 }
 
-.exploreCard > svg:last-child {
-  color: rgba(255, 255, 255, 0.15);
+.docCard > div {
+  flex: 1;
+}
+
+.docArrow {
+  color: rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
   transition: all 0.2s;
 }
 
-.exploreCard:hover > svg:last-child {
+.docCard:hover .docArrow {
   color: #4d8bff;
   transform: translateX(4px);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 3rem 2rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.03em;
+}
+
+.footDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .capsGrid {
+  .stackInner {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .stackLeft {
+    position: static;
   }
 
   .hero {
-    min-height: auto;
-    padding: 8rem 1.5rem 5rem;
+    min-height: 90vh;
   }
 
-  .heroButtons {
+  .ctas {
     flex-direction: column;
     align-items: center;
   }
 
-  .btnPrimary,
-  .btnGhost {
+  .btnWhite,
+  .btnOutline {
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
     justify-content: center;
-  }
-
-  .exploreCard {
-    gap: 1rem;
   }
 }
