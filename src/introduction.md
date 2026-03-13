@@ -2,7 +2,7 @@
 
 > **An independent Cardano full-node implementation in pure Python.**
 
-Bluematter implements the complete Cardano Conway-era protocol stack: Ouroboros Praos consensus, the extended UTxO ledger with multi-asset support, Plutus smart contract evaluation (V1/V2/V3), and the full Ouroboros network mini-protocol suite. It has successfully synced the entire Cardano preprod chain — 1.5 million blocks with zero validation errors.
+Bluematter implements the complete Cardano Conway-era protocol stack: Ouroboros Praos consensus, the extended UTxO ledger with multi-asset support, Plutus smart contract evaluation (V1/V2/V3), and the full Ouroboros network mini-protocol suite. It has successfully synced the entire Cardano preprod chain - 1.5 million blocks with zero validation errors.
 
 This book is the complete technical reference: protocol theory, formal specification, and implementation architecture.
 
@@ -12,22 +12,18 @@ This book is the complete technical reference: protocol theory, formal specifica
 
 | | |
 |---|---|
-| **Source files** | 71 Python modules |
-| **Lines of code** | ~13,100 |
-| **Test suite** | 1,068 tests (~13,500 lines) |
-| **Preprod sync** | 1,518,765 blocks — 0 errors, 106 epochs, 3h33m |
-| **ADA conservation** | Verified to 0.000036% against Koios API |
-| **Security audit** | 147 issues found and fixed (21 critical, 38 high) |
 | **Supported era** | Conway (protocol version 9+) |
 | **Consensus** | Ouroboros Praos with VRF leader election |
 | **Smart contracts** | Plutus V1, V2, V3 via OpShin CEK machine |
 | **Networking** | ChainSync, BlockFetch, TxSubmission2, KeepAlive |
+| **Preprod sync** | 1,518,765 blocks, 106 epochs |
+| **ADA conservation** | Verified against Koios API epoch-by-epoch |
 
 ---
 
 ## What This Book Covers
 
-### Part I — Cardano Protocol (Chapters 1–6)
+### Part I - Cardano Protocol (Chapters 1–6)
 
 The theoretical and historical foundation. Start here if you're new to Cardano.
 
@@ -35,12 +31,12 @@ The theoretical and historical foundation. Start here if you're new to Cardano.
 |---------|-------------------|
 | **1. Research & Foundations** | All 9 Ouroboros papers, the EUTXO model, the academic peer-review methodology behind Cardano |
 | **2. Era Evolution & Hard Forks** | Every hard fork from Byron (2017) through Conway (2024), with dates, epochs, protocol versions, and what each changed |
-| **3. Node Architecture** | How the Haskell reference node works internally — consensus, ledger, networking, storage layers |
+| **3. Node Architecture** | How the Haskell reference node works internally - consensus, ledger, networking, storage layers |
 | **4. Formal Ledger Specs** | The STS transition rules that define Cardano: UTXO, UTXOW, DELEG, LEDGER, EPOCH, CHAIN |
 | **5. Networking Protocols** | Mini-protocol state machines, multiplexer wire format, CDDL message definitions |
 | **6. Current State & Roadmap** | Where Cardano is today (2026): governance, Genesis, Leios, UTxO-HD, alternative nodes |
 
-### Part II — Formal Specification (Chapters 7–20)
+### Part II - Formal Specification (Chapters 7–20)
 
 The Gray Paper. Precise equations defining every data type, validation rule, and state transition. **Someone could reimplement the entire node from Part II alone.**
 
@@ -61,9 +57,9 @@ The Gray Paper. Precise equations defining every data type, validation rule, and
 | **19. Networking** | Multiplexer framing, 5 mini-protocol state machines, peer selection governor |
 | **20. Storage** | VolatileDB (fork-aware), ImmutableDB (SQLite), LedgerDB (HMAC checkpoints), crash recovery |
 
-### Part III — Bluematter Architecture (Chapters 21–28)
+### Part III - Bluematter Architecture (Chapters 21–28)
 
-How the Python implementation maps to the spec. The **Call Flows** chapter is the most important — it traces every function call from CLI entry through TCP handshake, block decode, validation, ledger update, all the way to disk write.
+How the Python implementation maps to the spec. The **Call Flows** chapter is the most important - it traces every function call from CLI entry through TCP handshake, block decode, validation, ledger update, all the way to disk write.
 
 | Chapter | What It Documents |
 |---------|-------------------|
@@ -128,22 +124,21 @@ How the Python implementation maps to the spec. The **Call Flows** chapter is th
 
 ## Key Invariants
 
-1. **ADA Conservation** — `maxSupply = utxo + deposited + fees + treasury + reserves + rewards = 45 × 10⁹ ADA`
+1. **ADA Conservation** - `maxSupply = utxo + deposited + fees + treasury + reserves + rewards = 45 × 10⁹ ADA`
 
-2. **Byte Preservation** — All hashes computed on original CBOR bytes, never re-encoded. The schema system slices raw bytes from the parent buffer.
+2. **Byte Preservation** - All hashes computed on original CBOR bytes, never re-encoded. The schema system slices raw bytes from the parent buffer.
 
-3. **Nonce Chain** — `epoch_nonce = H(candidate_nonce ‖ prev_epoch_hash ‖ extra_entropy)`. Candidate freezes at the stability window (3k/f slots before epoch end).
+3. **Nonce Chain** - `epoch_nonce = H(candidate_nonce ‖ prev_epoch_hash ‖ extra_entropy)`. Candidate freezes at the stability window (3k/f slots before epoch end).
 
-4. **Leader Eligibility** — `vrf_value / 2²⁵⁶ < 1 - (1-f)^σ` where σ = pool_stake / total_stake. Computed with 200-digit precision.
+4. **Leader Eligibility** - `vrf_value / 2²⁵⁶ < 1 - (1-f)^σ` where σ = pool_stake / total_stake. Computed with 200-digit precision.
 
-5. **Forward Security** — KES keys evolved each period (129,600 slots). Old key material zeroed. A compromised key cannot sign past blocks.
+5. **Forward Security** - KES keys evolved each period (129,600 slots). Old key material zeroed. A compromised key cannot sign past blocks.
 
 ---
 
 ## Quick Links
 
-- [Call Flows — the most detailed chapter](./architecture/call-flows.md) — every function call traced
-- [Transaction Validation Rules](./spec/transactions.md) — all 19 UTxO predicates
-- [Reward Calculation Formula](./spec/rewards.md) — the complete Shelley incentive math
-- [Nonce Evolution Lifecycle](./spec/consensus.md) — UPDN + TICKN rules
-- [Security Audit Report](./audit.md) — 147 issues found and fixed
+- [Call Flows - the most detailed chapter](./architecture/call-flows.md) - every function call traced
+- [Transaction Validation Rules](./spec/transactions.md) - all 19 UTxO predicates
+- [Reward Calculation Formula](./spec/rewards.md) - the complete Shelley incentive math
+- [Nonce Evolution Lifecycle](./spec/consensus.md) - UPDN + TICKN rules

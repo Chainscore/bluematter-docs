@@ -6,9 +6,9 @@ snapshot rotation, pool retirements, governance enactment, and bookkeeping
 resets.
 
 **Source modules:**
-- `ledger/epoch.py` — epoch detection, transition orchestration
-- `ledger/stake_snapshot.py` — StakeSnapshot, SnapshotRotation
-- `ledger/snapshot.py` — Amaru NewEpochState CBOR import
+- `ledger/epoch.py` - epoch detection, transition orchestration
+- `ledger/stake_snapshot.py` - StakeSnapshot, SnapshotRotation
+- `ledger/snapshot.py` - Amaru NewEpochState CBOR import
 
 ---
 
@@ -55,7 +55,7 @@ epoch_transition : (σ, N) → σ
 epoch_transition(σ, ε'):
 ```
 
-### Step 1 — Capture Fee Snapshot
+### Step 1 - Capture Fee Snapshot
 
 Capture the current fee pot *before* reward application consumes the previous
 snapshot. This value becomes the fee input to the *next* epoch's reward
@@ -65,7 +65,7 @@ computation.
   fee_ss ← σ.pots.fees
 ```
 
-### Step 2 — Compute and Apply Rewards
+### Step 2 - Compute and Apply Rewards
 
 Reward computation uses data frozen two epochs ago (the "go" snapshot) per
 the Shelley formal specification. See Chapter 9 for the full reward formula.
@@ -91,7 +91,7 @@ If reward computation fails (exception), set `σ._reward_computation_failed ← 
 This causes Step 7 to redirect accumulated fees to treasury rather than
 resetting them to zero (a safety measure to prevent ADA loss).
 
-### Step 3 — Rotate Stake Snapshots (SnapshotRotation)
+### Step 3 - Rotate Stake Snapshots (SnapshotRotation)
 
 The SnapshotRotation object tracks per-pool and per-credential stake for
 leader schedule lookups. This is a structural rotation only; the raw
@@ -116,7 +116,7 @@ StakeSnapshot = {
 }
 ```
 
-### Step 4 — Retire Pools
+### Step 4 - Retire Pools
 
 For each pool `p ∈ dom(σ.pools)` where `p.retiring_epoch ≤ ε'`:
 
@@ -135,7 +135,7 @@ For each pool `p ∈ dom(σ.pools)` where `p.retiring_epoch ≤ ε'`:
     acct.pool ← ⊥                         -- clear delegation
 ```
 
-### Step 5 — Enact Governance
+### Step 5 - Enact Governance
 
 Process all pending governance proposals:
 
@@ -169,7 +169,7 @@ Ratification requires voting thresholds per action type across three voter
 groups: Constitutional Committee (head-count), DReps (stake-weighted), and
 SPOs (stake-weighted). See `governance.py` for threshold tables.
 
-### Step 6 — Rotate Block Counts
+### Step 6 - Rotate Block Counts
 
 Block production history uses a 3-way rotation (current → prev → go) so
 that reward computation always uses data from two epochs prior.
@@ -180,7 +180,7 @@ that reward computation always uses data from two epochs prior.
   σ.blocks_made        ← ∅
 ```
 
-### Step 7 — Reset Fee Pot
+### Step 7 - Reset Fee Pot
 
 Install the fee snapshot captured in Step 1 and reset the accumulator.
 
@@ -195,7 +195,7 @@ Install the fee snapshot captured in Step 1 and reset the accumulator.
     σ._reward_computation_failed ← false
 ```
 
-### Step 8 — Rotate Stake Distributions
+### Step 8 - Rotate Stake Distributions
 
 The raw stake distributions (`M[Credential, Coin]`) used by reward
 computation follow the same 3-way rotation as block counts.
@@ -206,7 +206,7 @@ computation follow the same 3-way rotation as block counts.
   σ._mark_stake_dist ← compute_current_stake_dist(σ)
 ```
 
-### Step 9 — Advance Epoch
+### Step 9 - Advance Epoch
 
 ```
   σ.epoch ← ε'
@@ -398,8 +398,8 @@ UMap entry = [
 ```
 
 Where `StrictMaybe<T>` is encoded as:
-- `[]`      — absent (SNothing)
-- `[value]` — present (SJust value)
+- `[]`      - absent (SNothing)
+- `[value]` - present (SJust value)
 
 Concrete decoding:
 
@@ -417,7 +417,7 @@ v[3]:  []            → no DRep delegation
        [[3]]         → NoConfidence
 ```
 
-**Critical note:** In `v[0]`, the tuple ordering is `(rewards, deposit)` —
+**Critical note:** In `v[0]`, the tuple ordering is `(rewards, deposit)`  - 
 rewards first, deposit second. This was verified against the Amaru Rust
 implementation (`account.rs`).
 

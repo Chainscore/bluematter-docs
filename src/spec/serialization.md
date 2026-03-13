@@ -41,18 +41,18 @@ The schema system achieves this through three mechanisms:
 
 Two primitives slice CBOR containers into their raw child elements:
 
-$$
+\\[
 \texttt{\_walk\_array\_items}(\textit{data}) \to \mathcal{L}[\mathbb{B}]
-$$
+\\]
 
 Given the raw CBOR encoding of an array (major type 4), returns a list of raw
 byte slices, one per element. For definite-length arrays, the head declares the
-count $n$ and the function walks $n$ items using `cbor_item_length`. For
+count \\(n\\) and the function walks \\(n\\) items using `cbor_item_length`. For
 indefinite-length arrays (info byte 31), it walks until the break byte `0xFF`.
 
-$$
+\\[
 \texttt{\_walk\_map\_values}(\textit{data}) \to \mathcal{M}[\text{Any},\; \mathbb{B}]
-$$
+\\]
 
 Given the raw CBOR encoding of a map (major type 5), returns a mapping from
 decoded keys (typically small integers) to raw value byte slices. Duplicate
@@ -116,16 +116,16 @@ an error. This is enabled for `ConwayTxBody`.
 
 Blocks arrive from the BlockFetch mini-protocol wrapped in CBOR tag 24:
 
-$$
+\\[
 \textit{wire\_block} = \texttt{\#6.24}(\texttt{CBOR\_encode}(\textit{cardanoBlock}))
-$$
+\\]
 
 The tag-24 wrapper contains a byte string whose contents are themselves valid
 CBOR. Unwrapping extracts the inner byte string.
 
 ### 3.2.2 Era Tagging
 
-$$
+\\[
 \textit{cardanoBlock} = \begin{cases}
   \textit{byronBlock}                 & \text{bare (no era wrapper)} \\
   [2,\; \textit{shelleyBlock}]        & \text{Shelley} \\
@@ -135,16 +135,16 @@ $$
   [6,\; \textit{babbageBlock}]        & \text{Babbage} \\
   [7,\; \textit{conwayBlock}]         & \text{Conway} \\
 \end{cases}
-$$
+\\]
 
 Byron blocks have no era wrapper; they are distinguished by the structure of
 their first element (a complex value rather than a small integer).
 
 ### 3.2.3 Conway Block Internal Structure
 
-$$
+\\[
 \textit{conwayBlock} = [\textit{header},\; \textit{txBodies},\; \textit{witnesses},\; \textit{auxData},\; \textit{invalidTxs}]
-$$
+\\]
 
 Each of the five elements is byte-sliced from the block data buffer using
 `_walk_array_items`. The elements are never decoded and re-encoded. In
@@ -159,13 +159,13 @@ particular:
 
 The header is a 2-element CBOR array:
 
-$$
+\\[
 \textit{header} = [\textit{headerBody},\; \textit{kesSig}]
-$$
+\\]
 
 The header body is a 10-element CBOR array:
 
-$$
+\\[
 \textit{headerBody} = [
   \textit{blockNo},\;
   \textit{slot},\;
@@ -178,7 +178,7 @@ $$
   [\textit{hotVKey}, \textit{seqNo}, \textit{kesPeriod}, \textit{sigma}],\;
   [\textit{major}, \textit{minor}]
 ]
-$$
+\\]
 
 ---
 
@@ -188,20 +188,20 @@ All hashes use Blake2b with the indicated digest size.
 
 ### 3.3.1 Block Hash
 
-$$
+\\[
 \text{blockHash} = \text{blake2b}_{256}(\textit{header\_raw})
-$$
+\\]
 
-where $\textit{header\_raw}$ is the raw CBOR bytes of the full header (both
+where \\(\textit{header\_raw}\\) is the raw CBOR bytes of the full header (both
 body and KES signature), sliced from the block buffer.
 
 ### 3.3.2 Transaction Identifier
 
-$$
+\\[
 \text{txId} = \text{blake2b}_{256}(\textit{txBody\_raw})
-$$
+\\]
 
-where $\textit{txBody\_raw}$ is the raw CBOR map bytes of the transaction
+where \\(\textit{txBody\_raw}\\) is the raw CBOR map bytes of the transaction
 body, sliced from the block's `txBodies` array.
 
 ### 3.3.3 Block Body Hash
@@ -209,45 +209,45 @@ body, sliced from the block's `txBodies` array.
 The block body hash links the header to the block contents. It is computed as
 a Merkle-like construction over the four body components:
 
-$$
+\\[
 h_1 = \text{blake2b}_{256}(\textit{txBodies\_array\_raw})
-$$
-$$
+\\]
+\\[
 h_2 = \text{blake2b}_{256}(\textit{witnesses\_array\_raw})
-$$
-$$
+\\]
+\\[
 h_3 = \text{blake2b}_{256}(\textit{auxData\_raw})
-$$
-$$
+\\]
+\\[
 h_4 = \text{blake2b}_{256}(\textit{invalidTxs\_raw})
-$$
+\\]
 
-$$
+\\[
 \boxed{
 \text{bodyHash} = \text{blake2b}_{256}(h_1 \Vert h_2 \Vert h_3 \Vert h_4)
 }
-$$
+\\]
 
-Each $h_i$ is 32 bytes, so the concatenation is exactly 128 bytes. The
-computed hash is verified against $\textit{header.headerBody.blockBodyHash}$
+Each \\(h_i\\) is 32 bytes, so the concatenation is exactly 128 bytes. The
+computed hash is verified against \\(\textit{header.headerBody.blockBodyHash}\\)
 during block validation.
 
 ### 3.3.4 Pool Identifier
 
-$$
+\\[
 \text{poolId} = \text{blake2b}_{224}(\textit{issuer\_vkey})
-$$
+\\]
 
-where $\textit{issuer\_vkey}$ is the 32-byte cold verification key of the
+where \\(\textit{issuer\_vkey}\\) is the 32-byte cold verification key of the
 stake pool operator.
 
 ### 3.3.5 Auxiliary Data Hash
 
-$$
+\\[
 \text{auxDataHash} = \text{blake2b}_{256}(\textit{auxData\_raw})
-$$
+\\]
 
-Verified against $\textit{txBody.auxiliary\_data\_hash}$ (map key 7) when
+Verified against \\(\textit{txBody.auxiliary\_data\_hash}\\) (map key 7) when
 present.
 
 ### 3.3.6 Script Data Hash
@@ -255,15 +255,15 @@ present.
 The script data hash binds redeemers, datums, and cost models to the
 transaction body:
 
-$$
+\\[
 \text{scriptDataHash} = \text{blake2b}_{256}(\textit{redeemers\_raw} \Vert \textit{datums\_raw} \Vert \textit{langViews})
-$$
+\\]
 
 where:
 
-- $\textit{redeemers\_raw}$ is the raw CBOR of witness key 5 (empty bytes if absent).
-- $\textit{datums\_raw}$ is the raw CBOR of witness key 4 (empty bytes if absent).
-- $\textit{langViews}$ is the deterministic CBOR encoding of cost model arrays
+- \\(\textit{redeemers\_raw}\\) is the raw CBOR of witness key 5 (empty bytes if absent).
+- \\(\textit{datums\_raw}\\) is the raw CBOR of witness key 4 (empty bytes if absent).
+- \\(\textit{langViews}\\) is the deterministic CBOR encoding of cost model arrays
   per Plutus language version used in the transaction.
 
 **PlutusV1 language view quirk.** For language 0 (PlutusV1), the cost model
@@ -276,12 +276,12 @@ arrays. This asymmetry is mandated by the Shelley formal specification.
 
 Plutus scripts are identified by their hash:
 
-$$
+\\[
 \text{scriptHash} = \text{blake2b}_{224}(\textit{version\_prefix} \Vert \textit{flat\_bytes})
-$$
+\\]
 
-where $\textit{version\_prefix}$ is a single byte: `0x01` for PlutusV1,
-`0x02` for PlutusV2, `0x03` for PlutusV3. The $\textit{flat\_bytes}$ are
+where \\(\textit{version\_prefix}\\) is a single byte: `0x01` for PlutusV1,
+`0x02` for PlutusV2, `0x03` for PlutusV3. The \\(\textit{flat\_bytes}\\) are
 the `flat`-serialized UPLC program (not CBOR).
 
 ---
@@ -293,7 +293,7 @@ adversarial CBOR input.
 
 **COD-C1: Container count guard.** Before walking a CBOR array or map, the
 declared item count is checked against the available data length. A container
-claiming $n$ items in only $k < n$ bytes is rejected immediately, preventing
+claiming \\(n\\) items in only \\(k < n\\) bytes is rejected immediately, preventing
 allocation of oversized buffers from a single crafted header byte.
 
 **COD-M: Duplicate map key rejection.** `_walk_map_values` tracks seen keys
@@ -339,30 +339,30 @@ schema triggers an error. This prevents silent acceptance of unknown fields.
 
 The full decode path from network bytes to typed structures:
 
-$$
+\\[
 \textit{wire\_bytes}
 \xrightarrow{\texttt{unwrap\_tag24}}
 \textit{envelope\_cbor}
 \xrightarrow{\texttt{\_walk\_array\_items}}
 [\textit{era\_tag\_raw},\; \textit{block\_data\_raw}]
-$$
+\\]
 
-For Conway ($\textit{era\_tag} = 7$):
+For Conway (\\(\textit{era\_tag} = 7\\)):
 
-$$
+\\[
 \textit{block\_data\_raw}
 \xrightarrow{\texttt{\_walk\_array\_items}}
 [\textit{header\_raw},\; \textit{txBodies\_raw},\; \textit{witnesses\_raw},\; \textit{auxData\_raw},\; \textit{invalidTxs\_raw}]
-$$
+\\]
 
-$$
+\\[
 \textit{header\_raw} \xrightarrow{\texttt{ConwayHeader.from\_cbor}} \text{ConwayHeader}
-$$
+\\]
 
-$$
+\\[
 \textit{txBodies\_raw} \xrightarrow{\texttt{\_walk\_array\_items}} [\textit{tb}_0, \ldots, \textit{tb}_n]
 \xrightarrow{\texttt{ConwayTxBody.from\_cbor}} [\text{ConwayTxBody}_0, \ldots, \text{ConwayTxBody}_n]
-$$
+\\]
 
 At every arrow, the output retains a `.raw` field pointing into the original
 buffer. No intermediate re-encoding occurs.

@@ -1,4 +1,4 @@
-# Bluematter — Complete Call Flows (Function-by-Function)
+# Bluematter - Complete Call Flows (Function-by-Function)
 
 Every function call in the main sync path, traced from CLI entry to disk write.
 Shows exact arguments, return values, and where each call happens.
@@ -35,10 +35,10 @@ main()                                          # cli.py:19
 ```
 live_sync()                                      # sync.py:56
   │
-  ├── ImmutableDB(path)                          # immutable.py — SQLite append-only store
-  ├── LedgerDB(path)                             # ledger_db.py — HMAC-authenticated checkpoints
-  ├── VolatileDB()                               # volatile.py — in-memory recent blocks
-  ├── NonceState()                               # nonce.py:25 — epoch_nonce, evolving, candidate
+  ├── ImmutableDB(path)                          # immutable.py -  SQLite append-only store
+  ├── LedgerDB(path)                             # ledger_db.py -  HMAC-authenticated checkpoints
+  ├── VolatileDB()                               # volatile.py -  in-memory recent blocks
+  ├── NonceState()                               # nonce.py:25 -  epoch_nonce, evolving, candidate
   │
   ├── # Priority 1: Crash recovery
   │   ledger_db.load_latest_checkpoint()         # ledger_db.py:130
@@ -56,7 +56,7 @@ live_sync()                                      # sync.py:56
   │     # Parses pool params: operator, vrf, pledge, cost, margin, reward_acct, owners
   │
   ├── # Priority 3: Empty state
-  │   LedgerState()                              # state.py:60 — empty UTxO, zero pots
+  │   LedgerState()                              # state.py:60 -  empty UTxO, zero pots
   │
   ├── # Load protocol params from genesis
   │   parse_protocol_params(                     # protocol_params.py:71
@@ -85,7 +85,7 @@ SyncSession.run()                                # sync_session.py:159
   │   # Creates the mux layer that frames all mini-protocols
   │   # 8-byte header: [timestamp:4][mode+proto_id:2][length:2]
   │
-  ├── ProtocolBuffer() × 4                       # mux.py:44 — one per mini-protocol
+  ├── ProtocolBuffer() × 4                       # mux.py:44 -  one per mini-protocol
   │   mux.register_protocol(PROTO_HANDSHAKE, hs_buf)   # proto_id = 0
   │   mux.register_protocol(PROTO_CHAIN_SYNC, cs_buf)  # proto_id = 2
   │   mux.register_protocol(PROTO_BLOCK_FETCH, bf_buf)  # proto_id = 3
@@ -127,7 +127,7 @@ SyncSession.run() continued                      # sync_session.py:199
   ├── # If we have a known slot/hash (from checkpoint):
   │   intersect_points = [[slot, hash], []]      # Specific point + origin fallback
   │
-  ├── # If no known point — discover tip first:
+  ├── # If no known point -  discover tip first:
   │   mux.send(PROTO_CHAIN_SYNC, cbor2.dumps([4, [[]]]))  # MsgFindIntersect with origin
   │   reply = cbor2.loads(cs_buf.recv_message(timeout=15.0))
   │   # reply[0]==5 → MsgIntersectFound: tip = reply[2]
@@ -294,7 +294,7 @@ while blocks_synced < max_blocks:                # sync_session.py:243
   │ └─────────────────────────────────────────────────────┘
 ```
 
-## 6. apply_block() — Detailed Internal Flow
+## 6. apply_block() - Detailed Internal Flow
 
 ```
 apply_block(state, block)                        # block.py:25
@@ -316,10 +316,10 @@ apply_block(state, block)                        # block.py:25
   │   │    │   compute_reward_update(state, blocks, active_stake) → RewardUpdate
   │   │    │     # rewards.py:83
   │   │    │     # eta = sum(blocks_made) / expected_blocks
-  │   │    │     # delta_r1 = floor(reserves * rho)   — monetary expansion
+  │   │    │     # delta_r1 = floor(reserves * rho) -  monetary expansion
   │   │    │     # rewardPot = fees + delta_r1
-  │   │    │     # delta_t1 = floor(tau * rewardPot)  — treasury cut
-  │   │    │     # R = rewardPot - delta_t1           — distributable rewards
+  │   │    │     # delta_t1 = floor(tau * rewardPot) -  treasury cut
+  │   │    │     # R = rewardPot - delta_t1 -  distributable rewards
   │   │    │     # For each pool:
   │   │    │     #   _reward_one_pool(pp, R, pool, state, circulation, active_stake)
   │   │    │     #     maxPool = (R / (1 + a0)) * (sigma + s*a0*((sigma - s*(z-sigma)/z) / z))
@@ -360,7 +360,7 @@ apply_block(state, block)                        # block.py:25
   │   for idx, tx in enumerate(block.transactions):
   │     │
   │     ├── if idx in invalid_set:
-  │     │     # Phase-2 failed transaction — consume collateral only
+  │     │     # Phase-2 failed transaction -  consume collateral only
   │     │     _apply_invalid_tx(state, block, idx)     # block.py:228
   │     │       # Delete collateral inputs from UTxO
   │     │       # Add collateral_return output to UTxO
@@ -460,9 +460,9 @@ apply_block(state, block)                        # block.py:25
   │           │           │     │
   │           │           │     ├── _get_tx_info(version)
   │           │           │     │     # Lazy-builds TxInfo (cached per version):
-  │           │           │     │     # V1: build_tx_info_v1() — 10 fields, 3-field TxOut
-  │           │           │     │     # V2: build_tx_info_v2() — 12 fields, 4-field TxOut
-  │           │           │     │     # V3: build_tx_info_v3() — 16 fields, governance
+  │           │           │     │     # V1: build_tx_info_v1() -  10 fields, 3-field TxOut
+  │           │           │     │     # V2: build_tx_info_v2() -  12 fields, 4-field TxOut
+  │           │           │     │     # V3: build_tx_info_v3() -  16 fields, governance
   │           │           │     │
   │           │           │     ├── # Build args:
   │           │           │     │   V1/V2 SPEND: [datum, redeemer, ScriptContext]

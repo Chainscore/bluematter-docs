@@ -6,8 +6,8 @@ specification (Section 5.5, `epoch.tex` lines 1077–1463). The formulas are
 cross-verified against the Amaru Rust implementation (`rewards.rs`).
 
 **Source modules:**
-- `ledger/rewards.py` — reward update computation, pool iteration, application
-- `ledger/rewards_math.py` — pure math functions (maxPool, apparent performance, operator/member split)
+- `ledger/rewards.py` - reward update computation, pool iteration, application
+- `ledger/rewards_math.py` - pure math functions (maxPool, apparent performance, operator/member split)
 
 ---
 
@@ -42,7 +42,7 @@ compute_reward_update(σ, blocks_made, active_stake):
   fees ← σ.pots.fees
 ```
 
-**Step 1 — Performance ratio (η):**
+**Step 1 - Performance ratio (η):**
 
 ```
   total_blocks ← Σ blocks_made[p]  ∀ p ∈ dom(blocks_made)
@@ -64,7 +64,7 @@ compute_reward_update(σ, blocks_made, active_stake):
 produced to expected blocks. It is capped at 1 to prevent over-rewarding
 in case of transient block surges.
 
-**Step 2 — Monetary expansion (Δr₁):**
+**Step 2 - Monetary expansion (Δr₁):**
 
 ```
   Δr₁ ← ⌊η × ρ × σ.pots.reserves⌋
@@ -74,7 +74,7 @@ This draws new ADA from reserves proportional to the expansion rate and
 production efficiency. When `η = 1` and `ρ = 3/1000` (mainnet), about
 0.3% of reserves enter circulation per epoch.
 
-**Step 3 — Reward pot:**
+**Step 3 - Reward pot:**
 
 ```
   rewardPot ← fees + Δr₁
@@ -83,7 +83,7 @@ production efficiency. When `η = 1` and `ρ = 3/1000` (mainnet), about
 The reward pot combines transaction fees accumulated during the epoch with
 the freshly minted expansion ADA.
 
-**Step 4 — Treasury cut (Δt₁):**
+**Step 4 - Treasury cut (Δt₁):**
 
 ```
   Δt₁ ← ⌊τ × rewardPot⌋
@@ -92,7 +92,7 @@ the freshly minted expansion ADA.
 The treasury receives its cut *from the reward pot*, not from reserves
 directly. With `τ = 1/5` (mainnet), 20% of the reward pot goes to treasury.
 
-**Step 5 — Distributable rewards (R):**
+**Step 5 - Distributable rewards (R):**
 
 ```
   R ← rewardPot - Δt₁
@@ -109,7 +109,7 @@ directly. With `τ = 1/5` (mainnet), 20% of the reward pot goes to treasury.
     )
 ```
 
-**Step 6 — Circulation:**
+**Step 6 - Circulation:**
 
 ```
   maxSupply ← 45,000,000,000,000,000       -- 45 billion ADA in lovelace
@@ -119,7 +119,7 @@ directly. With `τ = 1/5` (mainnet), 20% of the reward pot goes to treasury.
 Circulation is defined as all ADA not in reserves. This includes ADA in
 the UTxO set, treasury, fee pot, and deposit pot.
 
-**Step 7 — Per-pool rewards:**
+**Step 7 - Per-pool rewards:**
 
 ```
   total_active ← Σ active_stake[c]  ∀ c ∈ dom(active_stake)
@@ -142,7 +142,7 @@ the UTxO set, treasury, fee pot, and deposit pot.
                     σ, active_stake, rewards)
 ```
 
-**Step 8 — Residual:**
+**Step 8 - Residual:**
 
 ```
   distributed ← Σ rewards[c]  ∀ c ∈ dom(rewards)
@@ -200,7 +200,7 @@ For each pool that produced at least one block, compute the operator
   k            : N         -- π.optimal_pool_count
 ```
 
-### Step 1 — Pledge Check
+### Step 1 - Pledge Check
 
 ```
   owners ← pool.owners  (if ∅, fallback to {pool.operator})
@@ -215,7 +215,7 @@ delegated stake falls below the declared pledge forfeits all rewards for
 the epoch. The forfeited amount becomes part of the residual `Δr₂` and
 returns to reserves.
 
-### Step 2 — Maximum Pool Reward (maxPool / Desirability)
+### Step 2 - Maximum Pool Reward (maxPool / Desirability)
 
 ```
   z₀ ← 1 / k                               -- saturation point
@@ -245,7 +245,7 @@ The full formula expanded:
 - Pools beyond saturation (`σ_pool > 1/k`) receive no additional reward
 - Higher `a₀` amplifies the benefit of pledge relative to stake
 
-### Step 3 — Apparent Performance (mkApparentPerformance)
+### Step 3 - Apparent Performance (mkApparentPerformance)
 
 In Conway (decentralization parameter `d = 0`), the actual performance
 branch is always used:
@@ -263,13 +263,13 @@ under-performing pools earn less.
 `appPerf = 1` for all pools (uniform performance assumption). This branch
 is not applicable in Conway.
 
-### Step 4 — Pool Total Reward
+### Step 4 - Pool Total Reward
 
 ```
   pool_R ← ⌊appPerf × maxPool⌋
 ```
 
-### Step 5 — Operator (Leader) Reward
+### Step 5 - Operator (Leader) Reward
 
 The operator receives the fixed cost plus a margin of the remainder,
 plus a share proportional to their own stake:
@@ -295,7 +295,7 @@ The formula decomposes as:
 The operator reward is credited to `pool.reward_account[1:29]` (the
 payment credential extracted from the reward address).
 
-### Step 6 — Member (Delegator) Rewards
+### Step 6 - Member (Delegator) Rewards
 
 For each delegator `d` who is not a pool owner:
 
@@ -448,11 +448,11 @@ values:
 | τ      | Treasury expansion       | `treasury_expansion`       | 1/5           | Fraction of reward pot directed to treasury   |
 | a₀     | Pledge influence         | `pledge_influence`         | 3/10          | Weight of pledge in desirability function     |
 | k      | Optimal pool count       | `optimal_pool_count`       | 500           | Target number of pools (saturation = 1/k)     |
-| —      | Min pool cost            | `min_pool_cost`            | 170,000,000   | Minimum fixed cost per pool (170 ADA)         |
+| -      | Min pool cost            | `min_pool_cost`            | 170,000,000   | Minimum fixed cost per pool (170 ADA)         |
 | f      | Active slot coefficient  | `ACTIVE_SLOT_COEFF_DENOM`  | 1/20          | Probability a slot has a block                |
-| —      | Max lovelace supply      | `MAX_LOVELACE_SUPPLY`      | 45 × 10¹⁵    | 45 billion ADA                                |
-| —      | Epoch length             | `epoch_length`             | 432,000       | Slots per epoch (mainnet)                     |
-| —      | Expected blocks          | `expected_blocks`          | 21,600        | ⌊epoch_length × f⌋                           |
+| -      | Max lovelace supply      | `MAX_LOVELACE_SUPPLY`      | 45 × 10¹⁵    | 45 billion ADA                                |
+| -      | Epoch length             | `epoch_length`             | 432,000       | Slots per epoch (mainnet)                     |
+| -      | Expected blocks          | `expected_blocks`          | 21,600        | ⌊epoch_length × f⌋                           |
 
 ### Rational Encoding
 
@@ -528,6 +528,4 @@ reward to the saturation level regardless of additional stake.
    lack this field, the implementation falls back to `{pool.operator}`.
 
 6. **Preprod verification:** The reward formula was verified by full preprod
-   sync (1,518,765 blocks, 106 epochs) and epoch-by-epoch comparison against
-   the Koios API. At epoch 166, treasury/reserves matched Koios to within
-   0.000036% (383 ADA on a 6.1T ADA treasury gain).
+   sync and epoch-by-epoch comparison of treasury/reserves against the Koios API.

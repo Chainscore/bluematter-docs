@@ -4,7 +4,7 @@
 
 ---
 
-# Part I — Cardano Protocol
+# Part I - Cardano Protocol
 
 - [Research & Foundations](./cardano/research.md)
 - [Era Evolution & Hard Forks](./cardano/eras.md)
@@ -15,7 +15,7 @@
 
 ---
 
-# Part II — Formal Specification
+# Part II - Formal Specification
 
 - [Notation & Conventions](./spec/notation.md)
 - [Cryptographic Primitives](./spec/crypto.md)
@@ -34,7 +34,7 @@
 
 ---
 
-# Part III — Bluematter Architecture
+# Part III - Bluematter Architecture
 
 - [Overview & Data Flow](./architecture/overview.md)
 - [Call Flows (Function-by-Function)](./architecture/call-flows.md)
@@ -45,6 +45,3 @@
 - [Network Module](./architecture/network.md)
 - [Node Orchestration](./architecture/node.md)
 
----
-
-[Security Audit Report](./audit.md)

@@ -295,20 +295,20 @@ validate_header(h, prev_hash, prev_slot, prev_block_no,
 
 The header is valid if and only if all of the following hold:
 
-**Rule 1 — Slot monotonicity:**
+**Rule 1 - Slot monotonicity:**
 ```
 h.slot > prev_slot
 ```
 Slots must strictly increase along the chain. This prevents
 equivocation (two blocks at the same slot from the same issuer).
 
-**Rule 2 — Block number continuity:**
+**Rule 2 - Block number continuity:**
 ```
 h.block_number = prev_block_no + 1
 ```
 Block numbers form a gapless sequence.
 
-**Rule 3 — Chain linkage:**
+**Rule 3 - Chain linkage:**
 ```
 h.prev_hash = prev_hash
 ```
@@ -316,7 +316,7 @@ where `prev_hash` is the Blake2b-256 hash of the previous block's
 header CBOR encoding. For the genesis successor, `prev_hash` may
 be None.
 
-**Rule 4 — Operational certificate signature:**
+**Rule 4 - Operational certificate signature:**
 ```
 message = h.opcert.hot_vkey || h.opcert.sequence_number_BE64
           || h.opcert.kes_period_BE64
@@ -327,7 +327,7 @@ The cold key (issuer_vkey) signs the delegation to the hot KES key.
 The sequence number and KES starting period are included to prevent
 replay.
 
-**Rule 5 — VRF key registration:**
+**Rule 5 - VRF key registration:**
 ```
 pool_id = H_224(h.issuer_vkey)
 pool_vrf_keys[pool_id] = h.vrf_vkey
@@ -335,7 +335,7 @@ pool_vrf_keys[pool_id] = h.vrf_vkey
 The VRF key in the header must match the one registered on-chain
 for this pool.
 
-**Rule 6 — VRF proof validity:**
+**Rule 6 - VRF proof validity:**
 ```
 alpha = H_256(h.slot_BE64 || epoch_nonce)
 (valid, beta) = VRF_verify(h.vrf_vkey, h.vrf_result[1], alpha)
@@ -345,7 +345,7 @@ h.vrf_result[0] = beta
 The declared VRF output in the header must equal the output computed
 from the proof.
 
-**Rule 7 — Leader eligibility:**
+**Rule 7 - Leader eligibility:**
 ```
 leader_output = H_256(0x4c || beta)
 int_BE(leader_output) / 2^256 < phi_f(pool_sigmas[pool_id])
@@ -353,7 +353,7 @@ int_BE(leader_output) / 2^256 < phi_f(pool_sigmas[pool_id])
 The pool must be a legitimate leader for this slot given its relative
 stake.
 
-**Rule 8 — KES signature:**
+**Rule 8 - KES signature:**
 ```
 slot_kes_period = h.slot / slots_per_kes_period
 kes_period_offset = slot_kes_period - h.opcert.kes_period
@@ -365,7 +365,7 @@ KES_verify(h.opcert.hot_vkey, kes_period_offset, h.header_body_raw, h.body_signa
 The KES period must be within the valid range, and the KES signature
 over the raw header body CBOR must verify.
 
-**Rule 9 — OpCert sequence (anti-replay):**
+**Rule 9 - OpCert sequence (anti-replay):**
 ```
 h.opcert.sequence_number >= last_opcert_seq[pool_id]
 ```
@@ -373,20 +373,20 @@ The sequence number must not decrease. Gaps are allowed (a pool may
 skip sequence numbers when rotating keys). Strict less-than is a
 replay.
 
-**Rule 10 — Body size integrity:**
+**Rule 10 - Body size integrity:**
 ```
 h.block_body_size = actual_body_size
 ```
 The declared body size in the header must match the actual serialized
 body size.
 
-**Rule 11 — Body hash integrity:**
+**Rule 11 - Body hash integrity:**
 ```
 h.block_body_hash = H_256(actual_body_bytes)
 ```
 The declared body hash must match the actual body hash.
 
-**Rule 12 — Protocol version bound:**
+**Rule 12 - Protocol version bound:**
 ```
 h.protocol_version[0] <= max_major_pv
 ```

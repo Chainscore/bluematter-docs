@@ -711,20 +711,20 @@ through the action chain is enacted.
 
 The governance system maintains the following invariants:
 
-**I1 — Deposit conservation.** For every proposal, exactly one of:
+**I1 - Deposit conservation.** For every proposal, exactly one of:
 (a) the deposit is refunded to the return address upon enactment,
 (b) the deposit is refunded upon expiry, or
 (c) the deposit goes to the treasury if the credential is unregistered.
 
-**I2 — Single ratification.** Each proposal is ratified at most once.
+**I2 - Single ratification.** Each proposal is ratified at most once.
 Once enacted, it is removed from the active proposals set.
 
-**I3 — Monotonic enacted history.** The enacted list is append-only
+**I3 - Monotonic enacted history.** The enacted list is append-only
 and ordered by epoch.
 
-**I4 — Committee consistency.** After NoConfidence, the committee is
+**I4 - Committee consistency.** After NoConfidence, the committee is
 empty. AuthCommitteeHot adds members. ResignCommitteeCold removes them.
 These are the only operations that modify the committee set.
 
-**I5 — DRep registry consistency.** DRepReg adds entries. DRepUnreg
+**I5 - DRep registry consistency.** DRepReg adds entries. DRepUnreg
 removes them. No other operations modify the DRep registry.
