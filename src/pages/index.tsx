@@ -49,16 +49,16 @@ function Hero() {
       <div className={styles.heroInner}>
         <div className={styles.badge}>
           <span className={styles.badgeDot} />
-          Cardano Node
+          Cardano Full-Node
         </div>
         <h1 className={styles.title}>
           <span className={styles.titleSolid}>Blue</span>
           <span className={styles.titleOutline}>matter</span>
         </h1>
         <p className={styles.sub}>
-          Independent Cardano full-node.
+          C performance. Python clarity.
           <br />
-          Pure Python. Open source.
+          One Cardano node.
         </p>
         <div className={styles.ctas}>
           <Link className={styles.btnWhite} to={useBaseUrl('/docs/intro')}>
@@ -80,10 +80,10 @@ function Hero() {
 /* ── STACK ────────────────────────────────────────────────────── */
 
 const stack = [
-  { icon: <Cpu size={22} strokeWidth={1.5} />, label: 'Ouroboros Praos', desc: 'VRF leader election, KES signatures, epoch nonce evolution' },
-  { icon: <Shield size={22} strokeWidth={1.5} />, label: 'Conway Ledger', desc: '19 UTxO rules, multi-asset, certificates, governance' },
-  { icon: <Zap size={22} strokeWidth={1.5} />, label: 'Plutus V1/V2/V3', desc: 'CEK machine evaluation with correct ScriptContext' },
-  { icon: <Globe size={22} strokeWidth={1.5} />, label: 'Network Stack', desc: 'ChainSync, BlockFetch, TxSubmission2 over muxed TCP' },
+  { icon: <Cpu size={22} strokeWidth={1.5} />, label: 'C-backed Crypto', desc: 'libsodium Ed25519, Blake2b, VRF, and KES via PyNaCl and hashlib. Native speed where it matters.' },
+  { icon: <Shield size={22} strokeWidth={1.5} />, label: 'Python Ledger', desc: 'Readable, auditable UTxO validation. 19 rules, multi-asset arithmetic, certificates, governance.' },
+  { icon: <Zap size={22} strokeWidth={1.5} />, label: 'Plutus V1/V2/V3', desc: 'Script evaluation via uplc CEK machine. Correct ScriptContext, ScriptInfo, and TxCert encoding.' },
+  { icon: <Globe size={22} strokeWidth={1.5} />, label: 'Async Networking', desc: 'asyncio-native ChainSync, BlockFetch, TxSubmission2 over multiplexed TCP. Zero blocking.' },
 ];
 
 function Stack() {
@@ -91,8 +91,8 @@ function Stack() {
     <section className={styles.stack}>
       <div className={styles.stackInner}>
         <div className={styles.stackLeft}>
-          <p className={styles.tag}>PROTOCOL STACK</p>
-          <h2 className={styles.stackH}>Every layer.<br />Implemented.</h2>
+          <p className={styles.tag}>WHY C + PYTHON</p>
+          <h2 className={styles.stackH}>Fast where it <em>counts</em>.<br />Clear everywhere else.</h2>
         </div>
         <div className={styles.stackRight}>
           {stack.map((s, i) => (
@@ -146,7 +146,7 @@ function Footer() {
         <div className={styles.footLeft}>
           <span className={styles.footLogo}>bluematter</span>
           <p className={styles.footDesc}>
-            Independent Cardano full-node implementation by Chainscore Labs.
+            Cardano full-node combining C-backed cryptography with Python's readability. By Chainscore Labs.
           </p>
         </div>
         <div className={styles.footCol}>
@@ -183,7 +183,7 @@ export default function Home(): React.ReactNode {
     <>
       <Head>
         <title>Bluematter</title>
-        <meta name="description" content="Independent Cardano full-node in pure Python" />
+        <meta name="description" content="Independent Cardano full-node. C performance meets Python clarity." />
         <html data-theme="dark" className="landing-page" />
       </Head>
       <div className={styles.page}>
