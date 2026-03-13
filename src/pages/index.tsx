@@ -49,7 +49,7 @@ function Hero() {
       <div className={styles.heroInner}>
         <div className={styles.badge}>
           <span className={styles.badgeDot} />
-          Live on Preprod
+          Cardano Node
         </div>
         <h1 className={styles.title}>
           <span className={styles.titleSolid}>Blue</span>
