@@ -119,21 +119,27 @@ function Docs() {
   return (
     <section className={styles.docs}>
       <div className={styles.docsInner}>
-        <Link className={styles.dCard} to={useBaseUrl('/docs/cardano/research')}>
-          <span className={styles.dNum}>I</span>
-          <div><h3>Cardano Protocol</h3><p>Research papers, eras, Haskell node</p></div>
-          <ArrowRight size={20} className={styles.dArrow} />
-        </Link>
-        <Link className={styles.dCard} to={useBaseUrl('/docs/spec/notation')}>
-          <span className={styles.dNum}>II</span>
-          <div><h3>Formal Specification</h3><p>Every type, rule, and transition</p></div>
-          <ArrowRight size={20} className={styles.dArrow} />
-        </Link>
-        <Link className={styles.dCard} to={useBaseUrl('/docs/architecture/overview')}>
-          <span className={styles.dNum}>III</span>
-          <div><h3>Architecture</h3><p>Call flows, modules, storage</p></div>
-          <ArrowRight size={20} className={styles.dArrow} />
-        </Link>
+        <p className={styles.tag}>DOCUMENTATION</p>
+        <div className={styles.docsGrid}>
+          <Link className={styles.dCard} to={useBaseUrl('/docs/cardano/research')}>
+            <span className={styles.dLabel}>01</span>
+            <h3>Cardano Protocol</h3>
+            <p>Ouroboros papers, hard fork history, Haskell node internals, networking protocols</p>
+            <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
+          </Link>
+          <Link className={styles.dCard} to={useBaseUrl('/docs/spec/notation')}>
+            <span className={styles.dLabel}>02</span>
+            <h3>Formal Specification</h3>
+            <p>14 chapters defining every data type, validation rule, and state transition</p>
+            <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
+          </Link>
+          <Link className={styles.dCard} to={useBaseUrl('/docs/architecture/overview')}>
+            <span className={styles.dLabel}>03</span>
+            <h3>Architecture</h3>
+            <p>Function-by-function call flows, module map, storage tiers, sync pipeline</p>
+            <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
+          </Link>
+        </div>
       </div>
     </section>
   );

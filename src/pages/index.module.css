@@ -326,69 +326,79 @@
 /* ── DOCS ────────────────────────────────────────────────────── */
 
 .docs {
-  padding: 2rem 2rem 4rem;
+  padding: 6rem 2rem 8rem;
   background: #000;
 }
 
 .docsInner {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 0 auto;
+}
+
+.docsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-top: 3rem;
 }
 
 .dCard {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.2rem 1.5rem;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  border-radius: 16px;
   text-decoration: none;
   color: #fff;
-  transition: all 0.2s;
+  transition: all 0.25s;
   background: rgba(255, 255, 255, 0.02);
 }
 
 .dCard:hover {
   text-decoration: none;
   color: #fff;
-  background: rgba(77, 139, 255, 0.05);
-  border-color: rgba(77, 139, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
 }
 
-.dNum {
-  font-size: 0.75rem;
+.dLabel {
+  font-size: 0.65rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.15);
-  min-width: 1.5rem;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 1.5rem;
 }
 
 .dCard h3 {
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  margin: 0 0 0.15rem;
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.01em;
 }
 
 .dCard p {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
-}
-
-.dCard > div {
+  line-height: 1.6;
   flex: 1;
 }
 
-.dArrow {
-  color: rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
+.dLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
   transition: all 0.2s;
 }
 
-.dCard:hover .dArrow {
+.dCard:hover .dLink {
   color: #4d8bff;
-  transform: translateX(4px);
+  gap: 0.6rem;
 }
 
 /* ── FOOTER ──────────────────────────────────────────────────── */
@@ -488,4 +498,5 @@
   .ctas { flex-direction: column; align-items: center; }
   .btnWhite, .btnGhost { width: 100%; max-width: 280px; justify-content: center; }
   .footInner { grid-template-columns: 1fr; gap: 2rem; }
+  .docsGrid { grid-template-columns: 1fr; }
 }
