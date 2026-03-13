@@ -22,14 +22,14 @@ function Nav() {
   return (
     <nav className={styles.nav}>
       <Link to={useBaseUrl('/')} className={styles.navLogo}>
-        bluematter
+        BlueMatter
       </Link>
       <div className={styles.navLinks}>
         <Link to={useBaseUrl('/docs/intro')} className={styles.navLink}>Docs</Link>
         <Link to={useBaseUrl('/docs/spec/notation')} className={styles.navLink}>Spec</Link>
         <Link
           className={styles.navBtn}
-          href="https://github.com/Chainscore/bluematter-docs"
+          href="https://github.com/Chainscore/BlueMatter-docs"
         >
           GitHub
           <ArrowUpRight size={14} />
@@ -47,10 +47,7 @@ function Hero() {
       <div className={styles.grain} />
       <div className={styles.heroGlow} />
       <div className={styles.heroInner}>
-        <div className={styles.badge}>
-          <span className={styles.badgeDot} />
-          Cardano Full-Node
-        </div>
+        <p className={styles.kicker}>Independent Cardano Full-Node</p>
         <h1 className={styles.title}>BlueMatter</h1>
         <p className={styles.sub}>
           C performance. Python clarity.
@@ -63,7 +60,7 @@ function Hero() {
             Read the Spec
             <ArrowRight size={16} />
           </Link>
-          <Link className={styles.btnGhost} href="https://github.com/Chainscore/bluematter-docs">
+          <Link className={styles.btnGhost} href="https://github.com/Chainscore/BlueMatter-docs">
             <GitBranch size={18} />
             Source
           </Link>
@@ -141,7 +138,7 @@ function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footInner}>
         <div className={styles.footLeft}>
-          <span className={styles.footLogo}>bluematter</span>
+          <span className={styles.footLogo}>BlueMatter</span>
           <p className={styles.footDesc}>
             Cardano full-node combining C-backed cryptography with Python's readability. By Chainscore Labs.
           </p>
@@ -154,7 +151,7 @@ function Footer() {
         </div>
         <div className={styles.footCol}>
           <h4>Links</h4>
-          <Link href="https://github.com/Chainscore/bluematter-docs">GitHub</Link>
+          <Link href="https://github.com/Chainscore/BlueMatter-docs">GitHub</Link>
           <Link href="https://chainscore.xyz">Chainscore Labs</Link>
         </div>
       </div>

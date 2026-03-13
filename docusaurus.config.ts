@@ -73,7 +73,7 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'Bluematter',
+      title: 'BlueMatter',
       items: [
         {
           type: 'docSidebar',

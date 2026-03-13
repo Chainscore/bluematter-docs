@@ -121,32 +121,13 @@
   max-width: 800px;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 1rem 0.4rem 0.7rem;
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+.kicker {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 3rem;
-}
-
-.badgeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-  animation: pulse 2s ease infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 0 2.5rem;
 }
 
 .title {
@@ -426,7 +407,6 @@
   color: #fff;
   display: block;
   margin-bottom: 0.8rem;
-  text-transform: lowercase;
 }
 
 .footDesc {
