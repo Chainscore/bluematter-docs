@@ -1,0 +1,543 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Serialization &amp; Wire Format - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="3-serialization"><a class="header" href="#3-serialization">3. Serialization</a></h1>
+<p>Cardano has no canonical CBOR encoding. The same logical value may be encoded
+in multiple valid byte representations that differ in integer widths, map key
+ordering, and use of definite vs. indefinite length containers. Since
+cryptographic hashes are computed over the raw wire bytes, the serialization
+layer must preserve the original encoding exactly. This section specifies the
+wire format, the byte-preservation architecture, and the hash computations.</p>
+<hr>
+<h2 id="31-cbor-encoding-and-byte-preservation"><a class="header" href="#31-cbor-encoding-and-byte-preservation">3.1 CBOR Encoding and Byte Preservation</a></h2>
+<h3 id="311-the-preservation-principle"><a class="header" href="#311-the-preservation-principle">3.1.1 The Preservation Principle</a></h3>
+<blockquote>
+<p><strong>Invariant.</strong> Every hash in the system is computed on the <em>original wire
+bytes</em> as received from the network. Bytes are never re-encoded through a
+CBOR library for hashing purposes.</p>
+</blockquote>
+<p>The schema system achieves this through three mechanisms:</p>
+<ol>
+<li>
+<p><strong>Raw byte slicing.</strong> The <code>@cbor_array</code> and <code>@cbor_map</code> decorators on
+frozen dataclasses produce <code>from_cbor(data: bytes) -&gt; T</code> class methods
+that slice child elements directly from the parent buffer. Each decoded
+type retains a <code>raw: bytes</code> field containing its original wire bytes.</p>
+</li>
+<li>
+<p><strong>Offset-based walking.</strong> The function <code>cbor_item_length(data, offset)</code>
+walks a CBOR structure to determine the byte boundary of an item <em>without</em>
+decoding its value. It handles all seven major types, indefinite-length
+containers, and nested tags, using offset arithmetic to avoid quadratic
+copying.</p>
+</li>
+<li>
+<p><strong>Identity round-trip.</strong> The <code>to_cbor()</code> method returns <code>self.raw</code>
+verbatim. No re-serialization ever occurs:</p>
+<pre><code>cert = OperationalCert.from_cbor(wire_bytes)
+assert cert.to_cbor() == wire_bytes     -- always holds
+</code></pre>
+</li>
+</ol>
+<h3 id="312-walking-primitives"><a class="header" href="#312-walking-primitives">3.1.2 Walking Primitives</a></h3>
+<p>Two primitives slice CBOR containers into their raw child elements:</p>
+<p>\[
+\texttt{_walk_array_items}(\textit{data}) \to \mathcal{L}[\mathbb{B}]
+\]</p>
+<p>Given the raw CBOR encoding of an array (major type 4), returns a list of raw
+byte slices, one per element. For definite-length arrays, the head declares the
+count \(n\) and the function walks \(n\) items using <code>cbor_item_length</code>. For
+indefinite-length arrays (info byte 31), it walks until the break byte <code>0xFF</code>.</p>
+<p>\[
+\texttt{_walk_map_values}(\textit{data}) \to \mathcal{M}[\text{Any},; \mathbb{B}]
+\]</p>
+<p>Given the raw CBOR encoding of a map (major type 5), returns a mapping from
+decoded keys (typically small integers) to raw value byte slices. Duplicate
+keys are rejected.</p>
+<h3 id="313-field-decoding-dispatch"><a class="header" href="#313-field-decoding-dispatch">3.1.3 Field Decoding Dispatch</a></h3>
+<p>The <code>_decode_field(item_raw, annotation)</code> dispatcher routes raw bytes to the
+appropriate decoder based on the Python type annotation:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Annotation</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td><code>bytes</code></td><td><code>cbor2.loads</code> then coerce to <code>bytes</code></td></tr>
+<tr><td><code>int</code>, <code>str</code></td><td><code>cbor2.loads</code></td></tr>
+<tr><td>Schema type (has <code>from_cbor</code>)</td><td><code>annotation.from_cbor(item_raw)</code></td></tr>
+<tr><td><code>list[SchemaType]</code></td><td>Walk array, call <code>from_cbor</code> on each element</td></tr>
+<tr><td><code>T | None</code></td><td>Unwrap optional, recurse on inner type</td></tr>
+<tr><td><code>set</code>, <code>list</code>, other</td><td><code>cbor2.loads</code> fallback</td></tr>
+</tbody>
+</table>
+</div>
+<p>The CBOR null byte <code>0xF6</code> always maps to <code>None</code>.</p>
+<h3 id="314-schema-decorators"><a class="header" href="#314-schema-decorators">3.1.4 Schema Decorators</a></h3>
+<p><strong><code>@cbor_array</code>.</strong> For types serialized as CBOR arrays. Fields map
+positionally to array elements. The last field must be <code>raw: bytes</code>.</p>
+<pre><code>@cbor_array
+@dataclass(frozen=True, slots=True)
+class OperationalCert:
+    hot_vkey: bytes            -- position 0
+    sequence_number: int       -- position 1
+    kes_period: int            -- position 2
+    sigma: bytes               -- position 3
+    raw: bytes                 -- original wire bytes (not a CBOR element)
+</code></pre>
+<p><strong><code>@cbor_map</code>.</strong> For types serialized as CBOR maps. Each field is declared
+with <code>map_field(key, optional=...)</code> to bind it to an integer map key.</p>
+<pre><code>@cbor_map
+@dataclass(frozen=True, slots=True)
+class ConwayTxBody:
+    inputs:  set         = map_field(0)
+    outputs: list[TxOut] = map_field(1)
+    fee:     int         = map_field(2)
+    ttl:     int | None  = map_field(3, optional=True)
+    ...
+    raw: bytes
+</code></pre>
+<p>When <code>_strict_keys = True</code> is set on the class, unknown map keys trigger
+an error. This is enabled for <code>ConwayTxBody</code>.</p>
+<hr>
+<h2 id="32-block-wire-format"><a class="header" href="#32-block-wire-format">3.2 Block Wire Format</a></h2>
+<h3 id="321-envelope-structure"><a class="header" href="#321-envelope-structure">3.2.1 Envelope Structure</a></h3>
+<p>Blocks arrive from the BlockFetch mini-protocol wrapped in CBOR tag 24:</p>
+<p>\[
+\textit{wire_block} = \texttt{#6.24}(\texttt{CBOR_encode}(\textit{cardanoBlock}))
+\]</p>
+<p>The tag-24 wrapper contains a byte string whose contents are themselves valid
+CBOR. Unwrapping extracts the inner byte string.</p>
+<h3 id="322-era-tagging"><a class="header" href="#322-era-tagging">3.2.2 Era Tagging</a></h3>
+<p>\[
+\textit{cardanoBlock} = \begin{cases}
+\textit{byronBlock}                 &amp; \text{bare (no era wrapper)} \
+[2,; \textit{shelleyBlock}]        &amp; \text{Shelley} \
+[3,; \textit{allegraBlock}]        &amp; \text{Allegra} \
+[4,; \textit{maryBlock}]           &amp; \text{Mary} \
+[5,; \textit{alonzoBlock}]         &amp; \text{Alonzo} \
+[6,; \textit{babbageBlock}]        &amp; \text{Babbage} \
+[7,; \textit{conwayBlock}]         &amp; \text{Conway} \
+\end{cases}
+\]</p>
+<p>Byron blocks have no era wrapper; they are distinguished by the structure of
+their first element (a complex value rather than a small integer).</p>
+<h3 id="323-conway-block-internal-structure"><a class="header" href="#323-conway-block-internal-structure">3.2.3 Conway Block Internal Structure</a></h3>
+<p>\[
+\textit{conwayBlock} = [\textit{header},; \textit{txBodies},; \textit{witnesses},; \textit{auxData},; \textit{invalidTxs}]
+\]</p>
+<p>Each of the five elements is byte-sliced from the block data buffer using
+<code>_walk_array_items</code>. The elements are never decoded and re-encoded. In
+particular:</p>
+<ul>
+<li><code>txBodies</code> is a CBOR array of CBOR maps (one per transaction body).</li>
+<li><code>witnesses</code> is a CBOR array of CBOR maps (one per witness set).</li>
+<li><code>auxData</code> is a CBOR map from transaction index to auxiliary data.</li>
+<li><code>invalidTxs</code> is a CBOR array of unsigned integers (Phase-2 failed indices).</li>
+</ul>
+<h3 id="324-header-wire-format"><a class="header" href="#324-header-wire-format">3.2.4 Header Wire Format</a></h3>
+<p>The header is a 2-element CBOR array:</p>
+<p>\[
+\textit{header} = [\textit{headerBody},; \textit{kesSig}]
+\]</p>
+<p>The header body is a 10-element CBOR array:</p>
+<p>\[
+\textit{headerBody} = [
+\textit{blockNo},;
+\textit{slot},;
+\textit{prevHash},;
+\textit{issuerVKey},;
+\textit{vrfVKey},;
+[\textit{vrfOutput}, \textit{vrfProof}],;
+\textit{bodySize},;
+\textit{bodyHash},;
+[\textit{hotVKey}, \textit{seqNo}, \textit{kesPeriod}, \textit{sigma}],;
+[\textit{major}, \textit{minor}]
+]
+\]</p>
+<hr>
+<h2 id="33-hash-computations"><a class="header" href="#33-hash-computations">3.3 Hash Computations</a></h2>
+<p>All hashes use Blake2b with the indicated digest size.</p>
+<h3 id="331-block-hash"><a class="header" href="#331-block-hash">3.3.1 Block Hash</a></h3>
+<p>\[
+\text{blockHash} = \text{blake2b}_{256}(\textit{header_raw})
+\]</p>
+<p>where \(\textit{header_raw}\) is the raw CBOR bytes of the full header (both
+body and KES signature), sliced from the block buffer.</p>
+<h3 id="332-transaction-identifier"><a class="header" href="#332-transaction-identifier">3.3.2 Transaction Identifier</a></h3>
+<p>\[
+\text{txId} = \text{blake2b}_{256}(\textit{txBody_raw})
+\]</p>
+<p>where \(\textit{txBody_raw}\) is the raw CBOR map bytes of the transaction
+body, sliced from the block’s <code>txBodies</code> array.</p>
+<h3 id="333-block-body-hash"><a class="header" href="#333-block-body-hash">3.3.3 Block Body Hash</a></h3>
+<p>The block body hash links the header to the block contents. It is computed as
+a Merkle-like construction over the four body components:</p>
+<p>\[
+h_1 = \text{blake2b}<em>{256}(\textit{txBodies_array_raw})
+\]
+\[
+h_2 = \text{blake2b}</em>{256}(\textit{witnesses_array_raw})
+\]
+\[
+h_3 = \text{blake2b}<em>{256}(\textit{auxData_raw})
+\]
+\[
+h_4 = \text{blake2b}</em>{256}(\textit{invalidTxs_raw})
+\]</p>
+<p>\[
+\boxed{
+\text{bodyHash} = \text{blake2b}_{256}(h_1 \Vert h_2 \Vert h_3 \Vert h_4)
+}
+\]</p>
+<p>Each \(h_i\) is 32 bytes, so the concatenation is exactly 128 bytes. The
+computed hash is verified against \(\textit{header.headerBody.blockBodyHash}\)
+during block validation.</p>
+<h3 id="334-pool-identifier"><a class="header" href="#334-pool-identifier">3.3.4 Pool Identifier</a></h3>
+<p>\[
+\text{poolId} = \text{blake2b}_{224}(\textit{issuer_vkey})
+\]</p>
+<p>where \(\textit{issuer_vkey}\) is the 32-byte cold verification key of the
+stake pool operator.</p>
+<h3 id="335-auxiliary-data-hash"><a class="header" href="#335-auxiliary-data-hash">3.3.5 Auxiliary Data Hash</a></h3>
+<p>\[
+\text{auxDataHash} = \text{blake2b}_{256}(\textit{auxData_raw})
+\]</p>
+<p>Verified against \(\textit{txBody.auxiliary_data_hash}\) (map key 7) when
+present.</p>
+<h3 id="336-script-data-hash"><a class="header" href="#336-script-data-hash">3.3.6 Script Data Hash</a></h3>
+<p>The script data hash binds redeemers, datums, and cost models to the
+transaction body:</p>
+<p>\[
+\text{scriptDataHash} = \text{blake2b}_{256}(\textit{redeemers_raw} \Vert \textit{datums_raw} \Vert \textit{langViews})
+\]</p>
+<p>where:</p>
+<ul>
+<li>\(\textit{redeemers_raw}\) is the raw CBOR of witness key 5 (empty bytes if absent).</li>
+<li>\(\textit{datums_raw}\) is the raw CBOR of witness key 4 (empty bytes if absent).</li>
+<li>\(\textit{langViews}\) is the deterministic CBOR encoding of cost model arrays
+per Plutus language version used in the transaction.</li>
+</ul>
+<p><strong>PlutusV1 language view quirk.</strong> For language 0 (PlutusV1), the cost model
+parameter list is first CBOR-encoded as an integer array, then that encoding
+is wrapped as a CBOR <em>byte string</em> value in the outer map. For languages 1
+(PlutusV2) and 2 (PlutusV3), cost model arrays are stored directly as CBOR
+arrays. This asymmetry is mandated by the Shelley formal specification.</p>
+<h3 id="337-script-hashing"><a class="header" href="#337-script-hashing">3.3.7 Script Hashing</a></h3>
+<p>Plutus scripts are identified by their hash:</p>
+<p>\[
+\text{scriptHash} = \text{blake2b}_{224}(\textit{version_prefix} \Vert \textit{flat_bytes})
+\]</p>
+<p>where \(\textit{version_prefix}\) is a single byte: <code>0x01</code> for PlutusV1,
+<code>0x02</code> for PlutusV2, <code>0x03</code> for PlutusV3. The \(\textit{flat_bytes}\) are
+the <code>flat</code>-serialized UPLC program (not CBOR).</p>
+<hr>
+<h2 id="34-security-measures"><a class="header" href="#34-security-measures">3.4 Security Measures</a></h2>
+<p>The codec layer implements nine hardening measures against malformed or
+adversarial CBOR input.</p>
+<p><strong>COD-C1: Container count guard.</strong> Before walking a CBOR array or map, the
+declared item count is checked against the available data length. A container
+claiming \(n\) items in only \(k &lt; n\) bytes is rejected immediately, preventing
+allocation of oversized buffers from a single crafted header byte.</p>
+<p><strong>COD-M: Duplicate map key rejection.</strong> <code>_walk_map_values</code> tracks seen keys
+and rejects any CBOR map containing duplicate keys. This prevents ambiguity in
+field resolution and potential double-counting attacks.</p>
+<p><strong>COD-H2: NonEmpty container validation.</strong> Transaction body fields at map keys
+4, 5, 9, 13, 14, 19, 20 carry a NonEmpty constraint. If the field is present,
+the container must have at least one element. Empty containers at these keys
+are rejected during <code>ConwayTxBody.__post_init__</code>.</p>
+<p><strong>COD-H3: Block structure count.</strong> A Conway block must have exactly 5 array
+elements. Any other count is rejected.</p>
+<p><strong>COD-H4: Witness alignment.</strong> The number of transaction bodies must equal the
+number of witness sets. A mismatch is rejected.</p>
+<p><strong>COD-M: Field size validation.</strong> Header fields are checked for correct byte
+lengths during construction: <code>issuer_vkey</code> (32), <code>vrf_vkey</code> (32),
+<code>block_body_hash</code> (32), <code>vrf_result</code> (2 elements), <code>hot_vkey</code> (32 or 448),
+<code>sigma</code> (64). Invalid sizes are rejected.</p>
+<p><strong>COD-M: Semantic range checks.</strong> Transaction body values are validated for
+semantic correctness: <code>fee &gt;= 0</code>, <code>donation &gt; 0</code> when present,
+<code>network_id in {0, 1}</code> when present. Invalid transaction indices in
+<code>invalid_txs</code> are checked against the transaction count.</p>
+<p><strong>COD-M: Block size limit.</strong> The block envelope is rejected if it exceeds
+256 KB (approximately 3x the mainnet maximum of ~90 KB).</p>
+<p><strong>COD-L: Nesting depth limit.</strong> CBOR walking functions enforce a maximum
+nesting depth of 128 levels. The <code>cbor_item_length</code> function independently
+enforces the same 128-level limit. Deeply nested structures (potential
+stack-overflow vectors) are rejected.</p>
+<p><strong>COD-M: Strict map keys.</strong> When <code>_strict_keys = True</code> is set on a
+<code>@cbor_map</code> class (as with <code>ConwayTxBody</code>), any map key not declared in the
+schema triggers an error. This prevents silent acceptance of unknown fields.</p>
+<hr>
+<h2 id="35-decoding-pipeline-summary"><a class="header" href="#35-decoding-pipeline-summary">3.5 Decoding Pipeline Summary</a></h2>
+<p>The full decode path from network bytes to typed structures:</p>
+<p>\[
+\textit{wire_bytes}
+\xrightarrow{\texttt{unwrap_tag24}}
+\textit{envelope_cbor}
+\xrightarrow{\texttt{_walk_array_items}}
+[\textit{era_tag_raw},; \textit{block_data_raw}]
+\]</p>
+<p>For Conway (\(\textit{era_tag} = 7\)):</p>
+<p>\[
+\textit{block_data_raw}
+\xrightarrow{\texttt{_walk_array_items}}
+[\textit{header_raw},; \textit{txBodies_raw},; \textit{witnesses_raw},; \textit{auxData_raw},; \textit{invalidTxs_raw}]
+\]</p>
+<p>\[
+\textit{header_raw} \xrightarrow{\texttt{ConwayHeader.from_cbor}} \text{ConwayHeader}
+\]</p>
+<p>\[
+\textit{txBodies_raw} \xrightarrow{\texttt{_walk_array_items}} [\textit{tb}_0, \ldots, \textit{tb}_n]
+\xrightarrow{\texttt{ConwayTxBody.from_cbor}} [\text{ConwayTxBody}_0, \ldots, \text{ConwayTxBody}_n]
+\]</p>
+<p>At every arrow, the output retains a <code>.raw</code> field pointing into the original
+buffer. No intermediate re-encoding occurs.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../spec/data-types.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../spec/ledger-state.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../spec/data-types.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../spec/ledger-state.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

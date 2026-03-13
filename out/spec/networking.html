@@ -1,0 +1,1027 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Networking - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="12-networking"><a class="header" href="#12-networking">12 Networking</a></h1>
+<p>The Bluematter networking layer implements the Ouroboros family of
+mini-protocols over a single multiplexed TCP connection. Every peer
+connection carries several concurrent mini-protocols, each identified
+by a 15-bit protocol ID and managed by an independent state machine.</p>
+<p><strong>Notation.</strong> B = bytes, N = naturals, N_k = k-bit unsigned integer,
+H = B_32 (Blake2b-256 hash). CBOR encoding follows RFC 8949. All
+multi-byte wire integers are big-endian.</p>
+<hr>
+<h2 id="121-multiplexer"><a class="header" href="#121-multiplexer">12.1 Multiplexer</a></h2>
+<p>The multiplexer manages a single TCP stream, demultiplexing inbound
+segments to per-protocol reassembly buffers and serializing outbound
+sends from concurrent protocol coroutines under a write lock.</p>
+<h3 id="1211-frame-format"><a class="header" href="#1211-frame-format">12.1.1 Frame Format</a></h3>
+<p>Each multiplexer segment consists of an 8-byte header followed by a
+variable-length payload:</p>
+<pre><code>Segment = Header || Payload
+
+Header (8 bytes, big-endian):
+  +-------+-------+-------+-------+-------+-------+-------+-------+
+  | timestamp (4 bytes, N_32)     | id_field (2 bytes) | length (2)|
+  +-------+-------+-------+-------+-------+-------+-------+-------+
+
+  timestamp    : N_32  = monotonic_clock_us mod 2^32
+  id_field     : N_16  = mode_bit || protocol_id
+    mode_bit   : bit 15 = 0 (initiator -&gt; responder)
+                          1 (responder -&gt; initiator)
+    protocol_id: bits 14..0 (15-bit mini-protocol identifier)
+  length       : N_16  = |Payload| in bytes
+
+Payload : B_{length}
+
+Constants:
+  MUX_HEADER_SIZE    = 8
+  MAX_SEGMENT_PAYLOAD = 65535   (2^16 - 1)
+  MODE_BIT           = 0x8000
+</code></pre>
+<p>Encoding:</p>
+<pre><code>encode_header(proto_id, payload_length, is_responder) -&gt; B_8
+  timestamp  &lt;- monotonic_time_us() &amp; 0xFFFFFFFF
+  id_field   &lt;- proto_id | (0x8000 if is_responder else 0)
+  return pack_be("&gt;IHH", timestamp, id_field, payload_length)
+</code></pre>
+<p>Decoding:</p>
+<pre><code>decode_header(data : B_8) -&gt; (N_32, N_15, Bool, N_16)
+  (timestamp, id_field, length) &lt;- unpack_be("&gt;IHH", data)
+  is_responder &lt;- (id_field &amp; 0x8000) != 0
+  proto_id     &lt;- id_field &amp; 0x7FFF
+  return (timestamp, proto_id, is_responder, length)
+</code></pre>
+<h3 id="1212-protocol-identifiers"><a class="header" href="#1212-protocol-identifiers">12.1.2 Protocol Identifiers</a></h3>
+<pre><code>  PROTO_HANDSHAKE     = 0
+  PROTO_CHAIN_SYNC    = 2
+  PROTO_BLOCK_FETCH   = 3
+  PROTO_TX_SUBMISSION = 4
+  PROTO_KEEP_ALIVE    = 8
+</code></pre>
+<h3 id="1213-segmentation"><a class="header" href="#1213-segmentation">12.1.3 Segmentation</a></h3>
+<p>Messages exceeding MAX_SEGMENT_PAYLOAD are split into multiple segments.
+Each segment carries the same protocol_id and mode_bit. The payload
+bytes are partitioned at 65535-byte boundaries:</p>
+<pre><code>send(proto_id, payload):
+  offset &lt;- 0
+  while offset &lt; |payload|:
+    chunk &lt;- payload[offset .. offset + MAX_SEGMENT_PAYLOAD)
+    header &lt;- encode_header(proto_id, |chunk|, is_responder)
+    write_locked(header || chunk)
+    offset &lt;- offset + |chunk|
+  if |payload| = 0:
+    write_locked(encode_header(proto_id, 0, is_responder))
+</code></pre>
+<h3 id="1214-reassembly"><a class="header" href="#1214-reassembly">12.1.4 Reassembly</a></h3>
+<p>Each registered protocol has a ProtocolBuffer that accumulates received
+bytes and extracts complete CBOR items:</p>
+<pre><code>ProtocolBuffer:
+  _buf       : mutable B
+  MAX_SIZE   = 4 * 1024 * 1024   (4 MiB per protocol)
+
+  feed(data : B):
+    require |_buf| + |data| &lt;= MAX_SIZE
+    _buf &lt;- _buf || data
+
+  recv_message(timeout) -&gt; B:
+    loop:
+      if |_buf| &gt; 0:
+        n &lt;- cbor_item_length(_buf)    -- total CBOR item size, or bottom
+        if n != bottom and n &lt;= |_buf|:
+          msg &lt;- _buf[0..n)
+          _buf &lt;- _buf[n..]
+          return msg
+      if mux.closed and |_buf| = 0:
+        raise ConnectionError
+      wait(data_available, timeout)
+</code></pre>
+<p>CBOR boundary detection uses <code>cbor_item_length(buffer)</code>, which parses
+the CBOR major type and additional information bytes to compute the
+total encoded item length without fully decoding the value. Returns
+bottom if the buffer is too short to determine the length.</p>
+<h3 id="1215-read-loop"><a class="header" href="#1215-read-loop">12.1.5 Read Loop</a></h3>
+<p>The multiplexer runs a single read loop that routes inbound segments:</p>
+<pre><code>read_loop():
+  while not closed:
+    header_bytes &lt;- read_exactly(8)
+    (_, proto_id, _, length) &lt;- decode_header(header_bytes)
+    payload &lt;- read_exactly(length) if length &gt; 0 else empty
+    buf &lt;- _protocols[proto_id]
+    if buf != bottom:
+      buf.feed(payload)
+  on termination:
+    closed &lt;- true
+    wake all protocol buffers
+</code></pre>
+<hr>
+<h2 id="122-handshake-protocol"><a class="header" href="#122-handshake-protocol">12.2 Handshake Protocol</a></h2>
+<p>Mini-protocol ID 0. Negotiates a protocol version and validates
+network identity before any other protocol messages are exchanged.</p>
+<h3 id="1221-state-machine"><a class="header" href="#1221-state-machine">12.2.1 State Machine</a></h3>
+<pre><code>          MsgProposeVersions
+  StPropose ──────────────────&gt; StConfirm
+                                   |
+                     MsgAcceptVersion / MsgRefuse / MsgQueryReply
+                                   |
+                                   v
+                                StDone
+</code></pre>
+<p>Agency: Initiator has agency in StPropose. Responder has agency in StConfirm.</p>
+<h3 id="1222-message-encoding"><a class="header" href="#1222-message-encoding">12.2.2 Message Encoding</a></h3>
+<pre><code>MsgProposeVersions = [0, VersionTable]
+  VersionTable : Map{N -&gt; [N, Bool, N, Bool]}
+    key   : version number (N)
+    value : [network_magic, initiator_only_diffusion_mode,
+             peer_sharing, query]
+
+MsgAcceptVersion = [1, version : N, params : [N, Bool, N, Bool]]
+
+MsgRefuse = [2, reason]
+
+MsgQueryReply = [3, version : N]   (response to query mode)
+</code></pre>
+<h3 id="1223-supported-versions"><a class="header" href="#1223-supported-versions">12.2.3 Supported Versions</a></h3>
+<pre><code>NTN_VERSIONS = {13, 14}
+</code></pre>
+<p>Only Node-to-Node versions 13 and 14 are supported. These versions
+use the <code>nodeToNodeVersionData</code> format with four parameters:
+<code>[network_magic, initiator_only_diffusion_mode, peer_sharing, query]</code>.</p>
+<h3 id="1224-protocol-execution"><a class="header" href="#1224-protocol-execution">12.2.4 Protocol Execution</a></h3>
+<pre><code>perform_handshake(mux, buffer, network_magic, timeout=10.0) -&gt; N:
+
+  -- Build proposal
+  version_table &lt;- { v : [network_magic, false, 0, false]
+                     | v in NTN_VERSIONS }
+  send(PROTO_HANDSHAKE, cbor([0, version_table]))
+
+  -- Await response
+  reply_bytes &lt;- buffer.recv_message(timeout)
+  require |reply_bytes| &lt;= 5760      -- spec message size limit
+
+  reply &lt;- cbor_decode(reply_bytes)
+  tag &lt;- reply[0]
+
+  if tag = 1:  -- MsgAcceptVersion
+    version    &lt;- reply[1]
+    peer_magic &lt;- reply[2][0]
+    require version in NTN_VERSIONS       -- we proposed this version
+    require peer_magic = network_magic    -- same network
+    return version
+
+  if tag = 2:  -- MsgRefuse
+    raise HandshakeError(reply[1])
+
+  if tag = 3:  -- MsgQueryReply
+    return reply[1]
+
+  raise HandshakeError("unexpected tag")
+</code></pre>
+<h3 id="1225-network-magic-constants"><a class="header" href="#1225-network-magic-constants">12.2.5 Network Magic Constants</a></h3>
+<pre><code>  MAINNET_MAGIC = 764824073
+  PREPROD_MAGIC = 1
+  PREVIEW_MAGIC = 2
+</code></pre>
+<h3 id="1226-constraints"><a class="header" href="#1226-constraints">12.2.6 Constraints</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Max message size</td><td>5760 B</td></tr>
+<tr><td>Handshake timeout</td><td>10 s</td></tr>
+<tr><td>Supported versions</td><td>13, 14</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="123-chainsync-protocol"><a class="header" href="#123-chainsync-protocol">12.3 ChainSync Protocol</a></h2>
+<p>Mini-protocol ID 2. The initiator (client) requests block headers
+from the responder (server) and tracks the remote chain tip.</p>
+<h3 id="1231-state-machine"><a class="header" href="#1231-state-machine">12.3.1 State Machine</a></h3>
+<pre><code>                MsgRequestNext
+  StIdle ────────────────────────&gt; StCanAwait
+    |                                 |
+    |                     +-----------+-----------+
+    |                     |           |           |
+    |              MsgRollForward  MsgRollBackward  MsgAwaitReply
+    |              (header, tip)  (point, tip)      |
+    |                     |           |           |
+    |                     v           v           v
+    |                  StIdle      StIdle     StMustReply
+    |                                            |
+    |                              +-------------+-------------+
+    |                              |                           |
+    |                       MsgRollForward             MsgRollBackward
+    |                       (header, tip)              (point, tip)
+    |                              |                           |
+    |                              v                           v
+    |                           StIdle                      StIdle
+    |
+    |       MsgFindIntersect(points)
+    +──────────────────────────────&gt; StIntersect
+                                       |
+                           +-----------+-----------+
+                           |                       |
+                   MsgIntersectFound       MsgIntersectNotFound
+                   (point, tip)            (tip)
+                           |                       |
+                           v                       v
+                        StIdle                  StIdle
+
+  Any state ──MsgDone──&gt; StDone  (terminal)
+</code></pre>
+<p><strong>Agency:</strong> The initiator has agency in StIdle. The responder has
+agency in StCanAwait, StMustReply, and StIntersect.</p>
+<h3 id="1232-message-tags"><a class="header" href="#1232-message-tags">12.3.2 Message Tags</a></h3>
+<pre><code>  MsgRequestNext        = 0
+  MsgAwaitReply         = 1
+  MsgRollForward        = 2
+  MsgRollBackward       = 3
+  MsgFindIntersect      = 4
+  MsgIntersectFound     = 5
+  MsgIntersectNotFound  = 6
+  MsgDone               = 7
+</code></pre>
+<h3 id="1233-message-encoding"><a class="header" href="#1233-message-encoding">12.3.3 Message Encoding</a></h3>
+<pre><code>MsgRequestNext            = [0]
+MsgAwaitReply             = [1]
+MsgRollForward            = [2, header_envelope, tip]
+MsgRollBackward           = [3, point, tip]
+MsgFindIntersect          = [4, [point, ...]]
+MsgIntersectFound         = [5, point, tip]
+MsgIntersectNotFound      = [6, tip]
+MsgDone                   = [7]
+</code></pre>
+<h3 id="1234-wire-types"><a class="header" href="#1234-wire-types">12.3.4 Wire Types</a></h3>
+<p><strong>Point</strong> (chain position):</p>
+<pre><code>Point = [slot : N, block_hash : B_32]    -- specific block
+      | []                                -- origin (genesis)
+
+Point.to_cbor():
+  if is_origin: return []
+  return [slot, block_hash]
+
+Point.from_cbor(data):
+  if data = []: return Origin
+  return Point(slot=data[0], block_hash=data[1])
+</code></pre>
+<p><strong>Tip</strong> (chain tip with block number):</p>
+<pre><code>Tip = [point : Point, block_number : N]
+
+Tip.from_cbor(data):
+  return Tip(point=Point.from_cbor(data[0]), block_number=data[1])
+</code></pre>
+<h3 id="1235-header-envelope"><a class="header" href="#1235-header-envelope">12.3.5 Header Envelope</a></h3>
+<p>Headers arrive era-tagged in the ns7 envelope format:</p>
+<pre><code>HeaderEnvelope = [era_tag : N, #6.24(header_cbor : B)]
+
+Era tags:
+  0 = Byron
+  1 = Shelley
+  2 = Allegra
+  3 = Mary
+  4 = Alonzo
+  5 = Babbage
+  6 = Conway
+
+decode_header_envelope(header_data) -&gt; (N, B):
+  era_tag     &lt;- header_data[0]
+  payload     &lt;- header_data[1]
+  if payload is CBORTag(24):
+    header_cbor &lt;- payload.value
+  else if payload is B:
+    header_cbor &lt;- payload
+  return (era_tag, header_cbor)
+</code></pre>
+<h3 id="1236-intersection-finding"><a class="header" href="#1236-intersection-finding">12.3.6 Intersection Finding</a></h3>
+<p>The initiator computes exponentially-spaced intersect points to
+efficiently locate the common chain prefix with the responder:</p>
+<pre><code>build_intersect_points(tip_slot, tip_hash, volatile_slots) -&gt; [Point]:
+  points &lt;- []
+  if volatile_slots != empty:
+    sorted &lt;- sort_descending(volatile_slots)
+    step &lt;- 1; i &lt;- 0
+    while i &lt; |sorted|:
+      (slot, hash) &lt;- sorted[i]
+      points.append(Point(slot, hash))
+      i &lt;- i + step
+      step &lt;- step * 2
+  else:
+    points.append(Point(tip_slot, tip_hash))
+  points.append(Point.origin())
+  return points
+</code></pre>
+<p>This produces a sequence like: <code>[tip, tip-1, tip-2, tip-4, tip-8, ..., origin]</code>.</p>
+<h3 id="1237-receive-logic"><a class="header" href="#1237-receive-logic">12.3.7 Receive Logic</a></h3>
+<p>The client handles MsgAwaitReply transparently, looping until a
+substantive message arrives:</p>
+<pre><code>recv_msg(timeout=120.0) -&gt; [Any]:
+  loop:
+    raw &lt;- buffer.recv_message(timeout)
+    reply &lt;- cbor_decode(raw)
+    if reply[0] = 1:  continue  -- MsgAwaitReply: keep waiting
+    if reply[0] = 7:  raise ChainSyncError("MsgDone")
+    return reply
+</code></pre>
+<h3 id="1238-constraints"><a class="header" href="#1238-constraints">12.3.8 Constraints</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Receive timeout</td><td>120 s</td></tr>
+<tr><td>Protocol ID</td><td>2</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="124-blockfetch-protocol"><a class="header" href="#124-blockfetch-protocol">12.4 BlockFetch Protocol</a></h2>
+<p>Mini-protocol ID 3. The initiator requests a range of blocks by
+their (slot, hash) endpoints. The responder streams them back.</p>
+<h3 id="1241-state-machine"><a class="header" href="#1241-state-machine">12.4.1 State Machine</a></h3>
+<pre><code>             MsgRequestRange(from, to)
+  StIdle ─────────────────────────────&gt; StBusy
+    ^                                     |
+    |                           +---------+---------+
+    |                           |                   |
+    |                     MsgStartBatch        MsgNoBlocks
+    |                           |                   |
+    |                           v                   |
+    |                      StStreaming              |
+    |                           |                   |
+    |            +--------------+----------+        |
+    |            |                         |        |
+    |      MsgBlock(block)          MsgBatchDone    |
+    |            |                         |        |
+    |            v                         |        |
+    |       StStreaming                    |        |
+    |       (repeat)                       |        |
+    +--------------------------------------+--------+
+
+  StIdle ──MsgClientDone──&gt; StDone  (terminal)
+</code></pre>
+<p><strong>Agency:</strong> The initiator has agency in StIdle. The responder has
+agency in StBusy and StStreaming.</p>
+<h3 id="1242-message-tags"><a class="header" href="#1242-message-tags">12.4.2 Message Tags</a></h3>
+<pre><code>  MsgRequestRange = 0
+  MsgClientDone   = 1
+  MsgStartBatch   = 2
+  MsgNoBlocks     = 3
+  MsgBlock        = 4
+  MsgBatchDone    = 5
+</code></pre>
+<h3 id="1243-message-encoding"><a class="header" href="#1243-message-encoding">12.4.3 Message Encoding</a></h3>
+<pre><code>MsgRequestRange = [0, from_point, to_point]
+  from_point, to_point : Point = [slot, block_hash]
+
+MsgClientDone   = [1]
+MsgStartBatch   = [2]
+MsgNoBlocks     = [3]
+MsgBlock        = [4, block_envelope]
+MsgBatchDone    = [5]
+</code></pre>
+<h3 id="1244-block-envelope"><a class="header" href="#1244-block-envelope">12.4.4 Block Envelope</a></h3>
+<p>Blocks arrive in the ns7 era-tagged format with CBOR tag 24 wrapping:</p>
+<pre><code>block_envelope = #6.24(block_cbor : B)
+
+extract_block_bytes(payload) -&gt; B:
+  if payload is CBORTag(24):
+    inner &lt;- payload.value
+    return cbor_encode(CBORTag(24, inner))   -- re-wrap for decoder
+  if payload is B:
+    return cbor_encode(CBORTag(24, payload))
+  raise BlockFetchError
+</code></pre>
+<p>The extracted bytes retain the tag-24 envelope so that
+<code>decode_block_from_wire()</code> can process them uniformly.</p>
+<h3 id="1245-fetch-operation"><a class="header" href="#1245-fetch-operation">12.4.5 Fetch Operation</a></h3>
+<pre><code>fetch_range(from_point, to_point) -&gt; [B]:
+  send(PROTO_BLOCK_FETCH, cbor([0, from_point.to_cbor(), to_point.to_cbor()]))
+  reply &lt;- recv_msg()
+
+  if reply[0] = 3:  return []     -- MsgNoBlocks
+  require reply[0] = 2            -- MsgStartBatch
+
+  blocks &lt;- []
+  loop:
+    reply &lt;- recv_msg()
+    if reply[0] = 4:              -- MsgBlock
+      blocks.append(extract_block_bytes(reply[1]))
+      require |blocks| &lt;= MAX_BLOCKS_PER_BATCH
+    else if reply[0] = 5:         -- MsgBatchDone
+      break
+    else:
+      raise BlockFetchError
+
+  return blocks
+</code></pre>
+<h3 id="1246-constraints"><a class="header" href="#1246-constraints">12.4.6 Constraints</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Max blocks per batch</td><td>2000</td></tr>
+<tr><td>Receive timeout</td><td>120 s</td></tr>
+<tr><td>Protocol ID</td><td>3</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="125-txsubmission2-protocol"><a class="header" href="#125-txsubmission2-protocol">12.5 TxSubmission2 Protocol</a></h2>
+<p>Mini-protocol ID 4. Bidirectional transaction relay. After
+initialization, the <strong>server</strong> (responder) drives the protocol by
+requesting transaction IDs and bodies. The <strong>client</strong> (initiator)
+provides them from the local mempool.</p>
+<h3 id="1251-state-machine"><a class="header" href="#1251-state-machine">12.5.1 State Machine</a></h3>
+<pre><code>             MsgInit
+  StInit ──────────────&gt; StIdle(server)
+                            |
+              +-------------+-------------+
+              |                           |
+    MsgRequestTxIds              MsgRequestTxs
+    (blocking, ack, req)         ([tx_id, ...])
+              |                           |
+              v                           v
+           StTxIds                     StTxs
+              |                           |
+       MsgReplyTxIds              MsgReplyTxs
+       ([(tx_id,size)])           ([tx_cbor])
+              |                           |
+              v                           v
+        StIdle(server)             StIdle(server)
+
+  StIdle ──MsgDone──&gt; StDone  (terminal, server-initiated)
+</code></pre>
+<p><strong>Agency:</strong> After MsgInit, the server holds agency in StIdle. The
+client holds agency in StTxIds and StTxs.</p>
+<h3 id="1252-message-tags"><a class="header" href="#1252-message-tags">12.5.2 Message Tags</a></h3>
+<pre><code>  MsgRequestTxIds = 0
+  MsgReplyTxIds   = 1
+  MsgRequestTxs   = 2
+  MsgReplyTxs     = 3
+  MsgDone         = 4
+  MsgInit         = 6
+</code></pre>
+<h3 id="1253-message-encoding"><a class="header" href="#1253-message-encoding">12.5.3 Message Encoding</a></h3>
+<pre><code>MsgInit              = [6]
+MsgRequestTxIds      = [0, blocking : N, ack_count : N, req_count : N]
+MsgReplyTxIds        = [1, [[tx_id : B_32, tx_size : N], ...]]
+MsgRequestTxs        = [2, [tx_id : B_32, ...]]
+MsgReplyTxs          = [3, [tx_cbor : B, ...]]
+MsgDone              = [4]
+</code></pre>
+<h3 id="1254-client-logic"><a class="header" href="#1254-client-logic">12.5.4 Client Logic</a></h3>
+<p>The client maintains a list of outstanding (advertised but
+unacknowledged) transaction IDs.</p>
+<pre><code>State:
+  _outstanding : [(tx_id : B_32, tx_size : N)]
+
+run():
+  send(PROTO_TX_SUBMISSION, cbor([6]))   -- MsgInit
+  loop:
+    msg &lt;- recv_msg(timeout=120.0)
+    match msg[0]:
+      0 -&gt; handle_request_tx_ids(msg)
+      2 -&gt; handle_request_txs(msg)
+      4 -&gt; break  -- MsgDone
+
+handle_request_tx_ids([0, blocking, ack_count, req_count]):
+  _outstanding &lt;- _outstanding[ack_count ..]   -- remove acknowledged
+  all_ids &lt;- mempool.get_tx_ids()
+  outstanding_set &lt;- { tid | (tid, _) in _outstanding }
+  new_ids &lt;- [ tid | tid in all_ids, tid not in outstanding_set ][:req_count]
+
+  pairs &lt;- []
+  for tid in new_ids:
+    tx_cbor &lt;- mempool.get_tx(tid)
+    if tx_cbor != bottom:
+      pairs.append([tid, |tx_cbor|])
+      _outstanding.append((tid, |tx_cbor|))
+
+  send(PROTO_TX_SUBMISSION, cbor([1, pairs]))
+
+handle_request_txs([2, requested_ids]):
+  txs &lt;- []
+  for tid in requested_ids:
+    tx_cbor &lt;- mempool.get_tx(tid)
+    if tx_cbor != bottom:
+      txs.append(tx_cbor)
+  send(PROTO_TX_SUBMISSION, cbor([3, txs]))
+</code></pre>
+<h3 id="1255-constraints"><a class="header" href="#1255-constraints">12.5.5 Constraints</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Receive timeout</td><td>120 s</td></tr>
+<tr><td>Protocol ID</td><td>4</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="126-keepalive-protocol"><a class="header" href="#126-keepalive-protocol">12.6 KeepAlive Protocol</a></h2>
+<p>Mini-protocol ID 8. Sends periodic heartbeat pings to detect dead
+connections. The responder must echo the cookie value unchanged.</p>
+<h3 id="1261-message-encoding"><a class="header" href="#1261-message-encoding">12.6.1 Message Encoding</a></h3>
+<pre><code>MsgKeepAlive         = [0, cookie : N_16]
+MsgKeepAliveResponse = [1, cookie : N_16]
+MsgDone              = [2]
+</code></pre>
+<h3 id="1262-client-logic"><a class="header" href="#1262-client-logic">12.6.2 Client Logic</a></h3>
+<pre><code>State:
+  cookie : N_16 = 0
+
+run():
+  sleep(initial_delay)      -- 1.0 s
+  loop:
+    ping(cookie)
+    cookie &lt;- (cookie + 1) mod 2^16
+    sleep(interval)         -- 30.0 s
+
+ping(cookie):
+  send(PROTO_KEEP_ALIVE, cbor([0, cookie]))
+  reply_bytes &lt;- recv_message(timeout=60.0)
+  reply &lt;- cbor_decode(reply_bytes)
+  require reply[0] = 1
+  require reply[1] = cookie     -- cookie mismatch =&gt; KeepAliveError
+</code></pre>
+<h3 id="1263-timing-parameters"><a class="header" href="#1263-timing-parameters">12.6.3 Timing Parameters</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Initial delay</td><td>1 s</td></tr>
+<tr><td>Ping interval</td><td>30 s</td></tr>
+<tr><td>Response timeout</td><td>60 s</td></tr>
+<tr><td>Protocol ID</td><td>8</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="127-peer-connection-lifecycle"><a class="header" href="#127-peer-connection-lifecycle">12.7 Peer Connection Lifecycle</a></h2>
+<p>A PeerConnection orchestrates the full TCP session with a single
+remote peer, managing protocol registration, handshake, and
+concurrent protocol execution.</p>
+<h3 id="1271-peeraddress"><a class="header" href="#1271-peeraddress">12.7.1 PeerAddress</a></h3>
+<pre><code>PeerAddress = (host : String, port : N_16)
+</code></pre>
+<h3 id="1272-connection-sequence"><a class="header" href="#1272-connection-sequence">12.7.2 Connection Sequence</a></h3>
+<pre><code>connect():
+  (reader, writer) &lt;- tcp_connect(host, port)
+  mux &lt;- Multiplexer(reader, writer, is_initiator=true)
+
+  -- Phase 1: Handshake
+  hs_buffer &lt;- ProtocolBuffer()
+  mux.register_protocol(PROTO_HANDSHAKE, hs_buffer)
+  read_task &lt;- spawn(mux.read_loop())
+  negotiated_version &lt;- perform_handshake(mux, hs_buffer, network_magic)
+
+  -- Phase 2: Register remaining protocols
+  cs_buffer &lt;- ProtocolBuffer()
+  bf_buffer &lt;- ProtocolBuffer()
+  ka_buffer &lt;- ProtocolBuffer()
+  mux.register_protocol(PROTO_CHAIN_SYNC, cs_buffer)
+  mux.register_protocol(PROTO_BLOCK_FETCH, bf_buffer)
+  mux.register_protocol(PROTO_KEEP_ALIVE, ka_buffer)
+
+  chainsync  &lt;- ChainSyncClient(mux, cs_buffer, ...)
+  blockfetch &lt;- BlockFetchClient(mux, bf_buffer)
+  keepalive  &lt;- KeepAliveClient(mux, ka_buffer)
+</code></pre>
+<h3 id="1273-concurrent-execution"><a class="header" href="#1273-concurrent-execution">12.7.3 Concurrent Execution</a></h3>
+<pre><code>run_protocols(intersect_points):
+  tasks &lt;- { chainsync.run(intersect_points),
+             keepalive.run(),
+             read_task }
+  (done, pending) &lt;- wait(tasks, FIRST_EXCEPTION)
+  for t in done:
+    if t.exception != bottom:
+      raise t.exception
+  finally:
+    cancel all tasks
+    mux.close()
+</code></pre>
+<h3 id="1274-disconnect"><a class="header" href="#1274-disconnect">12.7.4 Disconnect</a></h3>
+<pre><code>disconnect():
+  mux.close()    -- sets _closed, closes writer
+</code></pre>
+<hr>
+<h2 id="128-peer-selection"><a class="header" href="#128-peer-selection">12.8 Peer Selection</a></h2>
+<p>The outbound governor manages a pool of known peers, tracks quality
+metrics, and selects the best peers for active connections.</p>
+<h3 id="1281-peer-states"><a class="header" href="#1281-peer-states">12.8.1 Peer States</a></h3>
+<pre><code>PeerStatus in {COLD, WARM, ACTIVE, BANNED}
+
+State transitions:
+  COLD   --connect_success--&gt; ACTIVE
+  ACTIVE --disconnect------&gt; WARM
+  WARM   --connect_success--&gt; ACTIVE
+  *      --too_many_errors--&gt; BANNED
+  BANNED --ban_expires------&gt; COLD
+</code></pre>
+<h3 id="1282-peerinfo"><a class="header" href="#1282-peerinfo">12.8.2 PeerInfo</a></h3>
+<pre><code>PeerInfo:
+  host                  : String
+  port                  : N_16
+  status                : PeerStatus  (default COLD)
+  latency_ms            : Float       (default 0.0)
+  blocks_served         : N           (default 0)
+  error_count           : N           (default 0)
+  last_connected        : Float       (Unix timestamp)
+  last_error            : Float       (Unix timestamp)
+  ban_until             : Float       (Unix timestamp; 0 = not banned)
+  connect_attempts      : N           (default 0)
+  successful_connections: N           (default 0)
+</code></pre>
+<h3 id="1283-scoring-function"><a class="header" href="#1283-scoring-function">12.8.3 Scoring Function</a></h3>
+<pre><code>score(peer) : Float
+  raw &lt;- peer.latency_ms + peer.error_count * 1000
+                         - peer.blocks_served * 0.1
+  return max(raw, -10000.0)
+</code></pre>
+<p>Lower score indicates a better peer. The floor of -10000 prevents
+score from diverging negatively for peers that have served many blocks.</p>
+<h3 id="1284-selection"><a class="header" href="#1284-selection">12.8.4 Selection</a></h3>
+<pre><code>select_for_connection(count : N) -&gt; [PeerInfo]:
+  now &lt;- current_time()
+  candidates &lt;- []
+  for peer in _peers.values():
+    if peer.status = BANNED:
+      if now &lt; peer.ban_until: continue
+      peer.status &lt;- COLD
+      peer.error_count &lt;- 0
+    if peer.status = ACTIVE: continue
+    candidates.append(peer)
+
+  sort candidates by (score ascending, latency_ms ascending)
+  return candidates[..count]
+</code></pre>
+<h3 id="1285-peer-lifecycle-operations"><a class="header" href="#1285-peer-lifecycle-operations">12.8.5 Peer Lifecycle Operations</a></h3>
+<pre><code>mark_connected(host, port, latency_ms):
+  peer &lt;- add_peer(host, port)
+  peer.status &lt;- ACTIVE
+  peer.latency_ms &lt;- latency_ms
+  peer.last_connected &lt;- now()
+  peer.connect_attempts += 1
+  peer.successful_connections += 1
+
+mark_disconnected(host, port):
+  peer.status &lt;- WARM
+
+mark_error(host, port, error):
+  peer.error_count += 1
+  peer.last_error &lt;- now()
+  peer.connect_attempts += 1
+  if peer.error_count &gt;= max_errors_before_ban:
+    peer.status &lt;- BANNED
+    peer.ban_until &lt;- now() + ban_duration
+
+mark_block_served(host, port):
+  peer.blocks_served += 1
+</code></pre>
+<h3 id="1286-selector-parameters"><a class="header" href="#1286-selector-parameters">12.8.6 Selector Parameters</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td>max_active</td><td>5</td></tr>
+<tr><td>max_warm</td><td>10</td></tr>
+<tr><td>ban_duration</td><td>300 s</td></tr>
+<tr><td>max_errors_before_ban</td><td>5</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="129-sync-pipeline"><a class="header" href="#129-sync-pipeline">12.9 Sync Pipeline</a></h2>
+<p>The sync pipeline connects all networking components into a live
+chain-following flow, with crash recovery and automatic reconnection.</p>
+<h3 id="1291-session-architecture"><a class="header" href="#1291-session-architecture">12.9.1 Session Architecture</a></h3>
+<pre><code>SyncSession(peer_host, peer_port, network_magic, state, ...):
+
+  1. TCP connect (timeout 15 s)
+  2. Multiplexer + protocol buffer registration
+  3. Handshake (timeout 15 s)
+  4. Spawn keepalive background task
+  5. ChainSync: find intersection from known point or discover tip
+  6. Main loop:
+     a. MsgRequestNext
+     b. Receive (handle AwaitReply transparently)
+     c. On MsgRollForward:
+        i.   Decode header envelope -&gt; (slot, hash, era_tag)
+        ii.  Skip non-Conway blocks (era_tag != 6)
+        iii. BlockFetch: fetch_range(point, point) for single block
+        iv.  Decode block, apply_block(state, block) in executor
+        v.   Store in VolatileDB
+        vi.  Nonce evolution from VRF output
+        vii. Graduate blocks older than 2000 slots to ImmutableDB
+        viii.Periodic LedgerDB checkpoint
+     d. On MsgRollBackward:
+        i.   VolatileDB.rollback_to(slot)
+        ii.  LedgerDB.load_checkpoint_before(slot)
+        iii. Re-apply blocks between checkpoint and rollback point
+</code></pre>
+<h3 id="1292-reconnection"><a class="header" href="#1292-reconnection">12.9.2 Reconnection</a></h3>
+<pre><code>live_sync:
+  max_retries &lt;- 100
+  retry_delay &lt;- 1.0
+
+  for attempt in 0..max_retries:
+    if attempt &gt; 0:
+      sleep(retry_delay)
+      retry_delay &lt;- min(retry_delay * 2, 60.0)   -- exponential backoff
+
+    try:
+      session.run()
+    catch:
+      ledger_db.save_checkpoint(state)
+      continue
+</code></pre>
+<h3 id="1293-state-initialization-priority"><a class="header" href="#1293-state-initialization-priority">12.9.3 State Initialization Priority</a></h3>
+<pre><code>1. LedgerDB checkpoint  (crash recovery)
+2. Snapshot file         (--snapshot flag)
+3. Genesis files         (--genesis-dir flag)
+4. Empty LedgerState     (fallback)
+</code></pre>
+<h3 id="1294-graduation-condition"><a class="header" href="#1294-graduation-condition">12.9.4 Graduation Condition</a></h3>
+<pre><code>if volatile_db.count() &gt; 100:
+  cutoff &lt;- current_slot - 2000
+  for block in volatile_db.graduate(cutoff):
+    immutable_db.append(block.slot, block.block_number,
+                        block.block_hash, block.raw)
+</code></pre>
+<h3 id="1295-multi-peer-sync"><a class="header" href="#1295-multi-peer-sync">12.9.5 Multi-Peer Sync</a></h3>
+<pre><code>multi_peer_sync(peers, ...):
+  selector &lt;- PeerSelector()
+  for (host, port) in peers:
+    selector.add_peer(host, port)
+
+  for attempt in 0..|peers|*3:
+    candidates &lt;- selector.select_for_connection(1)
+    if candidates = []: break
+    peer &lt;- candidates[0]
+    try:
+      result &lt;- live_sync(peer.host, peer.port, ...)
+      selector.mark_connected(peer.host, peer.port)
+      break
+    catch:
+      selector.mark_error(peer.host, peer.port, error)
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../spec/governance.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../spec/storage.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../spec/governance.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../spec/storage.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

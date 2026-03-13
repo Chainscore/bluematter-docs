@@ -1,0 +1,1201 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Research &amp; Foundations - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="cardano-research-papers-and-foundational-design-documents"><a class="header" href="#cardano-research-papers-and-foundational-design-documents">Cardano Research Papers and Foundational Design Documents</a></h1>
+<p>A comprehensive reference covering the academic research that underpins the Cardano
+blockchain, from the founding vision through the Ouroboros consensus protocol family,
+the Extended UTXO model, formal ledger specifications, and scaling research.</p>
+<hr>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ol>
+<li><a href="#1-founding-vision-and-philosophy">Founding Vision and Philosophy</a></li>
+<li><a href="#2-the-why-cardano-essay-2017">The “Why Cardano” Essay (2017)</a></li>
+<li><a href="#3-the-ouroboros-consensus-protocol-family">The Ouroboros Consensus Protocol Family</a>
+<ul>
+<li>3.1 <a href="#31-ouroboros-classic--a-provably-secure-proof-of-stake-blockchain-protocol">Ouroboros Classic (CRYPTO 2017)</a></li>
+<li>3.2 <a href="#32-ouroboros-bft--a-simple-byzantine-fault-tolerant-consensus-protocol">Ouroboros BFT (2018)</a></li>
+<li>3.3 <a href="#33-ouroboros-praos--an-adaptively-secure-semi-synchronous-proof-of-stake-blockchain">Ouroboros Praos (EUROCRYPT 2018)</a></li>
+<li>3.4 <a href="#34-ouroboros-genesis--composable-proof-of-stake-blockchains-with-dynamic-availability">Ouroboros Genesis (CCS 2018)</a></li>
+<li>3.5 <a href="#35-ouroboros-crypsinous--privacy-preserving-proof-of-stake">Ouroboros Crypsinous (IEEE S&amp;P 2019)</a></li>
+<li>3.6 <a href="#36-ouroboros-chronos--permissionless-clock-synchronization-via-proof-of-stake">Ouroboros Chronos (EUROCRYPT 2021)</a></li>
+<li>3.7 <a href="#37-ouroboros-leios--high-throughput-permissionless-blockchain-consensus">Ouroboros Leios / “High-Throughput Permissionless Blockchain Consensus” (CRYPTO 2025)</a></li>
+<li>3.8 <a href="#38-ouroboros-peras--fast-settlement">Ouroboros Peras (2025)</a></li>
+<li>3.9 <a href="#39-ouroboros-omega--the-final-form">Ouroboros Omega (Long-term Vision)</a></li>
+</ul>
+</li>
+<li><a href="#4-the-extended-utxo-model">The Extended UTXO Model</a>
+<ul>
+<li>4.1 <a href="#41-the-extended-utxo-model">The Extended UTXO Model (FC 2020)</a></li>
+<li>4.2 <a href="#42-native-custom-tokens-in-the-extended-utxo-model">Native Custom Tokens in the Extended UTXO Model (ISoLA 2020)</a></li>
+</ul>
+</li>
+<li><a href="#5-stake-delegation-incentives-and-account-management">Stake Delegation, Incentives, and Account Management</a></li>
+<li><a href="#6-scaling-hydra-and-mithril">Scaling: Hydra and Mithril</a>
+<ul>
+<li>6.1 <a href="#61-hydra-fast-isomorphic-state-channels">Hydra: Fast Isomorphic State Channels (2021)</a></li>
+<li>6.2 <a href="#62-mithril-stake-based-threshold-multisignatures">Mithril: Stake-based Threshold Multisignatures (2021)</a></li>
+</ul>
+</li>
+<li><a href="#7-formal-ledger-specifications">Formal Ledger Specifications</a></li>
+<li><a href="#8-cardanos-layered-architecture">Cardano’s Layered Architecture</a></li>
+<li><a href="#9-the-research-library-at-scale">The Research Library at Scale</a></li>
+<li><a href="#10-summary-from-paper-to-running-network">Summary: From Paper to Running Network</a></li>
+</ol>
+<hr>
+<h2 id="1-founding-vision-and-philosophy"><a class="header" href="#1-founding-vision-and-philosophy">1. Founding Vision and Philosophy</a></h2>
+<h3 id="the-people"><a class="header" href="#the-people">The People</a></h3>
+<p><strong>Charles Hoskinson</strong> (born November 5, 1987, Maui, Hawaii) co-founded Ethereum in
+late 2013 alongside Vitalik Buterin, serving as its first CEO. He departed Ethereum
+in 2014 after a dispute over whether the project should be a commercial entity or a
+nonprofit. In <strong>March 2015</strong>, Hoskinson and <strong>Jeremy Wood</strong> (former Ethereum colleague,
+Chief Strategy Officer) founded <strong>Input Output Hong Kong (IOHK)</strong> – a technology
+company committed to using peer-to-peer innovations to provide financial services to
+the three billion people who lack them.</p>
+<p>The Cardano project itself began in 2015 when a client proposed building a “Japanese
+version of Ethereum.” Hoskinson raised $62 million in a 2017 ICO and launched Cardano
+in September 2017, targeting the Japanese market initially before global expansion.
+Hoskinson deliberately declined venture capital, saying it ran counter to blockchain
+principles.</p>
+<p>In <strong>October 2016</strong>, <strong>Professor Aggelos Kiayias</strong> joined IOHK as Chief Scientist. He
+holds the Chair in Cybersecurity and Privacy at the University of Edinburgh and had
+already written one of the most-cited papers in blockchain history (“The Bitcoin
+Backbone Protocol: Analysis and Applications,” with Juan Garay and Nikos Leonardos,
+1,800+ Google Scholar citations). From the start, Kiayias was determined to build
+Cardano from scratch while incorporating the best minds and ideas from academic
+cryptography.</p>
+<h3 id="the-three-founding-entities"><a class="header" href="#the-three-founding-entities">The Three Founding Entities</a></h3>
+<p>Cardano’s governance was deliberately split across three independent legal entities:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Entity</th><th>Role</th><th>Headquarters</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>IOHK</strong> (now IOG – Input Output Global)</td><td>Engineering, R&amp;D, building and maintaining the blockchain</td><td>Hong Kong / Wyoming</td></tr>
+<tr><td><strong>Cardano Foundation</strong></td><td>Governance, community growth, promotion, regulatory engagement</td><td>Zug, Switzerland</td></tr>
+<tr><td><strong>Emurgo</strong></td><td>Commercial adoption, business development, investment, incubation</td><td>Japan / Singapore</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-research-first-principle"><a class="header" href="#the-research-first-principle">The Research-First Principle</a></h3>
+<p>Cardano is unique among blockchain projects in its unwavering commitment to academic
+rigor. Instead of starting from a single whitepaper and iterating through code, the
+project:</p>
+<ol>
+<li><strong>Begins with formal research</strong> – problems are defined mathematically, solutions
+are proposed and proven.</li>
+<li><strong>Submits to peer review</strong> – papers are submitted to top-tier conferences (CRYPTO,
+EUROCRYPT, CCS, IEEE S&amp;P, Financial Cryptography) and subjected to blind review by
+independent cryptographers and computer scientists.</li>
+<li><strong>Publishes openly</strong> – all research and specifications are publicly available.</li>
+<li><strong>Implements from specifications</strong> – code is written against formal mathematical
+specifications, not ad hoc designs.</li>
+<li><strong>Verifies formally</strong> – the Agda proof assistant is used to mechanically verify
+that specifications are consistent and that implementations conform.</li>
+</ol>
+<p>This approach has produced, as of 2025, <strong>over 250 peer-reviewed papers</strong>, with
+<strong>300+ contributing authors</strong>, <strong>15+ leading research partners</strong> (University of
+Edinburgh, Stanford, University of Connecticut, Purdue, Tokyo Institute of Technology,
+University of Wyoming, and others), and <strong>10,000+ industry paper citations</strong>.</p>
+<p>University partnerships include the $4.5M blockchain research hub at Stanford
+University and a long-running collaboration with the University of Edinburgh’s
+Blockchain Technology Laboratory.</p>
+<hr>
+<h2 id="2-the-why-cardano-essay-2017"><a class="header" href="#2-the-why-cardano-essay-2017">2. The “Why Cardano” Essay (2017)</a></h2>
+<ul>
+<li><strong>Published</strong>: July 10, 2017</li>
+<li><strong>Author</strong>: Charles Hoskinson</li>
+<li><strong>URL</strong>: <a href="https://why.cardano.org/">why.cardano.org</a></li>
+<li><strong>Translations</strong>: Japanese, Chinese, Korean</li>
+</ul>
+<h3 id="content-and-significance"><a class="header" href="#content-and-significance">Content and Significance</a></h3>
+<p>“Why Cardano” is not a traditional whitepaper but a philosophical essay explaining the
+motivations, design principles, and engineering approach behind the project. Key themes
+include:</p>
+<ul>
+<li>
+<p><strong>The problem with first-generation blockchains</strong>: Bitcoin solved digital scarcity
+but cannot scale, lacks programmability, and has no governance mechanism. Ethereum
+added programmability but introduced an account model with complex state and
+unbounded execution.</p>
+</li>
+<li>
+<p><strong>A third-generation vision</strong>: Cardano would address scalability (transactions per
+second), interoperability (cross-chain communication), and sustainability
+(governance and treasury systems).</p>
+</li>
+<li>
+<p><strong>Scientific philosophy</strong>: Rather than “move fast and break things,” Cardano would
+adopt the methods of aerospace and banking – formal methods, peer review, and
+high-assurance engineering.</p>
+</li>
+<li>
+<p><strong>Separation of concerns</strong>: The accounting of value should be separated from the
+computation that motivates value transfer (the CSL/CCL layered architecture).</p>
+</li>
+<li>
+<p><strong>Cardano as a social technology</strong>: Not merely a financial tool, but infrastructure
+for digital identity, financial inclusion, and verifiable governance.</p>
+</li>
+</ul>
+<p>The essay was accompanied by the “Cardano Whiteboard” video, a long-form walkthrough
+by Hoskinson covering the same material in lecture format.</p>
+<hr>
+<h2 id="3-the-ouroboros-consensus-protocol-family"><a class="header" href="#3-the-ouroboros-consensus-protocol-family">3. The Ouroboros Consensus Protocol Family</a></h2>
+<p>Ouroboros (from the Greek, meaning “tail-devouring” – the ancient symbol of a serpent
+eating its own tail, representing eternity) is the family of proof-of-stake consensus
+protocols that power the Cardano network. Each iteration addresses a specific
+limitation of its predecessor.</p>
+<h3 id="31-ouroboros-classic--a-provably-secure-proof-of-stake-blockchain-protocol"><a class="header" href="#31-ouroboros-classic--a-provably-secure-proof-of-stake-blockchain-protocol">3.1 Ouroboros Classic – A Provably Secure Proof-of-Stake Blockchain Protocol</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Aggelos Kiayias, Alexander Russell, Bernardo David, Roman Oliynykov</td></tr>
+<tr><td><strong>Published</strong></td><td>CRYPTO 2017 (37th Annual International Cryptology Conference), Santa Barbara, CA, August 20-24, 2017</td></tr>
+<tr><td><strong>Venue</strong></td><td>Advances in Cryptology – CRYPTO 2017, LNCS vol. 10401, pp. 357-388, Springer</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2016/889">eprint.iacr.org/2016/889</a></td></tr>
+<tr><td><strong>DOI</strong></td><td><a href="https://doi.org/10.1007/978-3-319-63688-7_12">10.1007/978-3-319-63688-7_12</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: The first blockchain protocol based on proof of stake with
+<strong>rigorous security guarantees</strong> comparable to those achieved by Bitcoin’s proof of
+work. At the time, generating a single Bitcoin block required hashing operations
+exceeding 2^60, with energy demands comparable to a small country.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Formal security model</strong>: Defines a robust transaction ledger via two properties:
+<strong>persistence</strong> (once a node considers a transaction “stable” at depth k, all honest
+nodes agree) and <strong>liveness</strong> (transactions from honest parties are eventually
+adopted).</p>
+</li>
+<li>
+<p><strong>Epoch-based slot leader election</strong>: Time is divided into epochs; within each
+epoch, slots are assigned to stakeholders proportional to their stake via a
+multi-party coin-tossing protocol.</p>
+</li>
+<li>
+<p><strong>Novel reward mechanism</strong>: Proves that honest behavior is an approximate Nash
+equilibrium, neutralizing selfish-mining attacks in the PoS setting.</p>
+</li>
+<li>
+<p><strong>Energy efficiency</strong>: Eliminates proof-of-work entirely while maintaining formal
+security parity.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Ouroboros Classic was the consensus protocol for
+Cardano’s <strong>Byron era</strong> (federated launch, September 2017 – July 2020). It operated
+in a federated setting with a fixed set of block producers controlled by IOHK, the
+Cardano Foundation, and Emurgo.</p>
+<p><strong>Conference acceptance</strong>: Of 311 papers submitted to CRYPTO 2017, only 72 were
+accepted. Ouroboros was among them – the first blockchain consensus paper at a
+top-tier cryptography conference.</p>
+<hr>
+<h3 id="32-ouroboros-bft--a-simple-byzantine-fault-tolerant-consensus-protocol"><a class="header" href="#32-ouroboros-bft--a-simple-byzantine-fault-tolerant-consensus-protocol">3.2 Ouroboros BFT – A Simple Byzantine Fault Tolerant Consensus Protocol</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Aggelos Kiayias, Alexander Russell</td></tr>
+<tr><td><strong>Published</strong></td><td>October 2018, IACR Cryptology ePrint Archive, Report 2018/1049</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2018/1049">eprint.iacr.org/2018/1049</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: A simple BFT consensus protocol for distributed ledgers that
+tolerates up to 1/3 of nodes being faulty. Provides instant confirmation and
+settlement at network speed in the common case.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li><strong>Round-robin block production</strong>: Servers extend a blockchain in each round with
+lower communication complexity than classical PBFT.</li>
+<li><strong>Covert adversarial model</strong>: Byzantine resilience increases to t &lt; n/2 when safety
+is considered under restored synchrony.</li>
+<li><strong>Persistence and liveness</strong>: Satisfies both with a liveness parameter of 5t + 2.</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Ouroboros BFT served as a <strong>bridge protocol</strong>
+during the Byron-to-Shelley transition (the “Byron Reboot” hard fork). It operated in
+a federated setting, providing a deterministic consensus mechanism while the network
+prepared for full decentralization under Praos.</p>
+<hr>
+<h3 id="33-ouroboros-praos--an-adaptively-secure-semi-synchronous-proof-of-stake-blockchain"><a class="header" href="#33-ouroboros-praos--an-adaptively-secure-semi-synchronous-proof-of-stake-blockchain">3.3 Ouroboros Praos – An Adaptively-Secure, Semi-synchronous Proof-of-Stake Blockchain</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Bernardo David, Peter Gazi, Aggelos Kiayias, Alexander Russell</td></tr>
+<tr><td><strong>Published</strong></td><td>EUROCRYPT 2018, Tel Aviv, Israel</td></tr>
+<tr><td><strong>Venue</strong></td><td>Advances in Cryptology – EUROCRYPT 2018, LNCS vol. 10821, pp. 66-98, Springer</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2017/573">eprint.iacr.org/2017/573</a></td></tr>
+<tr><td><strong>DOI</strong></td><td><a href="https://doi.org/10.1007/978-3-319-78375-8_3">10.1007/978-3-319-78375-8_3</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: The first provably secure PoS protocol that achieves security
+against <strong>fully-adaptive corruption</strong> in the <strong>semi-synchronous setting</strong>. The
+adversary can corrupt any participant at any moment (as long as honest majority of
+stake is maintained), and the protocol tolerates adversarially-controlled message
+delays unknown to participants.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Private slot leader election via VRF</strong>: Each stakeholder locally evaluates a
+Verifiable Random Function (VRF) to determine if they are eligible to produce a
+block. This eliminates the “grinding” attack possible in Classic, where an adversary
+could influence the randomness beacon.</p>
+</li>
+<li>
+<p><strong>VRF with unpredictability under malicious key generation</strong>: A novel UC
+formalization ensuring VRF outputs remain unpredictable even if key generation is
+subverted. Efficiently realized under the Computational Diffie-Hellman (CDH)
+assumption.</p>
+</li>
+<li>
+<p><strong>Forward-secure digital signatures (KES)</strong>: Key-Evolving Signatures ensure that
+compromise of a current key does not allow forging blocks for past slots, providing
+forward security against adaptive corruption.</p>
+</li>
+<li>
+<p><strong>Semi-synchronous network model</strong>: No assumption on known message delivery bounds;
+the protocol works as long as honest messages are eventually delivered.</p>
+</li>
+<li>
+<p><strong>General combinatorial framework</strong>: A novel framework for analyzing
+semi-synchronous blockchains, potentially of independent interest.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Ouroboros Praos is the <strong>current consensus
+protocol</strong> powering Cardano mainnet since the <strong>Shelley hard fork</strong> (July 29, 2020).
+It is what all Cardano stake pool operators run today. The transition from Byron’s
+federated model to Praos’s fully decentralized model was one of the most significant
+events in Cardano’s history.</p>
+<p>Every Cardano block produced since Shelley contains a VRF proof (ECVRF-ED25519-SHA512-
+Elligator2, draft-03) and a KES signature (Sum6KES), exactly as specified in this
+paper.</p>
+<hr>
+<h3 id="34-ouroboros-genesis--composable-proof-of-stake-blockchains-with-dynamic-availability"><a class="header" href="#34-ouroboros-genesis--composable-proof-of-stake-blockchains-with-dynamic-availability">3.4 Ouroboros Genesis – Composable Proof-of-Stake Blockchains with Dynamic Availability</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Christian Badertscher, Peter Gazi, Aggelos Kiayias, Alexander Russell, Vassilis Zikas</td></tr>
+<tr><td><strong>Published</strong></td><td>ACM CCS 2018 (Conference on Computer and Communications Security), pp. 913-930</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2018/378">eprint.iacr.org/2018/378</a></td></tr>
+<tr><td><strong>DOI</strong></td><td><a href="https://doi.org/10.1145/3243734.3243848">10.1145/3243734.3243848</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Solves the <strong>bootstrapping problem</strong> for proof-of-stake
+blockchains. Prior PoS protocols required new nodes to obtain a trusted “checkpoint”
+upon joining and to be frequently online. Genesis enables parties to safely join or
+rejoin using <strong>only the genesis block</strong>, exactly like Bitcoin.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Genesis chain selection rule</strong>: A novel instantiation of the “maxvalid” procedure
+that allows joining parties to identify a chain whose prefix was part of a recent
+honest chain, using only genesis block knowledge.</p>
+</li>
+<li>
+<p><strong>Dynamic availability</strong>: The first GUC (Globally Universally Composable) treatment
+of PoS blockchains in a setting with arbitrary numbers of parties that may not be
+fully operational (network problems, reboots, updates).</p>
+</li>
+<li>
+<p><strong>Novel martingale technique</strong>: A new proof technique for analyzing blockchain
+security against adaptive adversaries, potentially of independent interest.</p>
+</li>
+<li>
+<p><strong>Full adaptive security</strong>: Proved secure against a fully adaptive adversary
+controlling less than half of total stake under the strict Global Random Oracle.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Ouroboros Genesis is being integrated into the
+Cardano node implementation. Its chain selection rule is critical for new nodes joining
+the network – without Genesis, a new node connecting to the Cardano network cannot
+securely determine which chain is valid by merely downloading from genesis. The
+Haskell cardano-node implementation has been progressively incorporating Genesis
+features.</p>
+<hr>
+<h3 id="35-ouroboros-crypsinous--privacy-preserving-proof-of-stake"><a class="header" href="#35-ouroboros-crypsinous--privacy-preserving-proof-of-stake">3.5 Ouroboros Crypsinous – Privacy-Preserving Proof-of-Stake</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Thomas Kerber, Aggelos Kiayias, Markulf Kohlweiss, Vassilis Zikas</td></tr>
+<tr><td><strong>Published</strong></td><td>IEEE Symposium on Security and Privacy (S&amp;P) 2019, pp. 157-174</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2018/1132">eprint.iacr.org/2018/1132</a></td></tr>
+<tr><td><strong>DOI</strong></td><td><a href="https://doi.org/10.1109/SP.2019.00063">10.1109/SP.2019.00063</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: The first <strong>formally analyzed privacy-preserving</strong> proof-of-stake
+blockchain protocol. Combines Ouroboros-style PoS with Zerocash-style private
+transactions.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>SNARK-based coin evolution</strong>: A novel technique where parties hold Zerocash-style
+coins; each coin is separately considered for leadership via NIZK proofs that a
+pseudorandom value meets the leadership target and the coin is unspent.</p>
+</li>
+<li>
+<p><strong>Key-private forward-secure encryption</strong>: Ensures privacy is maintained even
+against adaptive attacks over time.</p>
+</li>
+<li>
+<p><strong>GUC treatment of private ledgers</strong>: A thorough formalization of private ledger
+security in the Generalized Universal Composability setting.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Crypsinous is not deployed on Cardano mainnet but
+represents foundational research for privacy-preserving features. Its techniques
+inform the design of <strong>Midnight</strong>, IOG’s privacy-focused blockchain project announced
+in 2022.</p>
+<hr>
+<h3 id="36-ouroboros-chronos--permissionless-clock-synchronization-via-proof-of-stake"><a class="header" href="#36-ouroboros-chronos--permissionless-clock-synchronization-via-proof-of-stake">3.6 Ouroboros Chronos – Permissionless Clock Synchronization via Proof-of-Stake</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Christian Badertscher, Peter Gazi, Aggelos Kiayias, Alexander Russell, Vassilis Zikas</td></tr>
+<tr><td><strong>Published</strong></td><td>EUROCRYPT 2021</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2019/838">eprint.iacr.org/2019/838</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Solves the <strong>global clock synchronization problem</strong> using proof
+of stake. All previous Ouroboros variants assumed parties have access to a loosely
+synchronized global clock. Chronos removes this assumption, requiring only that local
+clocks advance at approximately the same speed.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Blockchain-era synchronizer</strong>: A novel mechanism that enables joining parties –
+even if their local time is off by an arbitrary amount – to quickly calibrate their
+local clocks to show approximately the same time.</p>
+</li>
+<li>
+<p><strong>Permissionless global clock</strong>: Since the blockchain can be joined by any party,
+Chronos provides a permissionless implementation of a global clock usable by
+higher-level protocols.</p>
+</li>
+<li>
+<p><strong>No single point of failure</strong>: Eliminates the vulnerability of externally hosted
+time sources (NTP servers) that telecommunications, transport, and financial
+infrastructure rely on.</p>
+</li>
+<li>
+<p><strong>Worst-case corruption tolerance</strong>: Tolerates worst-case corruption and dynamically
+fluctuating participation while relying only on local clocks.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Chronos represents future research for Cardano.
+Its principles could eliminate Cardano’s current dependency on NTP for slot timing,
+making the network self-sufficient for time synchronization. This is particularly
+relevant for deployment scenarios where NTP infrastructure is unreliable.</p>
+<hr>
+<h3 id="37-ouroboros-leios--high-throughput-permissionless-blockchain-consensus"><a class="header" href="#37-ouroboros-leios--high-throughput-permissionless-blockchain-consensus">3.7 Ouroboros Leios – High-Throughput Permissionless Blockchain Consensus</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Sandro Coretti, Matthias Fitzi, Aggelos Kiayias, Giorgos Panagiotakos, Alexander Russell</td></tr>
+<tr><td><strong>Published</strong></td><td>May 31, 2024 (ePrint); accepted at CRYPTO 2025</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2025/1115">eprint.iacr.org/2025/1115</a></td></tr>
+<tr><td><strong>Full Title</strong></td><td>“High-Throughput Permissionless Blockchain Consensus under Realistic Network Assumptions”</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Transforms any low-throughput permissionless base protocol
+(PoW or PoS) into a high-throughput system achieving a <strong>(1 - delta)-fraction of
+network capacity</strong> – near-optimal throughput – while affecting latency only by a
+constant factor.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Three block types</strong>: Input Blocks (IBs) carry transactions; Endorser Blocks (EBs)
+reference and endorse IBs with data availability proofs; Ranking Blocks (RBs) order
+blocks as part of the consensus mechanism.</p>
+</li>
+<li>
+<p><strong>Pipelined architecture</strong>: Uninterrupted concurrent processing across all three
+block types, decoupling transaction inclusion from consensus ordering.</p>
+</li>
+<li>
+<p><strong>Freshest-first diffusion (F_FFD)</strong>: A new network model with VRF-based timestamps
+for message prioritization, addressing adversarial burst attacks.</p>
+</li>
+<li>
+<p><strong>Equivocation proofs</strong>: Limits malicious double-signing spam in PoS settings.</p>
+</li>
+<li>
+<p><strong>30-50x throughput increase</strong>: From approximately 4.5 TxkB/s to 140-300 TxkB/s,
+with modest latency increase (45-60 seconds vs. 20 seconds).</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Leios is under active development for Cardano
+mainnet deployment. A CIP (Cardano Improvement Proposal) has been formally submitted.
+A July 2025 stress test demonstrated 1,000 TPS with non-Plutus transactions. The
+deployment timeline is estimated at 1-1.5 years. Resource requirements (4 vCPU, 10
+Mb/s bandwidth) ensure small operators can continue to participate.</p>
+<hr>
+<h3 id="38-ouroboros-peras--fast-settlement"><a class="header" href="#38-ouroboros-peras--fast-settlement">3.8 Ouroboros Peras – Fast Settlement</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Status</strong></td><td>Active research and engineering, 2024-2025</td></tr>
+<tr><td><strong>Documentation</strong></td><td><a href="https://peras.cardano-scaling.org/">peras.cardano-scaling.org</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Reduces Cardano’s transaction settlement time from minutes-to-
+hours (under Praos) to approximately <strong>two minutes</strong> via stake-based voting.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Stake-based block certification</strong>: SPOs vote to certify blocks at designated
+intervals. Certified blocks carry additional weight in chain selection.</p>
+</li>
+<li>
+<p><strong>Heaviest-chain selection</strong>: Modifies the chain selection rule from longest-chain
+to heaviest-chain, where certified blocks contribute extra weight.</p>
+</li>
+<li>
+<p><strong>Self-healing</strong>: If an adversary temporarily reaches a quorum, they can only take
+over if they maintain superiority over time; otherwise, honest parties recover.</p>
+</li>
+<li>
+<p><strong>Graceful degradation</strong>: In the event of a cooldown (insufficient voting
+participation), Peras reverts seamlessly to Praos behavior without compromising
+security.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Peras has progressed toward formal proofs of
+safety, liveness, and self-healing. Engineering evidence confirms integration with
+Praos is feasible with minimal disruption. It is expected to be deployed before Leios.</p>
+<hr>
+<h3 id="39-ouroboros-omega--the-final-form"><a class="header" href="#39-ouroboros-omega--the-final-form">3.9 Ouroboros Omega – The Final Form</a></h3>
+<p>Ouroboros Omega is the long-term vision for Cardano’s consensus protocol, unifying
+Peras, Leios, and other innovations into a single adaptive system.</p>
+<p><strong>Core design principles</strong>:</p>
+<ul>
+<li>
+<p><strong>Optimistic multi-path execution</strong>: When the network shows high uptime and reliable
+connectivity, the protocol accelerates to near-centralized-like performance. When
+conditions degrade, it falls back to a safe, decentralized mode.</p>
+</li>
+<li>
+<p><strong>Dynamic performance adaptation</strong>: Throughput and settlement automatically adjust
+to network conditions.</p>
+</li>
+<li>
+<p><strong>Comprehensive proof</strong>: Aims to either find practical solutions or rigorously prove
+what is and is not possible without sacrificing security.</p>
+</li>
+</ul>
+<p>Combining Leios with the EUTXO model could theoretically support throughput of up to
+<strong>one million transactions per second</strong>.</p>
+<hr>
+<h2 id="4-the-extended-utxo-model"><a class="header" href="#4-the-extended-utxo-model">4. The Extended UTXO Model</a></h2>
+<h3 id="41-the-extended-utxo-model"><a class="header" href="#41-the-extended-utxo-model">4.1 The Extended UTXO Model</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Manuel M.T. Chakravarty, James Chapman, Kenneth MacKenzie, Orestis Melkonian, Michael Peyton Jones, Philip Wadler</td></tr>
+<tr><td><strong>Published</strong></td><td>Workshop on Trusted Smart Contracts, Financial Cryptography 2020, February 2020</td></tr>
+<tr><td><strong>Venue</strong></td><td>FC 2020, LNCS vol. 12063, pp. 525-539, Springer</td></tr>
+<tr><td><strong>PDF</strong></td><td><a href="https://omelkonian.github.io/data/publications/eutxo.pdf">omelkonian.github.io/data/publications/eutxo.pdf</a></td></tr>
+<tr><td><strong>DOI</strong></td><td><a href="https://doi.org/10.1007/978-3-030-54455-3_37">10.1007/978-3-030-54455-3_37</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Extends Bitcoin’s UTXO model to support <strong>substantially more
+expressive validation scripts</strong>, including scripts that implement general state machines
+and enforce invariants across entire transaction chains – while preserving the semantic
+simplicity that makes UTXO attractive for concurrent and distributed computing.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Script-based addresses</strong>: Instead of restricting locks to public keys and keys to
+signatures, addresses can contain arbitrary logic in the form of validator scripts.</p>
+</li>
+<li>
+<p><strong>Datum</strong>: Transaction outputs carry (almost) arbitrary data in addition to an
+address and value, enabling scripts to carry state information.</p>
+</li>
+<li>
+<p><strong>Redeemer</strong>: Transactions provide a “redeemer” argument to scripts, enabling
+parameterized validation logic.</p>
+</li>
+<li>
+<p><strong>Constraint Emitting Machines (CEMs)</strong>: A form of state machine (based on Mealy
+machines) suitable for on-chain execution. The authors formalize CEMs, show how to
+compile them to EUTXO, and prove a weak bisimulation between the two systems.</p>
+</li>
+</ul>
+<p><strong>Why EUTXO over accounts?</strong>: Bitcoin chose UTXO for semantic simplicity in concurrent
+settings; Ethereum chose accounts for expressiveness. EUTXO achieves both:
+expressiveness comparable to accounts with the deterministic, parallel-friendly
+semantics of UTXO. A transaction’s effects are fully determined before submission –
+there are no “surprises” from concurrent state changes.</p>
+<p><strong>Relation to the running network</strong>: EUTXO is the <strong>ledger model of Cardano</strong> since the
+Alonzo hard fork (September 12, 2021). Every Plutus smart contract on Cardano operates
+within this model. The four components of EUTXO interaction are: Contract (the
+validator script), Redeemer (the spending argument), Datum (the state carried on the
+output), and Context (the transaction being validated).</p>
+<hr>
+<h3 id="42-native-custom-tokens-in-the-extended-utxo-model"><a class="header" href="#42-native-custom-tokens-in-the-extended-utxo-model">4.2 Native Custom Tokens in the Extended UTXO Model</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Manuel M.T. Chakravarty et al.</td></tr>
+<tr><td><strong>Published</strong></td><td>ISoLA 2020 (9th International Symposium on Leveraging Applications of Formal Methods), Rhodes, Greece, October 2020</td></tr>
+<tr><td><strong>Venue</strong></td><td>ISoLA 2020, LNCS vol. 12478, pp. 89-111, Springer</td></tr>
+<tr><td><strong>IOHK Library</strong></td><td><a href="https://iohk.io/en/research/library/papers/native-custom-tokens-in-the-extended-utxo-model/">iohk.io/en/research/library/papers/native-custom-tokens-in-the-extended-utxo-model/</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Generalizes EUTXO transaction outputs from locking a single
+cryptocurrency to locking <strong>entire token bundles</strong> including custom tokens whose
+forging is controlled by <strong>minting policy scripts</strong>.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Token bundles</strong>: Each output locks a structured collection of multiple token types
+in arbitrary quantities, enabling multi-asset transfers in single transactions.</p>
+</li>
+<li>
+<p><strong>Forging policy scripts</strong>: Define the conditions under which tokens can be minted
+or burned, providing programmable monetary policy per token.</p>
+</li>
+<li>
+<p><strong>Formal verification in Agda</strong>: A complete formalization of the multi-asset EUTXO
+ledger, proving that it is strictly more expressive than the single-currency EUTXO
+ledger.</p>
+</li>
+<li>
+<p><strong>Transfer result</strong>: An inductive and temporal property transfer from state machines
+to the multi-asset EUTXO ledger.</p>
+</li>
+</ul>
+<p><strong>Why “native”?</strong>: Unlike Ethereum’s ERC-20 tokens (which are smart contract state,
+not ledger primitives), Cardano’s native tokens are first-class citizens of the ledger.
+They are carried in transaction outputs alongside ADA, do not require custom contract
+code for basic transfers, and benefit from the same security guarantees as ADA itself.</p>
+<p><strong>Relation to the running network</strong>: Native multi-asset support has been live on
+Cardano since the <strong>Mary hard fork</strong> (March 1, 2021). As of 2025, there are millions
+of native tokens (fungible and non-fungible) on Cardano, all operating within this
+formally verified framework.</p>
+<hr>
+<h2 id="5-stake-delegation-incentives-and-account-management"><a class="header" href="#5-stake-delegation-incentives-and-account-management">5. Stake Delegation, Incentives, and Account Management</a></h2>
+<h3 id="account-management-in-proof-of-stake-ledgers"><a class="header" href="#account-management-in-proof-of-stake-ledgers">Account Management in Proof of Stake Ledgers</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Dimitris Karakostas et al. (with contributions from Lars Brunjes and others)</td></tr>
+<tr><td><strong>Published</strong></td><td>2020</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2020/525">eprint.iacr.org/2020/525</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: Explores mechanisms to maximize stakeholder participation in
+network maintenance by enabling proper account management, stake delegation, and
+incentivized participation.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Separation of payment and staking keys</strong>: Stake delegation does not require use
+of the payment key, which is reserved only for transferring funds. Compromising the
+staking operation does not compromise payment functionality.</p>
+</li>
+<li>
+<p><strong>Certificate-based delegation</strong>: Stakeholders commission stake pools via on-chain
+certificates, with replay attack protection through address whitelisting.</p>
+</li>
+<li>
+<p><strong>Master key derivation</strong>: A single master key (or seed) generates all account
+management information (payment keys, staking keys, etc.).</p>
+</li>
+</ul>
+<h3 id="reward-sharing-schemes-shelley-design-specification"><a class="header" href="#reward-sharing-schemes-shelley-design-specification">Reward Sharing Schemes (Shelley Design Specification)</a></h3>
+<p>The reward-sharing scheme, detailed in the <strong>Shelley Delegation and Incentives Design
+Specification (SL-D5)</strong>, describes how to properly incentivize stake pool operators
+and delegators. Key properties:</p>
+<ul>
+<li><strong>Nash equilibrium</strong>: Honest participation is the rational strategy for all actors.</li>
+<li><strong>Sybil resistance via pledging</strong>: The pledge mechanism greatly disincentivizes
+formation of multiple pools controlled by a single entity.</li>
+<li><strong>Desirability function</strong>: Steers the network toward a target number of pools
+(the k parameter), promoting decentralization.</li>
+<li><strong>Reward formula</strong>: <code>rewards = fees + monetary_expansion</code>; split between treasury
+(tau), pool operators (cost + margin), and delegators (proportional to stake).</li>
+</ul>
+<p><strong>Relation to the running network</strong>: This reward mechanism has governed Cardano’s
+economic incentives since Shelley. The ~3,000+ active stake pools on mainnet, the
+pledge dynamics, and the ~70% staking participation rate are all direct consequences
+of this design.</p>
+<hr>
+<h2 id="6-scaling-hydra-and-mithril"><a class="header" href="#6-scaling-hydra-and-mithril">6. Scaling: Hydra and Mithril</a></h2>
+<h3 id="61-hydra-fast-isomorphic-state-channels"><a class="header" href="#61-hydra-fast-isomorphic-state-channels">6.1 Hydra: Fast Isomorphic State Channels</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>Manuel M.T. Chakravarty et al.</td></tr>
+<tr><td><strong>Published</strong></td><td>March 2021</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2020/299">eprint.iacr.org/2020/299</a></td></tr>
+<tr><td><strong>IOHK Library</strong></td><td><a href="https://iohk.io/en/research/library/papers/hydrafast-isomorphic-state-channels/">iohk.io/en/research/library/papers/hydrafast-isomorphic-state-channels/</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: An <strong>isomorphic</strong> multi-party state channel protocol that
+reuses the Layer 1 ledger representation for off-chain processing, enabling the same
+smart contract code to run identically on- and off-chain.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Isomorphic design</strong>: Hydra “Heads” are off-chain ledger siblings that support
+native assets, NFTs, and Plutus scripts identically to the main chain.</p>
+</li>
+<li>
+<p><strong>3-round asynchronous confirmation</strong>: In the optimistic case, transactions are
+confirmed in 3 asynchronous rounds, independently of each other, without a leader.</p>
+</li>
+<li>
+<p><strong>State machine lifecycle</strong>: Four states (initial, open, closed, final) manage
+locking mainchain UTxOs, off-chain evolution, and settlement.</p>
+</li>
+<li>
+<p><strong>Contestation and dispute resolution</strong>: Parties can decommit the current head state
+back to the blockchain at any time.</p>
+</li>
+<li>
+<p><strong>Nested Heads</strong>: The long-term vision includes running Hydra Head protocol inside
+Hydra Heads (“Virtual Heads”), leveraging isomorphism for theoretically limitless
+scalability.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Hydra Head is live on Cardano mainnet as a Layer
+2 solution. Use cases include payment channels, auction systems, and high-frequency
+DApp interactions.</p>
+<hr>
+<h3 id="62-mithril-stake-based-threshold-multisignatures"><a class="header" href="#62-mithril-stake-based-threshold-multisignatures">6.2 Mithril: Stake-based Threshold Multisignatures</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th></th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Authors</strong></td><td>IOG Research</td></tr>
+<tr><td><strong>Published</strong></td><td>2021</td></tr>
+<tr><td><strong>ePrint</strong></td><td><a href="https://eprint.iacr.org/2021/916">eprint.iacr.org/2021/916</a></td></tr>
+<tr><td><strong>IOHK Library</strong></td><td><a href="https://iohk.io/en/research/library/papers/mithril-stake-based-threshold-multisignatures/">iohk.io/en/research/library/papers/mithril-stake-based-threshold-multisignatures/</a></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Core contribution</strong>: A new cryptographic primitive – <strong>Stake-based Threshold
+Multisignatures (STM)</strong> – enabling aggregation of individual signatures into a
+compact multisignature provided the supporting stake exceeds a threshold.</p>
+<p><strong>Key innovations</strong>:</p>
+<ul>
+<li>
+<p><strong>Pseudorandom subset sampling</strong>: For each message, a pseudorandomly sampled subset
+of participants is eligible to sign, ensuring scalability of signing, aggregation,
+and verification.</p>
+</li>
+<li>
+<p><strong>Lightweight bootstrapping</strong>: Instead of replaying the entire blockchain, new nodes
+verify STM-signed checkpoints at regular intervals, reducing sync from days to
+under two hours.</p>
+</li>
+<li>
+<p><strong>UC formalization</strong>: The primitive is formalized in the Universal Composability
+setting.</p>
+</li>
+<li>
+<p><strong>Mithril 2 and ALBAs</strong>: The follow-up paper introduces “Approximate Lower Bound
+Arguments” (ALBAs), enabling proof of possessing a large dataset without disclosing
+it entirely.</p>
+</li>
+</ul>
+<p><strong>Relation to the running network</strong>: Mithril is live on Cardano mainnet (beta). Its
+architecture (aggregator, signer, client) enables SPOs to produce signed snapshots of
+the Cardano state, allowing new nodes and light clients to bootstrap rapidly. This is
+critical for mobile wallets, bridges, and Layer 2 solutions.</p>
+<hr>
+<h2 id="7-formal-ledger-specifications"><a class="header" href="#7-formal-ledger-specifications">7. Formal Ledger Specifications</a></h2>
+<p>Cardano is distinguished by its commitment to formal specifications – mathematical
+documents that define every ledger rule precisely, independent of any programming
+language.</p>
+<h3 id="repositories"><a class="header" href="#repositories">Repositories</a></h3>
+<ul>
+<li><strong><a href="https://github.com/IntersectMBO/cardano-ledger">IntersectMBO/cardano-ledger</a></strong>: The ledger implementation (Haskell) and LaTeX specifications for all eras.</li>
+<li><strong><a href="https://github.com/IntersectMBO/formal-ledger-specifications">IntersectMBO/formal-ledger-specifications</a></strong>: Machine-verified Agda formalizations.</li>
+</ul>
+<h3 id="specification-documents-by-era"><a class="header" href="#specification-documents-by-era">Specification Documents by Era</a></h3>
+<p><strong>Byron Era</strong>:</p>
+<ul>
+<li><code>eras/byron/ledger/formal-spec</code> – Ledger rules for the Byron release</li>
+</ul>
+<p><strong>Shelley Era</strong> (July 2020):</p>
+<ul>
+<li><strong>A Formal Specification of the Cardano Ledger</strong> – Complete ledger rules including
+delegation and incentives</li>
+<li><strong>Engineering Design Specification for Delegation and Incentives in Cardano-Shelley
+(SL-D5)</strong> – Requirements and design for delegation and reward mechanisms</li>
+<li><strong>A Specification of the Non-Integral Calculations in the Ledger</strong> – Unambiguous
+definitions for non-integral calculations (e.g., reward formulas) ensuring identical
+results across architectures and programming languages</li>
+<li><strong>Stake pool ranking specification</strong> – Robust pool ranking mechanism</li>
+<li><strong>Small-step-semantics framework guide</strong> – Notation and style used throughout</li>
+</ul>
+<p><strong>Allegra/Mary Eras</strong> (December 2020 / March 2021):</p>
+<ul>
+<li><strong>Multi-asset formal specification</strong> – Formal addition of native multi-asset
+support to the Shelley-era ledger rules</li>
+</ul>
+<p><strong>Alonzo Era</strong> (September 2021):</p>
+<ul>
+<li><strong>Plutus integration formal specification</strong> – Formal addition of Plutus script
+validation to the ledger rules, building on the multi-asset specification</li>
+</ul>
+<p><strong>Conway Era</strong> (September 2024):</p>
+<ul>
+<li><strong>Formal Specification of the Cardano Ledger for the Conway Era</strong> – The most
+complete specification, with full Agda formalization</li>
+<li>Key changes: individual deposit tracking, GovState queue semantics, removal of
+pointer addresses, genesis delegations, and MIR certificates</li>
+<li>Reference script cost model for minfee calculation</li>
+</ul>
+<h3 id="formal-verification"><a class="header" href="#formal-verification">Formal Verification</a></h3>
+<p>The primary formal verification effort uses <strong>Agda</strong> (a dependently-typed proof
+assistant). The Conway-era Agda formalization is complete; previous eras are being
+progressively formalized. There is also a parallel formalization effort in
+<strong>Isabelle/HOL</strong>.</p>
+<p>The goal is a fully machine-verified specification that can serve as an unambiguous
+reference for any implementation in any programming language – including Bluematter.</p>
+<hr>
+<h2 id="8-cardanos-layered-architecture"><a class="header" href="#8-cardanos-layered-architecture">8. Cardano’s Layered Architecture</a></h2>
+<p>Cardano’s architecture, described in the “Why Cardano” essay and refined through
+subsequent research, separates concerns into distinct layers:</p>
+<h3 id="primary-layers"><a class="header" href="#primary-layers">Primary Layers</a></h3>
+<ol>
+<li>
+<p><strong>Cardano Settlement Layer (CSL)</strong>: Handles ADA transactions. Uses Ouroboros for
+consensus. Provides the immutable ledger foundation. Defines fundamental Cardano
+objects (addresses, UTxOs, blocks) and validation rules.</p>
+</li>
+<li>
+<p><strong>Cardano Computation Layer (CCL)</strong>: Executes smart contracts and decentralized
+applications via the Plutus platform. Can be upgraded independently of the
+settlement layer. Uses Untyped Plutus Core (UPLC) – a lambda calculus variant –
+as its on-chain execution language.</p>
+</li>
+</ol>
+<h3 id="granular-layer-breakdown"><a class="header" href="#granular-layer-breakdown">Granular Layer Breakdown</a></h3>
+<p>The Cardano Foundation describes four functional layers:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Layer</th><th>Function</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Networking</strong></td><td>Customized peer-to-peer system for PoS blockchains (multiplexed mini-protocols)</td></tr>
+<tr><td><strong>Consensus</strong></td><td>Ouroboros protocol family (slot leader election, chain selection, block validation)</td></tr>
+<tr><td><strong>Settlement</strong></td><td>Ledger function (UTxO rules, multi-asset accounting, fee calculation)</td></tr>
+<tr><td><strong>Scripting</strong></td><td>Plutus platform (UPLC execution, script validation, cost model enforcement)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-plutus-platform"><a class="header" href="#the-plutus-platform">The Plutus Platform</a></h3>
+<p>The smart contract compilation pipeline:</p>
+<ol>
+<li><strong>Haskell source</strong> (or Aiken, or other front-end languages)</li>
+<li><strong>Plutus IR</strong> (Intermediate Representation) – optimization pass</li>
+<li><strong>Typed Plutus Core</strong> – type-checked low-level representation</li>
+<li><strong>Untyped Plutus Core (UPLC)</strong> – the on-chain execution format (lambda calculus)</li>
+<li><strong>Flat encoding</strong> – binary serialization for on-chain storage</li>
+</ol>
+<p>Scripts interact with the ledger through the EUTXO model: each script receives a
+<strong>datum</strong> (state), <strong>redeemer</strong> (action), and <strong>script context</strong> (transaction details)
+and returns success or failure.</p>
+<hr>
+<h2 id="9-the-research-library-at-scale"><a class="header" href="#9-the-research-library-at-scale">9. The Research Library at Scale</a></h2>
+<h3 id="quantitative-summary-as-of-early-2026"><a class="header" href="#quantitative-summary-as-of-early-2026">Quantitative Summary (as of early 2026)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metric</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Total peer-reviewed papers</td><td>250+</td></tr>
+<tr><td>Contributing authors</td><td>300+</td></tr>
+<tr><td>Research partners / universities</td><td>15+</td></tr>
+<tr><td>Industry paper citations</td><td>10,000+</td></tr>
+<tr><td>Google Scholar profiles at IOHK/IOG</td><td>39</td></tr>
+<tr><td>Papers at Edinburgh lab alone</td><td>100+ accepted at conferences</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="key-venues-where-cardano-research-has-been-published"><a class="header" href="#key-venues-where-cardano-research-has-been-published">Key Venues Where Cardano Research Has Been Published</a></h3>
+<ul>
+<li><strong>CRYPTO</strong> (International Cryptology Conference) – Ouroboros Classic, Leios</li>
+<li><strong>EUROCRYPT</strong> (European Cryptology Conference) – Praos, Chronos</li>
+<li><strong>ACM CCS</strong> (Computer and Communications Security) – Genesis</li>
+<li><strong>IEEE S&amp;P</strong> (Symposium on Security and Privacy) – Crypsinous</li>
+<li><strong>Financial Cryptography (FC)</strong> – EUTXO model</li>
+<li><strong>ISoLA</strong> (Leveraging Applications of Formal Methods) – Native tokens</li>
+<li><strong>AFT</strong> (Advances in Financial Technologies)</li>
+</ul>
+<h3 id="research-topics-beyond-consensus"><a class="header" href="#research-topics-beyond-consensus">Research Topics Beyond Consensus</a></h3>
+<p>The IOG research library covers far more than consensus protocols:</p>
+<ul>
+<li><strong>Sidechains</strong> (proof-of-stake sidechains, merged mining)</li>
+<li><strong>Voting and governance</strong> (treasury systems, liquid democracy)</li>
+<li><strong>Zero-knowledge proofs</strong> (SNARKs, recursive composition)</li>
+<li><strong>Game theory</strong> (incentive mechanisms, mechanism design)</li>
+<li><strong>Formal methods</strong> (Agda formalizations, property-based testing)</li>
+<li><strong>Programming languages</strong> (Plutus core, UPLC semantics)</li>
+<li><strong>Network protocols</strong> (peer-to-peer, gossip, diffusion)</li>
+<li><strong>Central bank digital currencies</strong> (CBDC design)</li>
+<li><strong>Proof of useful work</strong></li>
+<li><strong>Functional encryption</strong> (consistency properties)</li>
+</ul>
+<p>The complete, searchable library is available at:</p>
+<ul>
+<li><a href="https://iohk.io/en/research/library/">iohk.io/en/research/library/</a></li>
+<li><a href="https://www.iog.io/papers">iog.io/papers</a></li>
+</ul>
+<hr>
+<h2 id="10-summary-from-paper-to-running-network"><a class="header" href="#10-summary-from-paper-to-running-network">10. Summary: From Paper to Running Network</a></h2>
+<p>The following table maps each major research paper to its deployment on the Cardano
+mainnet:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Paper</th><th>Conference/Year</th><th>Deployed As</th><th>Hard Fork / Era</th></tr>
+</thead>
+<tbody>
+<tr><td>Ouroboros Classic</td><td>CRYPTO 2017</td><td>Byron consensus</td><td>Byron (Sep 2017)</td></tr>
+<tr><td>Ouroboros BFT</td><td>ePrint 2018</td><td>Byron-Shelley bridge</td><td>Byron Reboot (Mar 2020)</td></tr>
+<tr><td>Ouroboros Praos</td><td>EUROCRYPT 2018</td><td>Current mainnet consensus</td><td>Shelley (Jul 2020)</td></tr>
+<tr><td>Ouroboros Genesis</td><td>CCS 2018</td><td>Node bootstrapping (in progress)</td><td>Incremental integration</td></tr>
+<tr><td>EUTXO Model</td><td>FC 2020</td><td>Cardano ledger model</td><td>Shelley onwards</td></tr>
+<tr><td>Native Custom Tokens</td><td>ISoLA 2020</td><td>Multi-asset ledger</td><td>Mary (Mar 2021)</td></tr>
+<tr><td>Plutus Integration Spec</td><td>Formal spec</td><td>Smart contract platform</td><td>Alonzo (Sep 2021)</td></tr>
+<tr><td>Hydra</td><td>ePrint 2021</td><td>Layer 2 state channels</td><td>Mainnet (2023+)</td></tr>
+<tr><td>Mithril</td><td>ePrint 2021</td><td>Fast bootstrapping protocol</td><td>Mainnet beta (2023+)</td></tr>
+<tr><td>Ouroboros Peras</td><td>Research 2024-25</td><td>Fast settlement (planned)</td><td>Future hard fork</td></tr>
+<tr><td>Ouroboros Leios</td><td>CRYPTO 2025</td><td>High throughput (planned)</td><td>Future hard fork</td></tr>
+<tr><td>Ouroboros Chronos</td><td>EUROCRYPT 2021</td><td>Self-sovereign time (research)</td><td>Future</td></tr>
+<tr><td>Ouroboros Crypsinous</td><td>IEEE S&amp;P 2019</td><td>Privacy research (Midnight)</td><td>Separate chain</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-cardano-development-eras"><a class="header" href="#the-cardano-development-eras">The Cardano Development Eras</a></h3>
+<p>Cardano’s development is organized into five named eras, each building on the
+research foundations described above:</p>
+<ol>
+<li><strong>Byron</strong> (Foundation, 2017-2020): Ouroboros Classic/BFT, federated network, basic
+value transfer.</li>
+<li><strong>Shelley</strong> (Decentralization, 2020): Ouroboros Praos, stake delegation, reward
+sharing, full decentralization.</li>
+<li><strong>Goguen</strong> (Smart Contracts, 2020-2021): EUTXO model, Plutus platform, native
+multi-asset support (Allegra, Mary, Alonzo hard forks).</li>
+<li><strong>Basho</strong> (Scaling, 2022+): Hydra, Mithril, pipelining, input endorsers (Leios).</li>
+<li><strong>Voltaire</strong> (Governance, 2024+): On-chain governance, treasury system, CIP-1694,
+Conway hard fork.</li>
+</ol>
+<hr>
+<h3 id="closing-note"><a class="header" href="#closing-note">Closing Note</a></h3>
+<p>Cardano represents a unique experiment in the blockchain space: the systematic
+application of academic research methods to the design, implementation, and evolution
+of a decentralized system. Every component of the running network – from the
+consensus protocol to the ledger rules to the smart contract platform – traces its
+lineage to a formally specified, peer-reviewed research paper. This document serves as
+an index to that research foundation, providing the context needed to understand not
+just <em>what</em> Cardano does, but <em>why</em> it works the way it does.</p>
+<hr>
+<p><em>Last updated: 2026-03-12</em></p>
+<p><em>Sources: IOG Research Library, IACR ePrint Archive, ACM Digital Library, IEEE Xplore,
+Springer, Cardano documentation, University of Edinburgh Research Explorer</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../cardano/eras.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../cardano/eras.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

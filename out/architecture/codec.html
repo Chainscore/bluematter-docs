@@ -1,0 +1,456 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Codec Module - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="codec-module--wire-format--deserialization"><a class="header" href="#codec-module--wire-format--deserialization">Codec Module – Wire Format &amp; Deserialization</a></h1>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The codec module (<code>src/bluematter/codec/</code>) handles CBOR deserialization of Cardano blocks, headers, and transactions with strict byte preservation. Cardano has no canonical CBOR serialization – the original bytes must be preserved verbatim because block hashes, transaction IDs, and body hashes are computed over the raw wire bytes. Re-encoding through a CBOR library would produce different bytes for non-canonical encodings, breaking all cryptographic verification. Every decoded type carries a <code>raw: bytes</code> field containing the exact wire bytes it was decoded from.</p>
+<h2 id="files"><a class="header" href="#files">Files</a></h2>
+<h3 id="__init__py"><a class="header" href="#__init__py"><code>__init__.py</code></a></h3>
+<p>Empty package marker.</p>
+<h3 id="cborpy-158-lines"><a class="header" href="#cborpy-158-lines"><code>cbor.py</code> (158 lines)</a></h3>
+<p>Low-level CBOR utilities: encoding, decoding, tag-24 unwrapping, and the critical <code>cbor_item_length</code> function.</p>
+<ul>
+<li><strong><code>ensure_bytes(v)</code></strong> (line 15): Coerce <code>bytes | bytearray | memoryview</code> to plain <code>bytes</code>.</li>
+<li><strong><code>decode(data)</code></strong> (line 20): Decode a CBOR byte string via <code>cbor2.loads</code>.</li>
+<li><strong><code>decode_with_remainder(data)</code></strong> (line 25): Decode one CBOR item from the front of a buffer, returning <code>(value, remaining_bytes)</code>. Uses <code>cbor_item_length</code> to find the boundary since cbor2’s C extension eagerly reads the entire buffer.</li>
+<li><strong><code>encode(obj)</code></strong> (line 36): Encode a Python object to CBOR via <code>cbor2.dumps</code>.</li>
+<li><strong><code>unwrap_tag24(data)</code></strong> (line 41): Unwrap <code>#6.24(bstr)</code> – the standard envelope for blocks and headers on the wire. Raises <code>ValueError</code> if the input is not a tag-24 wrapper.</li>
+<li><strong><code>cbor_item_length(data, offset=0, _depth=0)</code></strong> (line 55): Return the number of bytes consumed by the CBOR item at <code>offset</code>. This is the foundational primitive for byte-walking – it handles all 8 major types, indefinite-length containers, nested structures (up to 128 levels), and provides extensive truncation detection. Uses offset-based access internally to avoid quadratic slicing.</li>
+</ul>
+<h3 id="schemapy-437-lines"><a class="header" href="#schemapy-437-lines"><code>schema.py</code> (437 lines)</a></h3>
+<p>Declarative CBOR schema system with <code>@cbor_array</code> and <code>@cbor_map</code> decorators for frozen dataclasses.</p>
+<ul>
+<li><strong><code>_parse_cbor_head(data, offset=0)</code></strong> (line 44): Parse the head byte of a CBOR item, returning <code>(major_type, count_or_value, header_length)</code>.</li>
+<li><strong><code>_walk_array_items(data, _depth=0)</code></strong> (line 89): Slice a CBOR array into a <code>list[bytes]</code> of raw element byte-strings. Each element is sliced directly from the input buffer.</li>
+<li><strong><code>_walk_map_entries(data, _depth=0)</code></strong> (line 127): Slice a CBOR map into <code>list[tuple[bytes, bytes]]</code> of raw <code>(key, value)</code> byte-string pairs.</li>
+<li><strong><code>_walk_map_values(data, _depth=0)</code></strong> (line 169): Slice a CBOR map into <code>{decoded_key: raw_value_bytes}</code>. Keys are decoded (typically small integers), values remain as raw byte slices. Rejects duplicate map keys (COD-M).</li>
+<li><strong><code>_decode_field(item_raw, annotation)</code></strong> (line 222): Type-guided field decoder. Dispatches on annotation type: <code>bytes</code>, <code>int</code>, <code>str</code>, <code>Optional[X]</code>, schema types (calls <code>from_cbor</code>), <code>list[SchemaType]</code> (walks array and decodes each element), <code>set</code>, and generic fallback via <code>cbor2.loads</code>.</li>
+<li><strong><code>map_field(key, *, optional=False)</code></strong> (line 269): Declare a CBOR map field with its integer key. Returns a <code>dataclasses.field</code> with metadata for <code>@cbor_map</code> to consume.</li>
+<li><strong><code>cbor_array(cls)</code></strong> (line 293): Decorator that adds <code>from_cbor(data) -&gt; Self</code> and <code>to_cbor() -&gt; bytes</code> to a frozen dataclass. Fields map positionally to CBOR array elements. The class must have a <code>raw: bytes</code> field.</li>
+<li><strong><code>cbor_map(cls)</code></strong> (line 354): Decorator for CBOR map-encoded types. Fields must use <code>map_field(key)</code>. Supports <code>_strict_keys = True</code> to reject unknown map keys.</li>
+<li><strong><code>_resolve_hints(cls)</code></strong> (line 429): Resolve type hints for a class, handling forward references across modules.</li>
+</ul>
+<h3 id="blockpy-223-lines"><a class="header" href="#blockpy-223-lines"><code>block.py</code> (223 lines)</a></h3>
+<p>Block decoding: era detection, Conway full decode, pre-Conway opaque storage.</p>
+<ul>
+<li><strong><code>MAX_BLOCK_SIZE</code></strong> (line 36): 256 KB size guard (approximately 3x actual mainnet max of ~90 KB).</li>
+<li><strong><code>OpaqueBlock</code></strong> (line 38): Dataclass for pre-Conway blocks. Fields: <code>era</code>, <code>block_hash</code>, <code>raw</code>. Block hash is computable for chaining but internals are not parsed.</li>
+<li><strong><code>ConwayBlock</code></strong> (line 50): Fully decoded Conway block. Fields: <code>header</code>, <code>transactions</code>, <code>tx_bodies_raw</code>, <code>tx_witnesses_raw</code>, <code>auxiliary_data_raw</code>, <code>invalid_txs</code>, <code>raw</code>, <code>tx_bodies_array_raw</code>, <code>tx_witnesses_array_raw</code>, <code>invalid_txs_raw</code>. Properties: <code>block_hash</code>, <code>slot</code>, <code>block_number</code>.</li>
+<li><strong><code>Block</code></strong> (line 80): Type alias <code>ConwayBlock | OpaqueBlock</code>.</li>
+<li><strong><code>decode_block(envelope_cbor)</code></strong> (line 83): Main entry point. Walks the <code>[era_tag, block_data]</code> envelope, detects era, returns <code>ConwayBlock</code> for era 7 or <code>OpaqueBlock</code> for everything else.</li>
+<li><strong><code>_decode_conway_block(block_data_raw, envelope_cbor)</code></strong> (line 139): Internal Conway decode. Walks the 5-element block array <code>[header, tx_bodies, tx_witnesses, auxiliary_data, invalid_txs]</code>, validates structural invariants, decodes all components from byte-sliced raw data.</li>
+<li><strong><code>decode_block_from_wire(wire_bytes)</code></strong> (line 209): Entry point for bytes received from blockfetch. Unwraps tag-24 envelope, then calls <code>decode_block</code>.</li>
+</ul>
+<h3 id="headerpy-120-lines"><a class="header" href="#headerpy-120-lines"><code>header.py</code> (120 lines)</a></h3>
+<p>Conway block header types: <code>OperationalCert</code>, <code>ConwayHeaderBody</code>, <code>ConwayHeader</code>.</p>
+<ul>
+<li><strong><code>OperationalCert</code></strong> (line 33): <code>@cbor_array</code> dataclass. Fields: <code>hot_vkey</code> (32 bytes, KES verification key), <code>sequence_number</code>, <code>kes_period</code>, <code>sigma</code> (64 bytes, Ed25519 signature), <code>raw</code>. Post-init validates field sizes.</li>
+<li><strong><code>ConwayHeaderBody</code></strong> (line 59): <code>@cbor_array</code> dataclass. The 10-element header body array. Fields: <code>block_number</code>, <code>slot</code>, <code>prev_hash</code> (None for genesis), <code>issuer_vkey</code> (32 bytes), <code>vrf_vkey</code> (32 bytes), <code>vrf_result</code> (<code>[vrf_output, vrf_proof]</code>), <code>block_body_size</code>, <code>block_body_hash</code> (32 bytes), <code>operational_cert</code> (nested schema type), <code>protocol_version</code> (<code>[major, minor]</code>), <code>raw</code>. Post-init validates all field sizes and structural constraints.</li>
+<li><strong><code>ConwayHeader</code></strong> (line 98): <code>@cbor_array</code> dataclass. <code>[header_body, body_signature]</code>. Properties: <code>block_hash</code> (blake2b_256 of <code>self.raw</code>), <code>slot</code>, <code>block_number</code>, <code>prev_hash</code>.</li>
+</ul>
+<h3 id="transactionpy-283-lines"><a class="header" href="#transactionpy-283-lines"><code>transaction.py</code> (283 lines)</a></h3>
+<p>Conway transaction types: <code>TxIn</code>, <code>TxOut</code>, <code>ConwayTxBody</code>.</p>
+<ul>
+<li><strong><code>TxIn</code></strong> (line 51): <code>@cbor_array</code> dataclass. Fields: <code>tx_hash</code> (32 bytes), <code>output_index</code>, <code>raw</code>.</li>
+<li><strong><code>TxOut</code></strong> (line 59): Custom <code>from_cbor</code> (not decorator-based) handling both legacy array format <code>[address, amount, ?datum_hash]</code> and post-Alonzo map format <code>{0: address, 1: amount, 2: datum_option, 3: script_ref}</code>. Fields: <code>address</code>, <code>amount</code> (Value type), <code>datum_hash</code>, <code>inline_datum</code> (raw CBOR of inline datum), <code>script_ref</code> (raw CBOR of script reference), <code>raw</code>. Includes <code>__getstate__</code>/<code>__setstate__</code> for pickle backward compatibility across 5-field and 6-field formats.</li>
+<li><strong><code>ConwayTxBody</code></strong> (line 228): <code>@cbor_map</code> dataclass with <code>_strict_keys = True</code>. 3 required fields (inputs key 0, outputs key 1, fee key 2) and 17 optional fields (keys 3-22). Post-init validates: non-negative fee, positive donation, valid network_id (0 or 1), and non-empty container constraint for keys 4, 5, 9, 13, 14, 19, 20. Property: <code>tx_id</code> = <code>blake2b_256(self.raw)</code>.</li>
+</ul>
+<h3 id="erapy-35-lines"><a class="header" href="#erapy-35-lines"><code>era.py</code> (35 lines)</a></h3>
+<p>Era enumeration and wire-format tag mappings.</p>
+<ul>
+<li><strong><code>Era</code></strong> (line 16): IntEnum with values BYRON=0 through CONWAY=6.</li>
+<li><strong><code>_BLOCK_TAG_TO_ERA</code></strong> (line 28): Maps block-envelope wire tags (2-7) to <code>Era</code> values. Byron blocks have no era wrapper on the wire.</li>
+<li>Documents the two different era-tag schemes: block envelope (Byron=bare, Shelley=2..Conway=7) vs header envelope in chainsync (Byron=0, Shelley=1..Conway=6).</li>
+</ul>
+<h2 id="core-design-byte-preserving-cbor-schema"><a class="header" href="#core-design-byte-preserving-cbor-schema">Core Design: Byte-Preserving CBOR Schema</a></h2>
+<h3 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h3>
+<p>The schema system uses byte-walking rather than decode-reencode. The process is:</p>
+<ol>
+<li>
+<p><strong><code>cbor_item_length(data, offset)</code></strong> calculates the exact byte length of a CBOR item at a given offset by parsing CBOR headers and recursively walking nested structures. It never decodes values – it only counts bytes.</p>
+</li>
+<li>
+<p><strong><code>_walk_array_items(data)</code></strong> uses <code>cbor_item_length</code> to slice a CBOR array into individual element byte strings. For an array <code>[A, B, C]</code>, it returns <code>[raw_bytes_of_A, raw_bytes_of_B, raw_bytes_of_C]</code> where each slice is taken directly from the input buffer.</p>
+</li>
+<li>
+<p><strong><code>_walk_map_values(data)</code></strong> does the same for maps, returning <code>{decoded_key: raw_value_bytes}</code>.</p>
+</li>
+<li>
+<p>The <code>@cbor_array</code> decorator generates a <code>from_cbor(data)</code> classmethod that:</p>
+<ul>
+<li>Calls <code>_walk_array_items</code> to get raw byte slices for each positional element</li>
+<li>Calls <code>_decode_field</code> on each slice, guided by the field’s type annotation</li>
+<li>For nested schema types (e.g., <code>OperationalCert</code>), <code>_decode_field</code> calls <code>annotation.from_cbor(raw_slice)</code> recursively</li>
+<li>Stores the entire input as <code>self.raw</code></li>
+</ul>
+</li>
+<li>
+<p>The <code>@cbor_map</code> decorator does the same but matches by integer key rather than position.</p>
+</li>
+<li>
+<p><code>to_cbor()</code> simply returns <code>self.raw</code> – the original wire bytes.</p>
+</li>
+</ol>
+<h3 id="why-it-matters"><a class="header" href="#why-it-matters">Why It Matters</a></h3>
+<p>Cardano computes cryptographic hashes over original CBOR bytes:</p>
+<ul>
+<li><strong>Block hash</strong> = <code>blake2b_256(raw header CBOR)</code></li>
+<li><strong>Transaction ID</strong> = <code>blake2b_256(raw tx body CBOR)</code></li>
+<li><strong>Block body hash</strong> = <code>blake2b_256(raw body components)</code></li>
+</ul>
+<p>CBOR allows multiple valid encodings for the same value (e.g., different integer widths, definite vs. indefinite length containers). If a decoder round-trips through <code>cbor2.loads</code> + <code>cbor2.dumps</code>, the re-encoded bytes may differ from the original, producing wrong hashes. The byte-walking approach guarantees hash fidelity.</p>
+<h3 id="how-to-define-a-new-schema-type"><a class="header" href="#how-to-define-a-new-schema-type">How to Define a New Schema Type</a></h3>
+<pre><code class="language-python">from dataclasses import dataclass, field
+from bluematter.codec.schema import cbor_array, cbor_map, map_field
+
+# Array-encoded type (positional fields):
+@cbor_array
+@dataclass(frozen=True, slots=True)
+class MyArrayType:
+    first_field: int
+    second_field: bytes
+    nested_field: OperationalCert  # nested schema type decoded via from_cbor
+    raw: bytes = field(default=b"", repr=False, compare=False)
+
+# Map-encoded type (keyed fields):
+@cbor_map
+@dataclass(frozen=True, slots=True)
+class MyMapType:
+    required_field: int    = map_field(0)
+    optional_field: bytes | None = map_field(3, optional=True)
+    raw: bytes = field(default=b"", repr=False, compare=False)
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li>Apply <code>@cbor_array</code> or <code>@cbor_map</code> <strong>outside</strong> <code>@dataclass(frozen=True, slots=True)</code>.</li>
+<li>Always include a <code>raw: bytes</code> field (with default <code>b""</code>) as the last field.</li>
+<li>For <code>@cbor_map</code>, every non-raw field must use <code>map_field(key)</code>.</li>
+<li>Type annotations drive decoding: <code>bytes</code>, <code>int</code>, <code>str</code> are decoded directly; schema types call <code>from_cbor</code>; <code>list[SchemaType]</code> walks the array and decodes each element; <code>Optional[X]</code> unwraps and decodes as <code>X</code>.</li>
+</ul>
+<h2 id="data-flow"><a class="header" href="#data-flow">Data Flow</a></h2>
+<p>How raw block bytes flow through the codec:</p>
+<pre><code>Network (blockfetch)
+    |
+    v
+wire_bytes: #6.24(bytes .cbor [era_tag, block_data])
+    |
+    | decode_block_from_wire()
+    v
+unwrap_tag24() --&gt; envelope_cbor: [era_tag, block_data]
+    |
+    | decode_block()
+    v
+_walk_array_items(envelope_cbor) --&gt; [era_tag_raw, block_data_raw]
+    |
+    | cbor2.loads(era_tag_raw) --&gt; era detection
+    v
+era != 7: OpaqueBlock(era, block_hash, raw)
+era == 7: _decode_conway_block(block_data_raw, envelope_cbor)
+    |
+    v
+_walk_array_items(block_data_raw)
+    --&gt; [header_raw, tx_bodies_raw, witnesses_raw, aux_raw, invalid_raw]
+    |
+    | ConwayHeader.from_cbor(header_raw)
+    |   --&gt; _walk_array_items --&gt; [header_body_raw, body_sig_raw]
+    |       --&gt; ConwayHeaderBody.from_cbor(header_body_raw)
+    |           --&gt; 10 fields decoded positionally
+    |           --&gt; OperationalCert.from_cbor(cert_raw) [nested]
+    |
+    | _walk_array_items(tx_bodies_raw) --&gt; per-tx raw bytes
+    |   --&gt; ConwayTxBody.from_cbor(tx_raw) for each
+    |       --&gt; _walk_map_values --&gt; {0: inputs_raw, 1: outputs_raw, 2: fee_raw, ...}
+    |       --&gt; _decode_field on each value
+    |       --&gt; TxOut.from_cbor for outputs (array or map format)
+    |
+    v
+ConwayBlock(header, transactions, tx_bodies_raw, ...)
+</code></pre>
+<p>At every level, raw bytes are sliced from the parent buffer via <code>_walk_array_items</code> or <code>_walk_map_values</code>. No intermediate re-encoding ever occurs.</p>
+<h2 id="key-types"><a class="header" href="#key-types">Key Types</a></h2>
+<h3 id="conwayblock"><a class="header" href="#conwayblock"><code>ConwayBlock</code></a></h3>
+<p>The top-level decoded block. Contains the fully decoded <code>header</code> and <code>transactions</code>, plus raw byte arrays for each block component (needed for body hash verification and witness processing). The <code>block_hash</code> and <code>slot</code> are convenience properties delegating to the header.</p>
+<h3 id="conwayheader"><a class="header" href="#conwayheader"><code>ConwayHeader</code></a></h3>
+<p>A 2-element array <code>[header_body, body_signature]</code>. The <code>block_hash</code> property computes <code>blake2b_256(self.raw)</code> – the hash is always over the original wire bytes of the full header (body + signature together).</p>
+<h3 id="conwayheaderbody"><a class="header" href="#conwayheaderbody"><code>ConwayHeaderBody</code></a></h3>
+<p>A 10-element array containing all header metadata: block number, slot, previous block hash, issuer verification key, VRF key, VRF result (output + proof), block body size, block body hash, operational certificate, and protocol version.</p>
+<h3 id="conwaytxbody"><a class="header" href="#conwaytxbody"><code>ConwayTxBody</code></a></h3>
+<p>A CBOR map with 3 required keys (inputs, outputs, fee) and 17 optional keys covering the full Conway transaction body specification. The <code>tx_id</code> property computes <code>blake2b_256(self.raw)</code>. Strict key mode (<code>_strict_keys = True</code>) rejects any unknown map keys.</p>
+<h3 id="txout"><a class="header" href="#txout"><code>TxOut</code></a></h3>
+<p>A transaction output with custom decoding to handle both the legacy array format (pre-Babbage) and the post-Alonzo map format. Supports datum-by-hash (key 2, variant 0), inline datum (key 2, variant 1 with tag-24 wrapper), and script references (key 3).</p>
+<h3 id="txin"><a class="header" href="#txin"><code>TxIn</code></a></h3>
+<p>A transaction input: <code>[tx_hash, output_index]</code> referencing a previous output.</p>
+<h3 id="operationalcert"><a class="header" href="#operationalcert"><code>OperationalCert</code></a></h3>
+<p>The block producer’s operational certificate: <code>[hot_vkey, sequence_number, kes_period, sigma]</code>. The hot verification key is the KES key; sigma is the cold key’s Ed25519 signature over the hot key.</p>
+<h2 id="security-hardening"><a class="header" href="#security-hardening">Security Hardening</a></h2>
+<h3 id="cbor-count-guard-dos-prevention"><a class="header" href="#cbor-count-guard-dos-prevention">CBOR Count Guard (DoS Prevention)</a></h3>
+<p><strong>COD-C1</strong> (cbor.py lines 127-132, schema.py lines 115-119): Before iterating over a CBOR array or map, the declared item count is checked against the total data size. Since each CBOR item is at least 1 byte, a container claiming more items than bytes available is immediately rejected. This prevents amplification attacks where a tiny payload claims billions of items.</p>
+<h3 id="nesting-depth-limit"><a class="header" href="#nesting-depth-limit">Nesting Depth Limit</a></h3>
+<p>(cbor.py line 62-63, schema.py line 98-99): CBOR nesting is limited to 128 levels (<code>_depth &gt; 128</code>). Deeply nested structures that could cause stack overflow are rejected.</p>
+<h3 id="offset-based-walking-no-quadratic-slicing"><a class="header" href="#offset-based-walking-no-quadratic-slicing">Offset-Based Walking (No Quadratic Slicing)</a></h3>
+<p><code>cbor_item_length</code> and all <code>_walk_*</code> functions use absolute offset tracking internally (<code>pos</code> variable) rather than creating new <code>data[n:]</code> slices at each step. This prevents O(n^2) memory behavior on large containers.</p>
+<h3 id="duplicate-map-key-detection"><a class="header" href="#duplicate-map-key-detection">Duplicate Map Key Detection</a></h3>
+<p><strong>COD-M</strong> (schema.py lines 179-182): <code>_walk_map_values</code> maintains a <code>seen_keys</code> set and raises <code>ValueError</code> on any duplicate raw key bytes. This prevents ambiguous decoding and potential logic bugs from maps with repeated keys.</p>
+<h3 id="nonempty-field-validation"><a class="header" href="#nonempty-field-validation">NonEmpty Field Validation</a></h3>
+<p><strong>COD-H2</strong> (transaction.py lines 206-207, 270-278): Transaction body fields that are constrained to be non-empty when present (certificates, withdrawals, mint, collateral, required_signers, voting_procedures, proposal_procedures) are validated in <code>__post_init__</code>. An empty container for these keys raises <code>ValueError</code>.</p>
+<h3 id="field-size-validation"><a class="header" href="#field-size-validation">Field Size Validation</a></h3>
+<p>(header.py lines 42-54, 74-93): <code>OperationalCert.__post_init__</code> validates that <code>hot_vkey</code> is 32 bytes (or 448 for composite KES) and <code>sigma</code> is 64 bytes. <code>ConwayHeaderBody.__post_init__</code> validates <code>issuer_vkey</code> (32), <code>vrf_vkey</code> (32), <code>block_body_hash</code> (32), <code>vrf_result</code> length (2), and <code>protocol_version</code> length (2).</p>
+<h3 id="strict-map-keys"><a class="header" href="#strict-map-keys">Strict Map Keys</a></h3>
+<p>(schema.py lines 384-397, transaction.py line 223): <code>ConwayTxBody</code> sets <code>_strict_keys = True</code>, causing the <code>@cbor_map</code> decoder to reject any map key not declared in the schema. This prevents unexpected data from silently passing through.</p>
+<h3 id="block-size-limit"><a class="header" href="#block-size-limit">Block Size Limit</a></h3>
+<p>(block.py lines 34-36, 94-97): <code>MAX_BLOCK_SIZE = 256 * 1024</code> bytes. Both <code>decode_block</code> and <code>decode_block_from_wire</code> reject inputs exceeding this limit before any parsing begins.</p>
+<h3 id="invalid-transaction-index-bounds-check"><a class="header" href="#invalid-transaction-index-bounds-check">Invalid Transaction Index Bounds Check</a></h3>
+<p><strong>COD-M</strong> (block.py lines 187-193): After decoding the <code>invalid_txs</code> list, each index is checked against the actual number of transactions in the block. Out-of-range indices raise <code>ValueError</code>.</p>
+<h3 id="transaction-body-invariants"><a class="header" href="#transaction-body-invariants">Transaction Body Invariants</a></h3>
+<p>(transaction.py lines 256-278): <code>ConwayTxBody.__post_init__</code> validates: fee is non-negative, donation is positive when present, network_id is 0 or 1 when present, and non-empty container constraints.</p>
+<h3 id="bodywitness-count-alignment"><a class="header" href="#bodywitness-count-alignment">Body/Witness Count Alignment</a></h3>
+<p><strong>COD-H4</strong> (block.py lines 169-174): The number of transaction bodies must equal the number of witness sets in a block. A mismatch raises <code>ValueError</code>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/call-flows.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../architecture/crypto.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/call-flows.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../architecture/crypto.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

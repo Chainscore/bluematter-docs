@@ -1,0 +1,894 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Ledger Module - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="ledger-module--state-machine--validation"><a class="header" href="#ledger-module--state-machine--validation">Ledger Module – State Machine &amp; Validation</a></h1>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The <code>ledger/</code> package is the heart of Bluematter. It maintains the UTxO set, validates transactions against the formal Shelley/Conway specification rules, processes certificates, computes staking rewards, handles Conway governance (CIP-1694), and evaluates Plutus scripts. Together these modules implement the BBODY, UTXO, UTXOW, CERTS, RUPD, TICK, and NEWEPOCH rules from the formal specification.</p>
+<p>The ledger operates as a pure state machine: <code>LedgerState -&gt; apply_block(block) -&gt; LedgerState</code>. Block application is deterministic, mutation-based (in-place for performance), and produces identical results regardless of execution environment – a property critical for consensus.</p>
+<hr>
+<h2 id="files"><a class="header" href="#files">Files</a></h2>
+<h3 id="__init__py"><a class="header" href="#__init__py"><code>__init__.py</code></a></h3>
+<p>Empty package marker (re-exports nothing).</p>
+<h3 id="statepy"><a class="header" href="#statepy"><code>state.py</code></a></h3>
+<p>Defines the core ledger state types.</p>
+<ul>
+<li><code>Pots</code> – protocol-level ADA pots (treasury, reserves, fees, deposited)</li>
+<li><code>Account</code> – stake account (deposit, pool delegation, rewards)</li>
+<li><code>PoolParams</code> – pool registration parameters (operator, VRF keyhash, pledge, cost, margin, reward_account, owners, retiring_epoch, deposit_paid)</li>
+<li><code>LedgerState</code> – the full mutable state (UTxO, pots, protocol params, accounts, pools, epoch, slot, governance, snapshot rotation, block counts)</li>
+<li><code>LedgerState.compute_utxo_hash()</code> – deterministic blake2b_256 of the UTxO set for cross-node consistency checks</li>
+<li><code>LedgerState.summary()</code> – compact dict for logging</li>
+<li><code>LedgerState.__setstate__()</code> – pickle backward compatibility for checkpoint evolution</li>
+</ul>
+<h3 id="applypy"><a class="header" href="#applypy"><code>apply.py</code></a></h3>
+<p>Single-transaction state-update logic (no validation).</p>
+<ul>
+<li><code>input_key(inp)</code> – normalize CBOR-decoded input to <code>(tx_hash, output_index)</code> tuple</li>
+<li><code>apply_tx(state, tx, pp)</code> – apply one transaction to the ledger state (certs -&gt; governance -&gt; consume inputs -&gt; produce outputs -&gt; collect fees -&gt; debit withdrawals)</li>
+</ul>
+<h3 id="blockpy"><a class="header" href="#blockpy"><code>block.py</code></a></h3>
+<p>Full block application (BBODY rule).</p>
+<ul>
+<li><code>apply_block(state, block)</code> – the top-level entry point; validates and applies every transaction</li>
+<li><code>_verify_block_body_hash(block)</code> – 4-component hash check (tx_bodies, witnesses, aux_data, invalid_txs)</li>
+<li><code>_verify_block_body_size(block)</code> – body size matches header claim</li>
+<li><code>_parse_auxiliary_data_map(aux_raw)</code> – extract per-tx auxiliary data blobs</li>
+<li><code>_validate_tx(state, pp, tx, ...)</code> – run phase-1 UTXO + witness validation</li>
+<li><code>_validate_phase2(state, pp, tx, ...)</code> – run phase-2 Plutus script evaluation</li>
+<li><code>_apply_invalid_tx(state, block, idx)</code> – consume collateral for failed transactions</li>
+</ul>
+<h3 id="valuepy"><a class="header" href="#valuepy"><code>value.py</code></a></h3>
+<p>Multi-asset value arithmetic.</p>
+<ul>
+<li><code>Value</code> type alias: <code>int | list[int | dict[bytes, dict[bytes, int]]]</code></li>
+<li><code>lovelace_of(v)</code>, <code>multiasset_of(v)</code> – extract components</li>
+<li><code>value_add(a, b)</code>, <code>value_sub(a, b)</code> – component-wise addition/subtraction</li>
+<li><code>value_geq(a, b)</code>, <code>value_eq(a, b)</code> – component-wise comparison</li>
+<li><code>value_is_zero(v)</code>, <code>value_non_negative(v)</code> – predicates</li>
+<li><code>value_size(v)</code> – estimated serialized byte size</li>
+</ul>
+<h3 id="protocol_paramspy"><a class="header" href="#protocol_paramspy"><code>protocol_params.py</code></a></h3>
+<p>Conway-era protocol parameters merged from three genesis files.</p>
+<ul>
+<li><code>ProtocolParameters</code> – frozen dataclass with ~30 fields grouped by origin (Shelley, Alonzo, Conway)</li>
+<li><code>parse_protocol_params(shelley_path, alonzo_path, conway_path)</code> – parse and merge three genesis JSON files</li>
+<li><code>_to_rational(value)</code> – convert float/dict to <code>(numerator, denominator)</code> tuple</li>
+</ul>
+<h3 id="rulesutxopy"><a class="header" href="#rulesutxopy"><code>rules/utxo.py</code></a></h3>
+<p>Phase-1 UTXO validation (structural checks, no script execution).</p>
+<ul>
+<li><code>validate_utxo(pp, state, tx, slot)</code> – returns list of error strings</li>
+<li><code>_sum_inputs_value()</code>, <code>_sum_outputs_value()</code>, <code>_sum_withdrawals()</code>, <code>_mint_value()</code> – value aggregation</li>
+<li><code>_total_deposits(pp, tx, state)</code> – compute net deposit change from certificates</li>
+<li><code>_min_utxo_value(pp, out)</code> – <code>(output_size + 160) * lovelace_per_utxo_byte</code></li>
+<li><code>_value_cbor_size(v)</code> – CBOR-serialized byte count for max_value_size check</li>
+</ul>
+<h3 id="rulesutxowpy"><a class="header" href="#rulesutxowpy"><code>rules/utxow.py</code></a></h3>
+<p>Witness validation (signature and completeness checks).</p>
+<ul>
+<li><code>decode_witnesses(witness_raw)</code> – CBOR map keys 0-7 into decoded Python objects</li>
+<li><code>validate_witnesses(tx_body, witnesses, utxo, ...)</code> – VKey sig check, required signers, script completeness, script_data_hash, auxiliary_data_hash</li>
+<li><code>required_key_hashes(tx_body, utxo)</code> – collect all key hashes that must sign</li>
+<li><code>payment_credential(addr_bytes)</code> – extract <code>(cred_hash, is_key)</code> from Shelley address</li>
+<li><code>_check_script_completeness(...)</code> – every script-hash input has matching script + datum</li>
+<li><code>_validate_script_data_hash(...)</code> – <code>blake2b_256(redeemers_raw ++ datums_raw ++ language_views_cbor)</code></li>
+<li><code>_build_language_views(pp)</code> – PlutusV1 quirk: cost model CBOR-encoded as bytestring</li>
+</ul>
+<h3 id="rulescertspy"><a class="header" href="#rulescertspy"><code>rules/certs.py</code></a></h3>
+<p>Certificate processing for Conway era (types 0-18).</p>
+<ul>
+<li><code>process_certificates(state, certificates, pp)</code> – dispatch loop, returns errors</li>
+<li>Per-type handlers: <code>_stake_reg</code>, <code>_stake_unreg</code>, <code>_stake_deleg</code>, <code>_pool_reg</code>, <code>_pool_retire</code>, <code>_reg_cert</code>, <code>_unreg_cert</code>, <code>_stake_deleg_vote</code>, <code>_reg_and_deleg</code>, <code>_auth_committee_hot</code>, <code>_resign_committee</code>, <code>_drep_reg</code>, <code>_drep_unreg</code></li>
+</ul>
+<h3 id="epochpy"><a class="header" href="#epochpy"><code>epoch.py</code></a></h3>
+<p>Epoch boundary transitions (TICK / NEWEPOCH rules).</p>
+<ul>
+<li><code>slot_to_epoch(slot, epoch_length)</code> – integer division</li>
+<li><code>tick(state, new_slot)</code> – detect and apply epoch transitions (handles multi-epoch jumps)</li>
+<li><code>_apply_epoch_transition(state, new_epoch)</code> – rewards, snapshot rotation, pool retirements, governance enactment, block count rotation, fee reset</li>
+<li><code>_compute_current_stake_dist(state)</code> – build <code>{credential: lovelace}</code> from accounts + UTxO</li>
+<li><code>_retire_pools(state, epoch)</code> – refund deposits, clear delegations</li>
+</ul>
+<h3 id="rewardspy"><a class="header" href="#rewardspy"><code>rewards.py</code></a></h3>
+<p>Reward calculation (Shelley formal spec Section 5.5, RUPD rule).</p>
+<ul>
+<li><code>RewardUpdate</code> – dataclass: delta_treasury, delta_reserves, rewards dict, delta_fees</li>
+<li><code>compute_reward_update(state, blocks_made, active_stake)</code> – the <code>createRUpd</code> function</li>
+<li><code>apply_reward_update(state, update)</code> – credit treasury, reserves, individual rewards</li>
+<li><code>_max_pool(r_avail, sigma, p_r, a0, k)</code> – pledge-adjusted desirability function</li>
+<li><code>_mk_apparent_performance(sigma_a, n_blocks, total_blocks)</code> – <code>beta / sigma_a</code></li>
+<li><code>_r_operator(pool_r, cost, margin, s, sigma)</code> – leader reward split</li>
+<li><code>_r_member(pool_r, cost, margin, t, sigma)</code> – member reward split</li>
+</ul>
+<h3 id="governancepy"><a class="header" href="#governancepy"><code>governance.py</code></a></h3>
+<p>Conway governance enactment (CIP-1694).</p>
+<ul>
+<li><code>GovActionType</code> enum – ParameterChange, HardForkInitiation, TreasuryWithdrawals, NoConfidence, UpdateCommittee, NewConstitution, InfoAction</li>
+<li><code>VoteChoice</code> enum – No(0), Yes(1), Abstain(2)</li>
+<li><code>GovState</code> – proposals, votes, committee, constitution_hash, dreps, enacted history</li>
+<li><code>process_voting_procedures(gov_state, voting_procedures)</code> – record votes with eligibility checks</li>
+<li><code>process_proposal_procedures(gov_state, proposals, tx_hash, epoch, pp)</code> – register new proposals</li>
+<li><code>enact_governance(state, gov_state, epoch)</code> – ratify and enact at epoch boundary</li>
+<li><code>_is_ratified(proposal, votes, state, pp)</code> – stake-weighted CC/DRep/SPO threshold checks</li>
+<li>Enactment handlers: <code>_enact_treasury_withdrawals</code>, <code>_enact_parameter_change</code>, <code>_enact_no_confidence</code>, <code>_enact_update_committee</code>, <code>_enact_new_constitution</code></li>
+</ul>
+<h3 id="stake_snapshotpy"><a class="header" href="#stake_snapshotpy"><code>stake_snapshot.py</code></a></h3>
+<p>Stake snapshot rotation (mark / set / go, 3-epoch delay).</p>
+<ul>
+<li><code>StakeSnapshot</code> – per-pool stake, per-credential stake, total active stake, epoch</li>
+<li><code>SnapshotRotation</code> – mark/set_/go triple</li>
+<li><code>rotate_snapshots(rotation, new_mark)</code> – <code>go &lt;- set, set &lt;- mark, mark &lt;- new</code></li>
+<li><code>compute_stake_snapshot(state)</code> – scan accounts + UTxO for delegated stake</li>
+</ul>
+<h3 id="snapshotpy"><a class="header" href="#snapshotpy"><code>snapshot.py</code></a></h3>
+<p>Import Amaru-format NewEpochState CBOR to bootstrap a LedgerState.</p>
+<ul>
+<li><code>load_snapshot(path, streaming)</code> – auto-detect gzip, dispatch to standard or streaming parser</li>
+<li><code>parse_new_epoch_state(data)</code> – full CBOR decode (OK for preprod ~1.5M UTxO)</li>
+<li><code>parse_new_epoch_state_streaming(data)</code> – incremental byte-walking for mainnet (~15M UTxO)</li>
+<li><code>_parse_pools</code>, <code>_parse_accounts</code>, <code>_parse_utxo</code>, <code>_parse_txout</code> – sub-parsers</li>
+<li><code>_parse_protocol_params_from_cbor(pp_array)</code> – 31-element on-chain protocol params array</li>
+<li><code>_parse_account(acct_data)</code> – Conway UMap format: <code>[StrictMaybe&lt;(rewards, deposit)&gt;, pointers, pool_deleg, drep_deleg]</code></li>
+</ul>
+<h3 id="plutusdatapy"><a class="header" href="#plutusdatapy"><code>plutus/data.py</code></a></h3>
+<p>PlutusData construction helpers (Cardano ledger types to Plutus AST).</p>
+<ul>
+<li><code>make_constr(tag, fields)</code>, <code>bytes_data(b)</code>, <code>int_data(n)</code>, <code>list_data(items)</code>, <code>map_data(pairs)</code></li>
+<li><code>value_to_data(v)</code> – <code>Map&lt;CurrencySymbol, Map&lt;TokenName, Integer&gt;&gt;</code> with ADA under <code>b""</code></li>
+<li><code>credential_to_data(cred_hash, is_key)</code> – <code>PubKeyCredential = Constr(0, ...)</code> / <code>ScriptCredential = Constr(1, ...)</code></li>
+<li><code>addr_to_data(addr_bytes)</code> – Shelley address to Plutus Address (payment + staking credential)</li>
+<li><code>txin_to_data(tx_hash, idx)</code> – <code>TxOutRef = Constr(0, [TxId, Integer])</code></li>
+<li><code>txout_to_data(out)</code> – V2 format: <code>Constr(0, [address, value, datum_option, maybe_script_hash])</code></li>
+</ul>
+<h3 id="plutusscript_contextpy"><a class="header" href="#plutusscript_contextpy"><code>plutus/script_context.py</code></a></h3>
+<p>ScriptContext construction for V1, V2, and V3 Plutus validators.</p>
+<ul>
+<li><code>build_tx_info_v1(tx, witnesses, utxo, slot)</code> – 10-field TxInfo (no ref_inputs, no redeemers, 3-field TxOut)</li>
+<li><code>build_tx_info_v2(tx, witnesses, utxo, slot)</code> – 12-field TxInfo (ref_inputs, redeemers, 4-field TxOut)</li>
+<li><code>build_tx_info_v3(tx, witnesses, utxo, slot)</code> – 16-field TxInfo (adds voting, proposals, treasury, donation)</li>
+<li><code>build_script_context_v2(tx_info, purpose)</code> – <code>Constr(0, [TxInfo, ScriptPurpose])</code></li>
+<li><code>build_script_context_v3(tx_info, redeemer, purpose)</code> – <code>Constr(0, [TxInfo, Redeemer, ScriptInfo])</code></li>
+<li><code>cert_to_data_v1v2(cert)</code> / <code>cert_to_data_v3(cert)</code> – DCert/TxCert encoding with wire-to-Plutus tag mapping</li>
+<li>Purpose constructors: <code>spending_purpose</code>, <code>minting_purpose</code>, <code>rewarding_purpose</code>, <code>certifying_purpose_v1v2</code></li>
+<li>V3 ScriptInfo constructors: <code>spending_script_info</code>, <code>minting_script_info</code>, <code>rewarding_script_info</code>, <code>certifying_script_info</code></li>
+</ul>
+<h3 id="plutusevaluatepy"><a class="header" href="#plutusevaluatepy"><code>plutus/evaluate.py</code></a></h3>
+<p>Plutus script evaluation driver.</p>
+<ul>
+<li><code>eval_scripts(tx, witnesses, utxo, slot, pp, is_valid)</code> – evaluate all scripts, cross-check is_valid flag</li>
+<li><code>_decode_redeemers(raw)</code> – Conway map format <code>{[tag, idx]: [data, [mem, steps]]}</code> and Babbage list format</li>
+<li><code>_collect_scripts(witnesses)</code> – hash and index PlutusV1/V2/V3 scripts from witness set keys 3/6/7</li>
+<li><code>_collect_reference_scripts(tx, utxo)</code> – scripts from reference inputs and regular spend inputs</li>
+<li><code>_resolve_script_hash(tag, index, ...)</code> – find script hash for SPEND/MINT/CERT/REWARD redeemer</li>
+<li><code>_resolve_datum(spend_index, ...)</code> – inline datum or datum hash lookup</li>
+<li><code>_run_script(flat_bytes, args, version, ex_mem, ex_steps, pp)</code> – unflatten, apply args, run CEK machine</li>
+<li><code>_get_cost_models(version, pp)</code> – on-chain cost models from protocol params with uplc fallback</li>
+<li><code>get_script_languages(tx, witnesses, utxo)</code> – determine which Plutus versions are used</li>
+</ul>
+<h3 id="utilspy"><a class="header" href="#utilspy"><code>utils.py</code></a></h3>
+<p>Shared helpers used across ledger modules.</p>
+<ul>
+<li><code>to_bytes(x)</code> – coerce to <code>bytes</code></li>
+<li><code>extract_address(out)</code> – get address bytes from TxOut or raw list</li>
+<li><code>parse_script_ref(raw)</code> – unwrap reference-script CBOR: <code>[version_tag, script_body]</code></li>
+<li><code>script_ref_hash(raw)</code> – parse + compute <code>blake2b_224(version_prefix + flat_bytes)</code></li>
+</ul>
+<h3 id="constantspy"><a class="header" href="#constantspy"><code>constants.py</code></a></h3>
+<p>Named constants for address parsing and protocol defaults.</p>
+<ul>
+<li><code>PAYMENT_CRED_START=1</code>, <code>PAYMENT_CRED_END=29</code>, <code>STAKING_CRED_START=29</code>, <code>STAKING_CRED_END=57</code>, <code>MIN_BASE_ADDR_LEN=57</code></li>
+<li><code>DEFAULT_POOL_DEPOSIT=500_000_000</code></li>
+</ul>
+<h3 id="errorspy"><a class="header" href="#errorspy"><code>errors.py</code></a></h3>
+<p>Custom exception types.</p>
+<ul>
+<li><code>BlockValidationError</code> – block-level failures (body hash, size, slot regression)</li>
+<li><code>TxValidationError</code> – transaction-level failures (UTXO, witness, phase-2)</li>
+</ul>
+<hr>
+<h2 id="core-data-types"><a class="header" href="#core-data-types">Core Data Types</a></h2>
+<h3 id="ledgerstate"><a class="header" href="#ledgerstate">LedgerState</a></h3>
+<p>The central mutable state object, passed through the entire block-application pipeline.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>utxo</code></td><td><code>dict[tuple[bytes, int], TxOut]</code></td><td>Unspent transaction outputs. Key = <code>(tx_hash, output_index)</code>.</td></tr>
+<tr><td><code>pots</code></td><td><code>Pots</code></td><td>Protocol-level ADA accounting (treasury, reserves, fees, deposited).</td></tr>
+<tr><td><code>protocol_params</code></td><td><code>ProtocolParameters | None</code></td><td>Current protocol parameters. <code>None</code> = validation disabled (test mode).</td></tr>
+<tr><td><code>accounts</code></td><td><code>dict[bytes, Account]</code></td><td>Registered stake accounts. Key = 28-byte credential hash.</td></tr>
+<tr><td><code>pools</code></td><td><code>dict[bytes, PoolParams]</code></td><td>Registered stake pools. Key = 28-byte pool operator hash.</td></tr>
+<tr><td><code>epoch</code></td><td><code>int</code></td><td>Current epoch number.</td></tr>
+<tr><td><code>slot</code></td><td><code>int</code></td><td>Slot of the most recently applied block.</td></tr>
+<tr><td><code>network_id</code></td><td><code>int | None</code></td><td>0 = testnet, 1 = mainnet.</td></tr>
+<tr><td><code>epoch_length</code></td><td><code>int</code></td><td>Slots per epoch (default 432,000 for mainnet).</td></tr>
+<tr><td><code>blocks_made</code></td><td><code>dict[bytes, int]</code></td><td>Current-epoch block production count per pool.</td></tr>
+<tr><td><code>gov_state</code></td><td><code>GovState | None</code></td><td>Conway governance state (proposals, votes, committee).</td></tr>
+<tr><td><code>_go_blocks_made</code></td><td><code>dict[bytes, int]</code></td><td>Block counts from 2 epochs ago (used by RUPD).</td></tr>
+<tr><td><code>_prev_blocks_made</code></td><td><code>dict[bytes, int]</code></td><td>Block counts from 1 epoch ago.</td></tr>
+<tr><td><code>_fee_ss</code></td><td><code>int | None</code></td><td>Fee snapshot for reward calculation.</td></tr>
+<tr><td><code>_reward_computation_failed</code></td><td><code>bool</code></td><td>If True, fees go to treasury on next epoch boundary.</td></tr>
+<tr><td><code>_snapshot_rotation</code></td><td><code>SnapshotRotation | None</code></td><td>Mark/set/go rotation for leader schedule.</td></tr>
+<tr><td><code>_go_stake_dist</code></td><td><code>dict[bytes, int] | None</code></td><td>Frozen stake distribution (2 epochs old).</td></tr>
+<tr><td><code>_set_stake_dist</code></td><td><code>dict[bytes, int] | None</code></td><td>Frozen stake distribution (1 epoch old).</td></tr>
+<tr><td><code>_mark_stake_dist</code></td><td><code>dict[bytes, int] | None</code></td><td>Frozen stake distribution (current snapshot).</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="pots"><a class="header" href="#pots">Pots</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>treasury</code></td><td><code>int</code></td><td>Treasury balance in lovelace.</td></tr>
+<tr><td><code>reserves</code></td><td><code>int</code></td><td>Reserves balance (uncirculated ADA).</td></tr>
+<tr><td><code>fees</code></td><td><code>int</code></td><td>Accumulated transaction fees in the current epoch.</td></tr>
+<tr><td><code>deposited</code></td><td><code>int</code></td><td>Cumulative outstanding deposits (stake keys + pools).</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="account"><a class="header" href="#account">Account</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>deposit</code></td><td><code>int</code></td><td>Deposit locked for this stake credential registration.</td></tr>
+<tr><td><code>pool</code></td><td><code>bytes | None</code></td><td>Pool ID this account delegates to (None = not delegated).</td></tr>
+<tr><td><code>rewards</code></td><td><code>int</code></td><td>Accumulated reward balance in lovelace.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="poolparams"><a class="header" href="#poolparams">PoolParams</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>operator</code></td><td><code>bytes</code></td><td>Pool operator key hash (28 bytes).</td></tr>
+<tr><td><code>vrf_keyhash</code></td><td><code>bytes</code></td><td>VRF verification key hash.</td></tr>
+<tr><td><code>pledge</code></td><td><code>int</code></td><td>Declared pledge in lovelace.</td></tr>
+<tr><td><code>cost</code></td><td><code>int</code></td><td>Fixed cost per epoch in lovelace.</td></tr>
+<tr><td><code>margin</code></td><td><code>tuple[int, int]</code></td><td>Margin as rational <code>(numerator, denominator)</code>.</td></tr>
+<tr><td><code>reward_account</code></td><td><code>bytes</code></td><td>Reward address for operator rewards (29 bytes).</td></tr>
+<tr><td><code>owners</code></td><td><code>set[bytes]</code></td><td>Pool owner key hashes (for pledge verification).</td></tr>
+<tr><td><code>retiring_epoch</code></td><td><code>int | None</code></td><td>Epoch at which pool retires (None = active).</td></tr>
+<tr><td><code>deposit_paid</code></td><td><code>int</code></td><td>Actual deposit paid at registration time.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="protocolparameters"><a class="header" href="#protocolparameters">ProtocolParameters</a></h3>
+<p>Frozen dataclass (~30 fields) merged from three genesis JSON files:</p>
+<p><strong>Fee parameters</strong> (from Shelley genesis):
+<code>min_fee_a</code>, <code>min_fee_b</code> – linear fee formula: <code>fee &gt;= min_fee_a * tx_size + min_fee_b</code></p>
+<p><strong>Size limits</strong> (Shelley):
+<code>max_block_body_size</code>, <code>max_tx_size</code>, <code>max_block_header_size</code>, <code>max_value_size</code></p>
+<p><strong>Deposit parameters</strong> (Shelley):
+<code>stake_credential_deposit</code>, <code>stake_pool_deposit</code></p>
+<p><strong>Pool parameters</strong> (Shelley):
+<code>pool_retirement_max_epoch</code>, <code>optimal_pool_count</code> (k), <code>pledge_influence</code> (a0), <code>min_pool_cost</code></p>
+<p><strong>Economic parameters</strong> (Shelley):
+<code>monetary_expansion</code> (rho), <code>treasury_expansion</code> (tau)</p>
+<p><strong>Plutus parameters</strong> (from Alonzo genesis):
+<code>lovelace_per_utxo_byte</code>, <code>collateral_percentage</code>, <code>max_collateral_inputs</code>, <code>max_tx_ex_units</code>, <code>max_block_ex_units</code>, <code>cost_models</code>, <code>price_mem</code>, <code>price_step</code></p>
+<p><strong>Governance parameters</strong> (from Conway genesis):
+<code>pool_voting_thresholds</code>, <code>drep_voting_thresholds</code>, <code>committee_min_size</code>, <code>committee_max_term_length</code>, <code>gov_action_lifetime</code>, <code>gov_action_deposit</code>, <code>drep_deposit</code>, <code>drep_activity</code>, <code>min_fee_ref_script_per_byte</code></p>
+<h3 id="value"><a class="header" href="#value">Value</a></h3>
+<p>Cardano’s multi-asset value type:</p>
+<pre><code>Value = int                                        # pure lovelace
+       | list[int, dict[bytes, dict[bytes, int]]]  # [coin, {policy: {asset: qty}}]
+</code></pre>
+<p>The list form comes directly from CBOR decoding. All arithmetic operates component-wise.</p>
+<p><strong>Key functions:</strong></p>
+<ul>
+<li><code>lovelace_of(v)</code> – extract lovelace (ADA) component</li>
+<li><code>multiasset_of(v)</code> – extract multi-asset map (empty dict if pure lovelace)</li>
+<li><code>value_add(a, b)</code> – add component-wise; returns <code>int</code> if result has no multi-assets</li>
+<li><code>value_sub(a, b)</code> – subtract component-wise; raises <code>ValueError</code> on negative</li>
+<li><code>value_geq(a, b)</code> – True if <code>a &gt;= b</code> in every component</li>
+<li><code>value_eq(a, b)</code> – True if equal in every component (handles zero entries)</li>
+<li><code>value_non_negative(v)</code> – True if all components &gt;= 0</li>
+<li><code>value_is_zero(v)</code> – True if lovelace is 0 and all assets are 0</li>
+<li><code>value_size(v)</code> – estimated serialized size for max_value_size checks</li>
+</ul>
+<hr>
+<h2 id="block-application-pipeline"><a class="header" href="#block-application-pipeline">Block Application Pipeline</a></h2>
+<p>The entry point is <code>apply_block(state, block)</code> in <code>block.py</code>. Here is the step-by-step flow:</p>
+<h3 id="1-slot-advancement-check"><a class="header" href="#1-slot-advancement-check">1. Slot advancement check</a></h3>
+<pre><code>if block.slot &lt;= state.slot and state.slot &gt; 0:
+    raise BlockValidationError
+</code></pre>
+<p>Block slot must strictly increase (except at genesis).</p>
+<h3 id="2-epoch-boundary-transition-tick-rule"><a class="header" href="#2-epoch-boundary-transition-tick-rule">2. Epoch boundary transition (TICK rule)</a></h3>
+<pre><code class="language-python">tick(state, block.slot)
+</code></pre>
+<p>If the block’s slot is in a new epoch, <code>tick()</code> fires <code>_apply_epoch_transition()</code> for each intermediate epoch. This runs rewards, snapshot rotation, pool retirements, and governance enactment <strong>before</strong> any transactions are processed.</p>
+<h3 id="3-block-body-verification-when-protocol_params-set"><a class="header" href="#3-block-body-verification-when-protocol_params-set">3. Block body verification (when protocol_params set)</a></h3>
+<ul>
+<li><strong>Body hash</strong>: blake2b_256 of each of the 4 component arrays (tx_bodies, witnesses, aux_data, invalid_txs), concatenated into 128 bytes, then hashed again. Must match header claim.</li>
+<li><strong>Body size</strong>: sum of the 4 component array lengths must match header claim.</li>
+</ul>
+<h3 id="4-parse-auxiliary-data-map"><a class="header" href="#4-parse-auxiliary-data-map">4. Parse auxiliary data map</a></h3>
+<p>Extract per-transaction auxiliary data blobs from the block-level CBOR map.</p>
+<h3 id="5-for-each-transaction-indexed-by-position"><a class="header" href="#5-for-each-transaction-indexed-by-position">5. For each transaction (indexed by position):</a></h3>
+<p><strong>If the transaction index is in the <code>invalid_set</code> (phase-2 failures):</strong></p>
+<ol>
+<li>Run phase-2 validation (best-effort, non-fatal)</li>
+<li><code>_apply_invalid_tx()</code>: consume collateral inputs, produce collateral_return output, add total_collateral (or net collateral) to fee pot.</li>
+</ol>
+<p><strong>If the transaction is valid:</strong></p>
+<ol>
+<li><strong>Phase-1 validation</strong> (<code>_validate_tx</code>):
+<ul>
+<li><code>validate_utxo(pp, state, tx, slot)</code> – all structural checks</li>
+<li><code>decode_witnesses(witness_raw)</code> + <code>validate_witnesses(tx, witnesses, utxo, ...)</code> – signature and completeness checks</li>
+</ul>
+</li>
+<li><strong>Phase-2 validation</strong> (<code>_validate_phase2</code>):
+<ul>
+<li>Skip if no redeemers (witness key 5) or no cost_models</li>
+<li><code>eval_scripts(tx, witnesses, utxo, slot, pp, is_valid=True)</code> – run Plutus CEK machine</li>
+</ul>
+</li>
+<li><strong>Apply</strong> (<code>apply_tx(state, tx, pp)</code>):
+<ul>
+<li>Process certificates (CERTS rule)</li>
+<li>Process governance (GOV rule – voting + proposals)</li>
+<li>Remove consumed inputs from UTxO</li>
+<li>Add new outputs to UTxO (keyed by <code>(tx_id, output_index)</code>)</li>
+<li>Add <code>tx.fee</code> to <code>pots.fees</code></li>
+<li>Zero out withdrawal account balances</li>
+</ul>
+</li>
+</ol>
+<h3 id="6-post-transaction-updates"><a class="header" href="#6-post-transaction-updates">6. Post-transaction updates</a></h3>
+<ul>
+<li><code>state.slot = block.slot</code></li>
+<li><code>state.blocks_made[pool_id] += 1</code> where <code>pool_id = blake2b_224(issuer_vkey)</code></li>
+</ul>
+<hr>
+<h2 id="validation-rules"><a class="header" href="#validation-rules">Validation Rules</a></h2>
+<h3 id="utxo-rules-phase-1"><a class="header" href="#utxo-rules-phase-1">UTxO Rules (Phase 1)</a></h3>
+<p>All checks are in <code>validate_utxo()</code>. Each returns an error string on failure.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>#</th><th>Rule</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Input set non-empty</td><td>Transaction must spend at least one input.</td></tr>
+<tr><td>2</td><td>All inputs exist in UTxO</td><td>Every input reference must be present in the current UTxO set.</td></tr>
+<tr><td>3</td><td>Fee &gt;= min_fee</td><td><code>min_fee = min_fee_a * tx_size + min_fee_b + ref_script_surcharge + script_ex_fee</code>. Reference script surcharge uses <code>min_fee_ref_script_per_byte</code> (CIP-69).</td></tr>
+<tr><td>4</td><td>Value conservation</td><td><code>consumed == produced</code> where consumed = sum(inputs) + withdrawals + mint, produced = sum(outputs) + fee + deposits + proposal_deposits + treasury + donation. Full multi-asset check.</td></tr>
+<tr><td>5</td><td>TTL not expired</td><td>If <code>tx.ttl</code> is set, <code>slot &lt;= tx.ttl</code>.</td></tr>
+<tr><td>6</td><td>Validity start</td><td>If <code>tx.validity_start</code> is set, <code>slot &gt;= tx.validity_start</code>.</td></tr>
+<tr><td>7</td><td>Output min UTxO</td><td>Each output must hold <code>&gt;= (output_size + 160) * lovelace_per_utxo_byte</code> lovelace.</td></tr>
+<tr><td>8</td><td>Max tx size</td><td><code>len(tx.raw) &lt;= max_tx_size</code>.</td></tr>
+<tr><td>9</td><td>Network ID check</td><td>If tx declares a network ID, it must match <code>state.network_id</code>.</td></tr>
+<tr><td>10</td><td>Max value size</td><td>CBOR-serialized size of each output’s value must be <code>&lt;= max_value_size</code>.</td></tr>
+<tr><td>11</td><td>Output address network</td><td>For Shelley addresses (types 0-7), the address network nibble must match <code>state.network_id</code>.</td></tr>
+<tr><td>12</td><td>Collateral return checks</td><td>Min UTxO and max value size on collateral_return output.</td></tr>
+<tr><td>13</td><td>Reference input existence</td><td>All reference inputs must exist in UTxO.</td></tr>
+<tr><td>14</td><td>Max collateral inputs</td><td><code>len(collateral) &lt;= max_collateral_inputs</code>.</td></tr>
+<tr><td>15</td><td>Collateral at VKey addresses</td><td>Collateral inputs must be at Shelley VKey addresses (no Byron, no script addresses).</td></tr>
+<tr><td>16</td><td>Collateral balance</td><td>Net collateral must be ADA-only and <code>&gt;= tx.fee * collateral_percentage / 100</code>.</td></tr>
+<tr><td>17</td><td>Withdrawal amount match</td><td>Each withdrawal amount must exactly equal the account’s reward balance. Credential must be registered.</td></tr>
+<tr><td>18</td><td>No ADA minting</td><td>Empty policy ID (b““) is forbidden in the mint field.</td></tr>
+<tr><td>19</td><td>Max tx execution units</td><td>Total redeemer ExUnits must not exceed <code>max_tx_ex_units</code> (enforced at phase-2).</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="witness-rules"><a class="header" href="#witness-rules">Witness Rules</a></h3>
+<p>Implemented in <code>validate_witnesses()</code>:</p>
+<p><strong>1. VKey signature verification:</strong>
+For each <code>[vkey, signature]</code> pair in witness key 0, verify <code>ed25519.verify(vkey, signature, tx_body_hash)</code>. Track <code>blake2b_224(vkey)</code> of successful verifications.</p>
+<p><strong>2. Required key hashes</strong> (<code>required_key_hashes()</code>):
+The set of key hashes that must have valid signatures is the union of:</p>
+<ul>
+<li>Explicit <code>required_signers</code> field</li>
+<li>Payment credentials from input addresses (UTxO lookup, Shelley key-hash addresses only)</li>
+<li>Staking credentials from withdrawal addresses (key-hash only)</li>
+<li>Certificate credentials: deregistration (1), delegation (2), Conway unreg (8), vote/stake deleg (9-13)</li>
+<li>Pool retirement (4): pool operator key hash</li>
+<li>Pool registration (3): operator key hash</li>
+<li>Collateral input payment credentials (key-hash only)</li>
+</ul>
+<p>Every required hash must appear in the verified set.</p>
+<p><strong>3. Script completeness:</strong>
+When redeemers are present (witness key 5): for every script-hash input, a matching script must exist in the witness set (keys 3/6/7) or via reference inputs. A datum must be available (inline or in witness key 4).</p>
+<p><strong>4. Script data hash:</strong>
+If <code>tx.script_data_hash</code> is set: <code>blake2b_256(redeemers_raw ++ datums_raw ++ language_views_cbor)</code> must match. Language views have a PlutusV1 quirk: cost model values are CBOR-encoded as an integer list, then that encoding is wrapped as a CBOR bytestring.</p>
+<p><strong>5. Auxiliary data hash:</strong>
+If <code>tx.auxiliary_data_hash</code> is set and auxiliary data is present, <code>blake2b_256(auxiliary_data_raw)</code> must match.</p>
+<h3 id="certificate-processing"><a class="header" href="#certificate-processing">Certificate Processing</a></h3>
+<p>Implemented in <code>rules/certs.py</code>. Each certificate type modifies ledger state:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Name</th><th>State Change</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>StakeRegistration</td><td>Create <code>Account(deposit=keyDeposit)</code> in <code>state.accounts</code>. Error if already registered.</td></tr>
+<tr><td>1</td><td>StakeDeregistration</td><td>Remove account from <code>state.accounts</code>. Requires zero reward balance.</td></tr>
+<tr><td>2</td><td>StakeDelegation</td><td>Set <code>account.pool = pool_id</code>. Must be registered.</td></tr>
+<tr><td>3</td><td>PoolRegistration</td><td>Create/update <code>PoolParams</code> in <code>state.pools</code> (operator, VRF, pledge, cost, margin, reward_account, owners). Validates <code>cost &gt;= min_pool_cost</code>.</td></tr>
+<tr><td>4</td><td>PoolRetire</td><td>Set <code>pool.retiring_epoch</code>. Validates retirement epoch is after current and within <code>current + eMax</code>.</td></tr>
+<tr><td>7</td><td>RegCert (Conway)</td><td>Register with explicit deposit amount.</td></tr>
+<tr><td>8</td><td>UnregCert (Conway)</td><td>Deregister with explicit refund. Requires zero rewards.</td></tr>
+<tr><td>9</td><td>VoteDeleg</td><td>Delegate voting to DRep (no registration required).</td></tr>
+<tr><td>10</td><td>StakeVoteDeleg</td><td>Delegate stake + voting simultaneously.</td></tr>
+<tr><td>11</td><td>StakeRegDeleg</td><td>Register + delegate stake in one cert (deposit is last field).</td></tr>
+<tr><td>12</td><td>VoteRegDeleg</td><td>Register + delegate voting (deposit is last field).</td></tr>
+<tr><td>13</td><td>StakeVoteRegDeleg</td><td>Register + delegate both (deposit is last field).</td></tr>
+<tr><td>14</td><td>AuthCommitteeHot</td><td>Authorize CC hot key; marks cold credential active in <code>gov_state.committee</code>.</td></tr>
+<tr><td>15</td><td>ResignCommitteeCold</td><td>Remove cold credential from <code>gov_state.committee</code>.</td></tr>
+<tr><td>16</td><td>DRepRegistration</td><td>Add DRep to <code>gov_state.dreps</code> with deposit.</td></tr>
+<tr><td>17</td><td>DRepDeregistration</td><td>Remove DRep from <code>gov_state.dreps</code>.</td></tr>
+<tr><td>18</td><td>DRepUpdate</td><td>No-op (metadata-only, no state change).</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="epoch-boundary"><a class="header" href="#epoch-boundary">Epoch Boundary</a></h2>
+<p>When a block crosses an epoch boundary, <code>tick()</code> fires <code>_apply_epoch_transition()</code> for each intermediate epoch. The transition performs the following steps in order:</p>
+<h3 id="1-fee-snapshot-capture"><a class="header" href="#1-fee-snapshot-capture">1. Fee snapshot capture</a></h3>
+<p>The current accumulated fees become the fee snapshot for the <strong>next</strong> epoch’s reward computation. Captured <strong>before</strong> rewards consume the old snapshot.</p>
+<h3 id="2-reward-computation-and-distribution-_apply_rewards"><a class="header" href="#2-reward-computation-and-distribution-_apply_rewards">2. Reward computation and distribution (<code>_apply_rewards</code>)</a></h3>
+<p>Uses the “go” stake distribution (2 epochs delayed) and “go” block counts (also 2 epochs delayed). Calls <code>compute_reward_update()</code> then <code>apply_reward_update()</code>. If computation fails, fees go to treasury instead.</p>
+<h3 id="3-stake-snapshot-rotation-_rotate_snapshots"><a class="header" href="#3-stake-snapshot-rotation-_rotate_snapshots">3. Stake snapshot rotation (<code>_rotate_snapshots</code>)</a></h3>
+<p>Maintains the <code>SnapshotRotation</code> object for leader schedule lookups. Computes a fresh mark snapshot from current state.</p>
+<h3 id="4-pool-retirement-_retire_pools"><a class="header" href="#4-pool-retirement-_retire_pools">4. Pool retirement (<code>_retire_pools</code>)</a></h3>
+<p>For each pool with <code>retiring_epoch &lt;= new_epoch</code>:</p>
+<ul>
+<li>Refund <code>deposit_paid</code> to the pool’s reward account credential (or treasury if credential not registered)</li>
+<li>Remove pool from <code>state.pools</code></li>
+<li>Clear all delegations pointing to the retired pool (<code>account.pool = None</code>)</li>
+</ul>
+<h3 id="5-governance-enactment-_enact_governance"><a class="header" href="#5-governance-enactment-_enact_governance">5. Governance enactment (<code>_enact_governance</code>)</a></h3>
+<p>Calls <code>enact_governance(state, gov_state, new_epoch)</code> to ratify and enact proposals that meet voting thresholds. Expired proposals have their deposits refunded.</p>
+<h3 id="6-block-count-rotation-3-way"><a class="header" href="#6-block-count-rotation-3-way">6. Block count rotation (3-way)</a></h3>
+<pre><code>_go_blocks_made  &lt;- _prev_blocks_made
+_prev_blocks_made &lt;- blocks_made
+blocks_made &lt;- {}
+</code></pre>
+<p>The spec uses “go” blocks (2 epochs back) for reward calculation.</p>
+<h3 id="7-fee-reset"><a class="header" href="#7-fee-reset">7. Fee reset</a></h3>
+<p>If reward computation succeeded, <code>pots.fees = 0</code>. If failed, <code>pots.treasury += pots.fees; pots.fees = 0</code>.</p>
+<h3 id="8-stake-distribution-rotation"><a class="header" href="#8-stake-distribution-rotation">8. Stake distribution rotation</a></h3>
+<pre><code>_go_stake_dist  &lt;- _set_stake_dist
+_set_stake_dist &lt;- _mark_stake_dist
+_mark_stake_dist &lt;- _compute_current_stake_dist(state)
+</code></pre>
+<h3 id="9-epoch-counter-update"><a class="header" href="#9-epoch-counter-update">9. Epoch counter update</a></h3>
+<p><code>state.epoch = new_epoch</code></p>
+<hr>
+<h2 id="reward-calculation"><a class="header" href="#reward-calculation">Reward Calculation</a></h2>
+<p>The <code>compute_reward_update()</code> function in <code>rewards.py</code> implements the <code>createRUpd</code> rule from the Shelley formal spec (Section 5.5). The algorithm:</p>
+<h3 id="step-1-compute-eta-block-production-efficiency"><a class="header" href="#step-1-compute-eta-block-production-efficiency">Step 1: Compute eta (block production efficiency)</a></h3>
+<pre><code>expected_blocks = epoch_length / ACTIVE_SLOT_COEFF_DENOM   # 1/20 = 5%
+eta = min(1, total_blocks / expected_blocks)
+</code></pre>
+<p>In Conway, <code>d = 0</code> always, so eta is always the block ratio.</p>
+<h3 id="step-2-monetary-expansion"><a class="header" href="#step-2-monetary-expansion">Step 2: Monetary expansion</a></h3>
+<pre><code>delta_r1 = floor(eta * rho * reserves)
+</code></pre>
+<p>This is the new ADA minted from reserves this epoch.</p>
+<h3 id="step-3-reward-pot"><a class="header" href="#step-3-reward-pot">Step 3: Reward pot</a></h3>
+<pre><code>rewardPot = feeSS + delta_r1
+</code></pre>
+<p>The fee snapshot (from the previous epoch) plus the newly minted ADA.</p>
+<h3 id="step-4-treasury-cut"><a class="header" href="#step-4-treasury-cut">Step 4: Treasury cut</a></h3>
+<pre><code>delta_t1 = floor(tau * rewardPot)
+</code></pre>
+<h3 id="step-5-available-rewards"><a class="header" href="#step-5-available-rewards">Step 5: Available rewards</a></h3>
+<pre><code>R = rewardPot - delta_t1
+</code></pre>
+<h3 id="step-6-per-pool-reward-computation"><a class="header" href="#step-6-per-pool-reward-computation">Step 6: Per-pool reward computation</a></h3>
+<p>For each pool that produced blocks:</p>
+<p><strong>Pool-level parameters:</strong></p>
+<pre><code>sigma   = pool_stake / circulation          # for maxPool and leader/member split
+sigma_a = pool_stake / total_active_stake   # for apparent performance
+p_r     = pledge / circulation              # relative pledge
+</code></pre>
+<p><strong>Pledge enforcement:</strong>
+If <code>owner_stake &lt; pool.pledge</code>, the pool receives zero rewards.</p>
+<p><strong>maxPool</strong> (pledge-adjusted desirability):</p>
+<pre><code>z0 = 1/k
+sigma' = min(sigma, z0)
+p'     = min(p_r, z0)
+maxPool = floor(R / (1+a0) * (sigma' + p'*a0 * (sigma' - p'*(z0-sigma')/z0) / z0))
+</code></pre>
+<p><strong>Apparent performance:</strong></p>
+<pre><code>beta = n_blocks / max(1, total_blocks)
+appPerf = beta / sigma_a
+</code></pre>
+<p><strong>Pool reward:</strong></p>
+<pre><code>pool_r = floor(appPerf * maxPool)
+</code></pre>
+<p><strong>Leader / member split:</strong></p>
+<pre><code>r_operator = cost + floor((pool_r - cost) * (margin + (1-margin) * s/sigma))  if pool_r &gt; cost
+r_member   = floor((pool_r - cost) * (1-margin) * t/sigma)                    if pool_r &gt; cost
+</code></pre>
+<p>Where <code>s</code> = owner relative stake, <code>t</code> = member relative stake. Rounding dust goes to the leader.</p>
+<h3 id="step-7-residual"><a class="header" href="#step-7-residual">Step 7: Residual</a></h3>
+<pre><code>delta_r2 = R - sum(distributed_rewards)
+</code></pre>
+<p>Undistributed rewards return to reserves.</p>
+<h3 id="application"><a class="header" href="#application">Application</a></h3>
+<p><code>apply_reward_update()</code> credits <code>delta_treasury</code> to treasury, <code>delta_reserves</code> to reserves, <code>delta_fees</code> to fees, and individual reward amounts to <code>account.rewards</code> (or treasury if credential is not registered).</p>
+<hr>
+<h2 id="plutus-evaluation"><a class="header" href="#plutus-evaluation">Plutus Evaluation</a></h2>
+<h3 id="script-context-building"><a class="header" href="#script-context-building">Script Context Building</a></h3>
+<p>Three versions of TxInfo are supported, each with increasing field counts:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Version</th><th>Fields</th><th>Key Additions</th></tr>
+</thead>
+<tbody>
+<tr><td>V1</td><td>10</td><td>3-field TxOut (no datum_option / script_ref), list-of-pairs withdrawals, no ref_inputs or redeemers</td></tr>
+<tr><td>V2</td><td>12</td><td>4-field TxOut, ref_inputs, redeemers map, datum option (NoOutputDatum/OutputDatumHash/OutputDatum)</td></tr>
+<tr><td>V3</td><td>16</td><td>Adds voting procedures, proposal procedures, current_treasury, treasury_donation</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>V3 DCert encoding</strong> maps CBOR wire types to Plutus V3 constructor tags (they differ). For example, wire type 3 (PoolRegistration) maps to Plutus V3 tag 7 (TxCertPoolRegister).</p>
+<h3 id="eval_scripts-driver"><a class="header" href="#eval_scripts-driver">eval_scripts() Driver</a></h3>
+<p>The evaluation loop in <code>evaluate.py</code>:</p>
+<ol>
+<li><strong>Decode redeemers</strong> – supports both Conway map format <code>{[tag, idx]: [data, [mem, steps]]}</code> and Babbage list format.</li>
+<li><strong>Collect scripts</strong> – from witness set (keys 3/6/7) and reference inputs. Script hash = <code>blake2b_224(version_prefix + flat_bytes)</code>.</li>
+<li><strong>For each redeemer <code>(tag, index)</code></strong>:
+a. Resolve the script hash via sorted input/policy/withdrawal index lookup.
+b. Find the script bytes (witness or reference).
+c. Build arguments:
+<ul>
+<li><strong>V3</strong>: single arg = <code>ScriptContext(TxInfo, Redeemer, ScriptInfo)</code></li>
+<li><strong>V1/V2 spending</strong>: 3 args = <code>(datum, redeemer, ScriptContext)</code></li>
+<li><strong>V1/V2 minting/cert/reward</strong>: 2 args = <code>(redeemer, ScriptContext)</code>
+d. Run the CEK machine: <code>unflatten(flat_bytes)</code> -&gt; <code>Apply(f=term, x=arg)</code> for each arg -&gt; <code>Machine(Budget(steps, mem), cek_model, builtin_model).eval(program)</code>.
+e. Check result: <code>RuntimeError</code> = failure; V3 requires <code>BuiltinUnit</code>; V1/V2 accepts any non-error.</li>
+</ul>
+</li>
+<li><strong>is_valid cross-check</strong>: if <code>is_valid=False</code> but all scripts passed, that is an error.</li>
+</ol>
+<h3 id="cost-model-resolution"><a class="header" href="#cost-model-resolution">Cost Model Resolution</a></h3>
+<p>On-chain cost models from <code>pp.cost_models</code> are preferred (via <code>uplc.cost_model.updated_*_from_network_config()</code>). Supports both dict-format (named string keys from genesis JSON) and list-format (integer arrays from on-chain updates). Falls back to uplc default cost models on parse failure.</p>
+<hr>
+<h2 id="governance"><a class="header" href="#governance">Governance</a></h2>
+<p>Conway governance (CIP-1694) is implemented in <code>governance.py</code>.</p>
+<h3 id="proposal-lifecycle"><a class="header" href="#proposal-lifecycle">Proposal Lifecycle</a></h3>
+<pre><code>submit (in tx) --&gt; active proposal --&gt; vote --&gt; ratify (epoch boundary) --&gt; enact / expire
+</code></pre>
+<ol>
+<li><strong>Submit</strong>: <code>process_proposal_procedures()</code> registers proposals in <code>gov_state.proposals</code> with deposit, return address, action type, and expiry (<code>epoch + gov_action_lifetime</code>).</li>
+<li><strong>Vote</strong>: <code>process_voting_procedures()</code> records <code>GovVote</code> entries in <code>gov_state.votes</code>. Voter eligibility is checked (CC members, registered DReps, registered pools).</li>
+<li><strong>Ratify</strong> (at epoch boundary): <code>_is_ratified()</code> checks stake-weighted voting thresholds. CC uses head-count. DRep and SPO use stake-weighted tallies.</li>
+<li><strong>Enact/Expire</strong>: Enacted proposals have their effects applied and deposits refunded. Expired proposals only get deposits refunded.</li>
+</ol>
+<h3 id="action-types-and-enactment"><a class="header" href="#action-types-and-enactment">Action Types and Enactment</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>Enactment Effect</th></tr>
+</thead>
+<tbody>
+<tr><td>ParameterChange</td><td><code>dataclasses.replace(protocol_params, **overrides)</code> via <code>_PARAM_KEY_MAP</code> (CBOR key -&gt; field name mapping). Handles rational conversion for keys 9, 10, 11, 19, 20, 34.</td></tr>
+<tr><td>HardForkInitiation</td><td>No ledger-level effect (handled by consensus layer).</td></tr>
+<tr><td>TreasuryWithdrawals</td><td>Transfer lovelace from treasury to specified reward accounts.</td></tr>
+<tr><td>NoConfidence</td><td>Dissolve the constitutional committee (<code>gov_state.committee = {}</code>).</td></tr>
+<tr><td>UpdateCommittee</td><td>Add/remove committee members with expiry epochs.</td></tr>
+<tr><td>NewConstitution</td><td>Update <code>gov_state.constitution_hash</code>.</td></tr>
+<tr><td>InfoAction</td><td>Always ratified, no on-chain effect.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="stake-weighted-voting"><a class="header" href="#stake-weighted-voting">Stake-Weighted Voting</a></h3>
+<p>Three voter groups with per-action-type requirements:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>CC Required</th><th>DRep Required</th><th>SPO Required</th></tr>
+</thead>
+<tbody>
+<tr><td>ParameterChange</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>HardForkInitiation</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>TreasuryWithdrawals</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>NoConfidence</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>UpdateCommittee</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>NewConstitution</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>InfoAction</td><td>No</td><td>No</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+<p>Thresholds are looked up from <code>pp.pool_voting_thresholds</code> and <code>pp.drep_voting_thresholds</code> with fallback defaults of 50%. CC uses simple majority by head count. DRep/SPO voting is stake-weighted: DRep stake is the DRep’s deposit (or their own account balance as fallback); SPO stake is the pool’s total delegated stake.</p>
+<hr>
+<h2 id="snapshot-import"><a class="header" href="#snapshot-import">Snapshot Import</a></h2>
+<p><code>load_snapshot()</code> in <code>snapshot.py</code> bootstraps a <code>LedgerState</code> from an Amaru-format NewEpochState CBOR file (produced by <code>amaru convert-ledger-state</code>).</p>
+<h3 id="data-extracted"><a class="header" href="#data-extracted">Data Extracted</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Snapshot Field</th><th>State Field</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>root[0]</code></td><td><code>epoch</code></td><td>Current epoch number</td></tr>
+<tr><td><code>root[1]</code> (nesBprev)</td><td><code>_go_blocks_made</code></td><td>Previous-epoch block counts</td></tr>
+<tr><td><code>root[2]</code> (nesBcur)</td><td><code>_prev_blocks_made</code></td><td>Current-epoch block counts</td></tr>
+<tr><td><code>epoch_state[0]</code></td><td><code>pots.treasury</code>, <code>pots.reserves</code></td><td>AccountState</td></tr>
+<tr><td><code>cert_state[1]</code></td><td><code>pools</code></td><td>PoolState (params + retirements)</td></tr>
+<tr><td><code>deleg_state[0][0]</code></td><td><code>accounts</code></td><td>Conway UMap format accounts</td></tr>
+<tr><td><code>utxo_state[0]</code></td><td><code>utxo</code></td><td>Full UTxO map</td></tr>
+<tr><td><code>epoch_state[2]</code></td><td><code>_mark/_set/_go_stake_dist</code>, <code>_fee_ss</code></td><td>Stake snapshots + fee snapshot</td></tr>
+<tr><td><code>utxo_state[3][3]</code></td><td><code>protocol_params</code></td><td>On-chain protocol parameters (31-element array)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="conway-umap-account-format"><a class="header" href="#conway-umap-account-format">Conway UMap Account Format</a></h3>
+<pre><code>entry = [StrictMaybe&lt;(rewards, deposit)&gt;, set_pointers, StrictMaybe&lt;pool_id&gt;, StrictMaybe&lt;DRep&gt;]
+</code></pre>
+<ul>
+<li><code>v[0] = [[rewards, deposit]]</code> – rewards first, deposit second (NOT key-value pairs)</li>
+<li><code>v[1]</code> – cert pointers (always empty in Conway)</li>
+<li><code>v[2] = [pool_id_bytes]</code> – pool delegation</li>
+<li><code>v[3]</code> – DRep delegation variant</li>
+</ul>
+<h3 id="streaming-parser"><a class="header" href="#streaming-parser">Streaming Parser</a></h3>
+<p>For mainnet (~15M UTxO), <code>parse_new_epoch_state_streaming()</code> walks the CBOR byte-by-byte using <code>_walk_array_items</code> and <code>_walk_map_entries</code> from the schema library, decoding each UTxO entry individually rather than loading the entire decoded map into memory.</p>
+<h3 id="txout-reconstruction"><a class="header" href="#txout-reconstruction">TxOut Reconstruction</a></h3>
+<p>The snapshot parser preserves <code>datum_hash</code>, <code>inline_datum</code>, and <code>script_ref</code> from dict-format UTxO entries (post-Alonzo map keys 2 and 3). Inline datums wrapped in CBOR tag 24 are unwrapped to raw bytes. Script references are stored as CBOR-encoded blobs.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/consensus.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../architecture/network.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/consensus.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../architecture/network.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

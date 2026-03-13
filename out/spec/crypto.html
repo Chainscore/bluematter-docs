@@ -1,0 +1,769 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Cryptographic Primitives - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="1-cryptographic-primitives"><a class="header" href="#1-cryptographic-primitives">1. Cryptographic Primitives</a></h1>
+<p>Cardano’s Ouroboros Praos consensus relies on four cryptographic
+primitives: collision-resistant hashing, digital signatures, verifiable
+random functions, and key-evolving signatures. Each serves a distinct
+role in the protocol – hashing provides binding commitments, signatures
+authenticate transactions and delegation, VRFs enable private leader
+election, and KES provides forward-secure block signing.</p>
+<p>This chapter specifies each primitive as used in Bluematter, with
+references to the source modules that implement them.</p>
+<hr>
+<h2 id="11-hash-functions"><a class="header" href="#11-hash-functions">1.1 Hash Functions</a></h2>
+<p><strong>Source:</strong> <code>crypto/hash.py</code></p>
+<p>Two members of the Blake2b family are used, differing only in output
+length:</p>
+<pre><code>H_256 : B -&gt; B_32       Blake2b-256 (32-byte digest)
+H_224 : B -&gt; B_28       Blake2b-224 (28-byte digest)
+</code></pre>
+<p>Both use the Blake2b core with no key, salt, or personalization
+parameters. The implementation delegates to Python’s <code>hashlib.blake2b</code>
+with <code>digest_size</code> set to 32 or 28 respectively.</p>
+<h3 id="111-why-two-lengths"><a class="header" href="#111-why-two-lengths">1.1.1 Why Two Lengths</a></h3>
+<p>The 256-bit hash provides standard collision resistance (2^128 security)
+and is used wherever a full-strength binding commitment is needed: block
+hashes, transaction IDs, Merkle nodes. The 224-bit hash provides a
+shorter identifier (2^112 security) used for addresses and pool IDs,
+where the reduced length saves space in the UTxO set without
+meaningfully weakening security.</p>
+<h3 id="112-usage-table"><a class="header" href="#112-usage-table">1.1.2 Usage Table</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Hash</th><th>Input</th><th>Output Name</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>H_256</code></td><td>CBOR-encoded header</td><td>Block hash</td><td>Identifies a block in the chain; prev-hash linkage</td></tr>
+<tr><td><code>H_256</code></td><td>CBOR-encoded tx body</td><td>Transaction ID</td><td>Uniquely identifies a transaction</td></tr>
+<tr><td><code>H_256</code></td><td><code>vk_L || vk_R</code></td><td>KES tree node</td><td>Internal nodes of the Sum6KES Merkle tree</td></tr>
+<tr><td><code>H_256</code></td><td><code>slot_be64 || eta_0</code></td><td>VRF input alpha</td><td>Slot-specific VRF challenge</td></tr>
+<tr><td><code>H_256</code></td><td><code>"L" || beta_vrf</code></td><td>Leader VRF value</td><td>Tagged derivation for leader eligibility check</td></tr>
+<tr><td><code>H_256</code></td><td><code>"N" || beta_vrf</code></td><td>Nonce VRF value</td><td>Tagged derivation for epoch nonce evolution</td></tr>
+<tr><td><code>H_256</code></td><td><code>eta_v || vrf_hash</code></td><td>Evolved nonce</td><td>Per-block evolving nonce update</td></tr>
+<tr><td><code>H_256</code></td><td><code>eta_c || eta_h || eta_e</code></td><td>Epoch nonce</td><td>TICKN rule at epoch boundary</td></tr>
+<tr><td><code>H_256</code></td><td><code>h1 || h2 || h3 || h4</code></td><td>Body hash</td><td>Block body integrity (hash of four component hashes)</td></tr>
+<tr><td><code>H_256</code></td><td>CBOR-encoded datum</td><td>Datum hash</td><td>Identifies Plutus datums in witness sets</td></tr>
+<tr><td><code>H_256</code></td><td>Auxiliary data CBOR</td><td>Aux data hash</td><td>Transaction metadata integrity</td></tr>
+<tr><td><code>H_256</code></td><td>Redeemers + datums + lang views</td><td>Script data hash</td><td>Plutus script integrity</td></tr>
+<tr><td><code>H_224</code></td><td><code>issuer_vkey</code></td><td>Pool ID</td><td>Identifies a stake pool (28 bytes)</td></tr>
+<tr><td><code>H_224</code></td><td><code>vkey</code></td><td>Key hash</td><td>Payment/staking credential in addresses</td></tr>
+<tr><td><code>H_224</code></td><td><code>version_prefix || flat_bytes</code></td><td>Script hash</td><td>Identifies a Plutus or native script</td></tr>
+</tbody>
+</table>
+</div>
+<p>The body hash deserves elaboration. A Conway block body consists of four
+CBOR-encoded arrays: transaction bodies, transaction witness sets,
+auxiliary data, and invalid transaction indices. The body hash is
+computed as:</p>
+<pre><code>body_hash = H_256( H_256(tx_bodies_cbor)
+                || H_256(witnesses_cbor)
+                || H_256(aux_data_cbor)
+                || H_256(invalid_txs_cbor) )
+</code></pre>
+<p>This two-level hashing allows a node to verify each component
+independently before computing the aggregate.</p>
+<hr>
+<h2 id="12-ed25519-digital-signatures"><a class="header" href="#12-ed25519-digital-signatures">1.2 Ed25519 Digital Signatures</a></h2>
+<p><strong>Source:</strong> <code>crypto/ed25519.py</code></p>
+<p>Ed25519 is the twisted Edwards curve digital signature algorithm
+specified in RFC 8032. It provides 128-bit security with compact keys
+and signatures.</p>
+<h3 id="121-interface"><a class="header" href="#121-interface">1.2.1 Interface</a></h3>
+<pre><code>KeyGen()           -&gt; (sk, vk)     where sk : B_64, vk : B_32
+Sign(sk, m)        -&gt; sig           where sig : B_64
+Verify(vk, m, sig) -&gt; Bool
+</code></pre>
+<p>The implementation delegates to PyNaCl (libsodium bindings). Only
+verification is exposed in the public API – key generation and signing
+are handled by external tooling (cardano-cli) or by the KES subsystem
+for block production.</p>
+<p>The <code>Verify</code> function returns <code>False</code> for any failure (malformed key,
+wrong length, invalid signature, or internal error). It never raises
+exceptions to callers:</p>
+<pre><code class="language-python">def verify(public_key: bytes, signature: bytes, message: bytes) -&gt; bool:
+    try:
+        vk = VerifyKey(public_key)
+        vk.verify(message, signature)
+        return True
+    except Exception:
+        return False
+</code></pre>
+<h3 id="122-where-ed25519-is-used"><a class="header" href="#122-where-ed25519-is-used">1.2.2 Where Ed25519 Is Used</a></h3>
+<p>Ed25519 signatures appear in four distinct roles:</p>
+<ol>
+<li>
+<p><strong>Transaction witnesses.</strong> Each transaction input must be authorized
+by a signature from the key whose hash appears in the input’s
+address. The witness set contains <code>(vkey, sig)</code> pairs where
+<code>sig = Sign(sk, H_256(tx_body_cbor))</code>. Verification checks:</p>
+<pre><code>Verify(vkey, H_256(tx_body_cbor), sig) = True
+</code></pre>
+<p>and <code>H_224(vkey) in required_key_hashes</code>.</p>
+</li>
+<li>
+<p><strong>Operational certificates.</strong> A stake pool operator signs a
+delegation from their cold key to a hot (KES) key. See Section 1.5.</p>
+</li>
+<li>
+<p><strong>KES leaf signing.</strong> At the bottom of the KES Merkle tree, each
+leaf is an Ed25519 key that signs the block header body. This
+signature is embedded within the 448-byte KES signature structure.</p>
+</li>
+<li>
+<p><strong>Genesis delegation.</strong> In the genesis block, delegation certificates
+are signed by genesis keys. These are verified during bootstrap but
+not during steady-state operation.</p>
+</li>
+</ol>
+<hr>
+<h2 id="13-verifiable-random-function-vrf"><a class="header" href="#13-verifiable-random-function-vrf">1.3 Verifiable Random Function (VRF)</a></h2>
+<p><strong>Source:</strong> <code>crypto/vrf.py</code></p>
+<p>The VRF enables private leader election: a pool can prove it was
+selected to produce a block for a given slot without revealing its
+secret key, and any verifier can check the proof deterministically.</p>
+<h3 id="131-ciphersuite"><a class="header" href="#131-ciphersuite">1.3.1 Ciphersuite</a></h3>
+<p>Bluematter implements <strong>ECVRF-ED25519-SHA512-Elligator2</strong> per
+<code>draft-irtf-cfrg-vrf-03</code>. The critical detail: Cardano uses suite byte
+<code>0x03</code> (draft-03), not <code>0x04</code> (draft-06). The vendored implementation
+originates from nccgroup’s draft-06 reference, adapted to the draft-03
+suite string.</p>
+<p><strong>Curve parameters:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Curve</td><td>Edwards25519</td></tr>
+<tr><td>Prime <code>p</code></td><td><code>2^255 - 19</code></td></tr>
+<tr><td>Group order <code>ell</code></td><td><code>2^252 + 27742317777372353535851937790883648493</code></td></tr>
+<tr><td>Cofactor <code>h</code></td><td>8</td></tr>
+<tr><td>Montgomery parameter <code>A</code></td><td>486662</td></tr>
+<tr><td>Hash function</td><td>SHA-512</td></tr>
+<tr><td>Suite string</td><td><code>0x03</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="132-interface"><a class="header" href="#132-interface">1.3.2 Interface</a></h3>
+<pre><code>VRF_prove(sk, alpha)       -&gt; (Bool, pi)
+    where sk : B_32, alpha : B, pi : B_80
+
+VRF_verify(vk, pi, alpha)  -&gt; (Bool, beta)
+    where vk : B_32, pi : B_80, alpha : B, beta : B_64
+
+VRF_proof_to_hash(pi)      -&gt; (Bool, beta)
+    where pi : B_80, beta : B_64
+
+VRF_get_public_key(sk)     -&gt; vk
+    where sk : B_32, vk : B_32
+</code></pre>
+<p>All functions return a <code>(Bool, bytes)</code> tuple. The boolean indicates
+success; on failure, the bytes value is empty. This convention avoids
+exceptions in the hot verification path.</p>
+<h3 id="133-proof-structure"><a class="header" href="#133-proof-structure">1.3.3 Proof Structure</a></h3>
+<p>A VRF proof <code>pi</code> is 80 bytes, encoding three values:</p>
+<pre><code>pi = Gamma_enc || c_enc || s_enc
+     [32 bytes]  [16 bytes] [32 bytes]
+</code></pre>
+<p>where:</p>
+<ul>
+<li><code>Gamma</code> is an Edwards curve point (the VRF “pre-output”)</li>
+<li><code>c</code> is a 128-bit Schnorr challenge</li>
+<li><code>s</code> is a 256-bit Schnorr response scalar</li>
+</ul>
+<p>Decoding extracts the triple <code>(Gamma, c, s)</code>:</p>
+<pre><code>Gamma = decode_point(pi[0:32])
+c     = int_from_le(pi[32:48])
+s     = int_from_le(pi[48:80])
+</code></pre>
+<p>Two structural checks are applied during decoding:</p>
+<ul>
+<li><strong>Scalar range (CRY-C2):</strong> <code>s &lt; ell</code>. A proof with <code>s &gt;= ell</code> is
+rejected, preventing malleability.</li>
+<li><strong>Small-order rejection (CRY-C1/C3):</strong> <code>Gamma</code> must not be a
+small-order point. The check computes <code>h * Gamma</code> and rejects if the
+result is the identity point <code>O = (0, 1)</code>. This catches all eight
+torsion points (orders 1, 2, 4, 8) on Edwards25519.</li>
+</ul>
+<h3 id="134-verification-algorithm"><a class="header" href="#134-verification-algorithm">1.3.4 Verification Algorithm</a></h3>
+<p>Given public key <code>vk</code>, proof <code>pi</code>, and input <code>alpha</code>:</p>
+<p><strong>Step 1. Decode the proof.</strong></p>
+<pre><code>(Gamma, c, s) = decode_proof(pi)
+</code></pre>
+<p>Reject if decoding fails (malformed point, <code>s &gt;= ell</code>, or small-order
+<code>Gamma</code>).</p>
+<p><strong>Step 2. Hash to curve.</strong></p>
+<p>Map the input <code>alpha</code> to a curve point <code>H</code> using Elligator2:</p>
+<pre><code>hash_input = SHA512(suite_string || 0x01 || vk || alpha)
+r = int_from_le(hash_input[0:32]) with top bit cleared
+u = (-A) * inverse(1 + 2*r^2) mod p
+w = u * (u^2 + A*u + 1) mod p
+e = Legendre(w)               -- i.e., w^((p-1)/2) mod p
+u_final = e*u + (e-1)*A/2 mod p
+y_coord = (u_final - 1) * inverse(u_final + 1) mod p
+H_prelim = decode_point(encode_le(y_coord))
+H = h * H_prelim              -- clear cofactor
+</code></pre>
+<p>The Elligator2 mapping converts a uniform hash output into a curve
+point. The cofactor clearing ensures <code>H</code> lies in the prime-order
+subgroup.</p>
+<p><strong>Step 3. Decode the public key.</strong></p>
+<pre><code>Y = decode_point(vk)
+</code></pre>
+<p>Reject if <code>Y</code> is not on the curve or is small-order.</p>
+<p><strong>Step 4. Compute verification equations.</strong></p>
+<pre><code>U = s*B - c*Y
+V = s*H - c*Gamma
+</code></pre>
+<p>where <code>B</code> is the Ed25519 base point. These are the standard Schnorr
+verification equations: if the prover knew <code>x</code> such that <code>Y = x*B</code> and
+<code>Gamma = x*H</code>, then <code>U</code> and <code>V</code> will be consistent with the challenge
+<code>c</code>.</p>
+<p>Point negation on twisted Edwards: <code>-(x, y) = (p - x, y)</code>.</p>
+<p><strong>Step 5. Recompute the challenge.</strong></p>
+<pre><code>c' = hash_points(suite_string, H, Gamma, U, V)
+   = int_from_le( SHA512(suite_string || 0x02
+                         || encode(H) || encode(Gamma)
+                         || encode(U) || encode(V))[0:16] )
+</code></pre>
+<p>The challenge is the first 128 bits (16 bytes) of the SHA-512 hash of
+the suite string, a domain separator byte <code>0x02</code>, and the four encoded
+points.</p>
+<p><strong>Step 6. Check equality.</strong></p>
+<pre><code>valid = (c == c')
+</code></pre>
+<p><strong>Step 7. Compute the output.</strong></p>
+<p>If valid, the VRF output <code>beta</code> is:</p>
+<pre><code>beta = SHA512(suite_string || 0x03 || encode(h * Gamma))
+</code></pre>
+<p>The cofactor multiplication <code>h * Gamma</code> ensures the output is canonical
+regardless of the representative chosen for <code>Gamma</code> in the coset.</p>
+<p>The output <code>beta</code> is 64 bytes (the full SHA-512 digest).</p>
+<h3 id="135-tagged-output-derivation"><a class="header" href="#135-tagged-output-derivation">1.3.5 Tagged Output Derivation</a></h3>
+<p>Cardano does not use the raw 64-byte VRF output directly. Instead, two
+domain-separated 32-byte values are derived:</p>
+<pre><code>leader(beta) = H_256("L" || beta)    : B_32
+nonce(beta)  = H_256("N" || beta)    : B_32
+</code></pre>
+<p>where <code>"L" = 0x4c</code> and <code>"N" = 0x4e</code> are single ASCII bytes.</p>
+<p>The <strong>leader value</strong> determines slot leader eligibility. A pool with
+relative stake <code>sigma_pool</code> is the leader for a slot if:</p>
+<pre><code>leader(beta) / 2^256  &lt;  1 - (1 - f)^{sigma_pool}
+</code></pre>
+<p>where <code>f</code> is the active slot coefficient. This comparison is performed
+with exact rational arithmetic (not floating point) to avoid
+disagreements between nodes at the threshold boundary.</p>
+<p>The <strong>nonce value</strong> feeds into the evolving epoch nonce. Each block’s
+VRF nonce output is folded into the running nonce state via two rounds
+of hashing (the “range extension” step):</p>
+<pre><code>vrf_hash = H_256(nonce(beta))
+eta_v'   = H_256(eta_v || vrf_hash)
+</code></pre>
+<p>The double hash (hashing the already-tagged 32-byte value again before
+combining) matches the Haskell and Amaru implementations.</p>
+<h3 id="136-vrf-input-construction"><a class="header" href="#136-vrf-input-construction">1.3.6 VRF Input Construction</a></h3>
+<p>The VRF input <code>alpha</code> for a given slot is:</p>
+<pre><code>alpha = H_256( slot_be64 || eta_0 )
+</code></pre>
+<p>where <code>slot_be64</code> is the slot number as an 8-byte big-endian integer
+and <code>eta_0</code> is the current epoch nonce (32 bytes). This binds the VRF
+evaluation to both the specific slot and the current epoch’s randomness.</p>
+<hr>
+<h2 id="14-key-evolving-signatures-kes"><a class="header" href="#14-key-evolving-signatures-kes">1.4 Key-Evolving Signatures (KES)</a></h2>
+<p><strong>Source:</strong> <code>crypto/kes.py</code></p>
+<p>KES provides <strong>forward security</strong> for block signing. A pool operator
+generates a KES key pair; the secret key can sign for a bounded number
+of time periods. After each period, the key is evolved: the old secret
+material is erased, making it infeasible to forge signatures for past
+periods even if the current key is compromised.</p>
+<h3 id="141-construction-sum6kes"><a class="header" href="#141-construction-sum6kes">1.4.1 Construction: Sum6KES</a></h3>
+<p>Bluematter implements <strong>Sum6KES</strong> over Ed25519 and Blake2b-256. This is
+a binary Merkle tree of depth 6, yielding <code>2^6 = 64</code> time periods.</p>
+<pre><code>KES_keygen(seed)       -&gt; (sk_0, vk)
+    where seed : B_32, sk_0 : KesSecretKey, vk : B_32
+
+KES_sign(sk_t, t, m)   -&gt; sig_t
+    where t : N, m : B, sig_t : B_448
+
+KES_verify(vk, t, m, sig_t) -&gt; Bool
+    where vk : B_32, t : N (0 &lt;= t &lt; 64), sig_t : B_448
+
+KES_evolve(sk_t, t)    -&gt; sk_{t+1}
+    (old key material securely erased)
+</code></pre>
+<p>The public key <code>vk</code> is the 32-byte Blake2b-256 Merkle root of the tree.
+It remains constant across all 64 periods; only the secret key changes.</p>
+<h3 id="142-key-generation"><a class="header" href="#142-key-generation">1.4.2 Key Generation</a></h3>
+<p>From a 32-byte seed, 64 Ed25519 leaf key pairs are derived by
+domain-separated hashing:</p>
+<pre><code>For i in [0, 64):
+    leaf_seed_i = H_256("kes-leaf-" || seed || i_be32)
+    (sk_i, vk_i) = Ed25519_KeyGen(leaf_seed_i)
+</code></pre>
+<p>The Merkle tree is built bottom-up. At each level, adjacent verification
+keys are paired and hashed:</p>
+<pre><code>Level 0: pairs of leaf vkeys
+    node_{0,j} = (vk_{2j}, vk_{2j+1})
+    parent_{0,j} = H_256(vk_{2j} || vk_{2j+1})
+
+Level l (1 &lt;= l &lt; 6): pairs of level-(l-1) parents
+    parent_{l,j} = H_256(parent_{l-1, 2j} || parent_{l-1, 2j+1})
+
+Root: vk = parent_{5, 0}
+</code></pre>
+<h3 id="143-signature-structure"><a class="header" href="#143-signature-structure">1.4.3 Signature Structure</a></h3>
+<p>A Sum6KES signature is <strong>448 bytes</strong>, structured as:</p>
+<pre><code>sig_t = ed25519_sig || path_0 || path_1 || ... || path_5
+        [64 bytes]    [64 bytes each, 6 levels = 384 bytes]
+</code></pre>
+<p>Total: <code>64 + 6 * 64 = 448</code> bytes.</p>
+<p>Each <code>path_i</code> contains both sibling verification keys at level <code>i</code>:</p>
+<pre><code>path_i = (vk_L_i || vk_R_i)
+         [32 bytes] [32 bytes]
+</code></pre>
+<p>The path encodes the full Merkle authentication path from the signing
+leaf to the root. Both siblings are included at each level (rather than
+just the co-path sibling) so that the verifier can reconstruct every
+parent hash.</p>
+<h3 id="144-signing"><a class="header" href="#144-signing">1.4.4 Signing</a></h3>
+<p>To sign message <code>m</code> at period <code>t</code>:</p>
+<ol>
+<li>Select leaf <code>t</code> from the secret key tree.</li>
+<li>Compute <code>ed25519_sig = Ed25519_Sign(sk_t, m)</code>.</li>
+<li>Build the Merkle path: at each level <code>l</code>, include the pair
+<code>(vk_L, vk_R)</code> for the node containing period <code>t</code>’s ancestor.</li>
+</ol>
+<pre><code>sig = ed25519_sig
+idx = t
+For level in [0, 6):
+    pair_idx = idx / 2     (integer division)
+    sig = sig || vk_L_{level, pair_idx} || vk_R_{level, pair_idx}
+    idx = pair_idx
+</code></pre>
+<h3 id="145-verification"><a class="header" href="#145-verification">1.4.5 Verification</a></h3>
+<p>Given public key <code>vk</code>, period <code>t</code>, message <code>m</code>, and signature <code>sig_t</code>:</p>
+<p><strong>Step 1. Parse the signature.</strong></p>
+<p>Extract the Ed25519 signature and the six <code>(vk_L, vk_R)</code> pairs:</p>
+<pre><code>ed_sig = sig_t[0:64]
+For i in [0, 6):
+    vk_L_i = sig_t[64 + 64*i     : 64 + 64*i + 32]
+    vk_R_i = sig_t[64 + 64*i + 32 : 64 + 64*i + 64]
+</code></pre>
+<p><strong>Step 2. Identify the leaf key.</strong></p>
+<p>The period <code>t</code>’s least significant bit selects left or right at
+level 0:</p>
+<pre><code>bit_0 = t &amp; 1
+leaf_vk = if bit_0 == 0 then vk_L_0 else vk_R_0
+</code></pre>
+<p><strong>Step 3. Verify the Ed25519 signature.</strong></p>
+<pre><code>Ed25519_Verify(leaf_vk, m, ed_sig) = True
+</code></pre>
+<p>If this fails, reject immediately.</p>
+<p><strong>Step 4. Reconstruct the Merkle root.</strong></p>
+<p>Walk up the tree from the leaf, verifying consistency at each level and
+computing parent hashes:</p>
+<pre><code>node = leaf_vk
+For level in [0, 6):
+    bit = (t &gt;&gt; level) &amp; 1
+    if bit == 0:
+        assert node == vk_L_{level}
+    else:
+        assert node == vk_R_{level}
+    node = H_256(vk_L_{level} || vk_R_{level})
+</code></pre>
+<p><strong>Step 5. Compare roots.</strong></p>
+<pre><code>valid = (node == vk)
+</code></pre>
+<p>The final <code>node</code> after six levels of hashing must equal the known
+public key (the Merkle root).</p>
+<h3 id="146-key-evolution"><a class="header" href="#146-key-evolution">1.4.6 Key Evolution</a></h3>
+<p>Evolution erases the secret material for the old period:</p>
+<pre><code>KES_evolve(sk, t):
+    secure_zero(sk.leaves[t].seed)
+    sk.leaves[t].seed = 0x00 * 32
+    return sk
+</code></pre>
+<p>The <code>secure_zero</code> operation is best-effort in Python: the seed bytes
+are copied to a mutable ctypes buffer and overwritten with zeros. The
+original Python bytes object may persist in memory until garbage
+collection, but the explicit zeroing reduces the window of exposure.</p>
+<p>After evolution, the key can no longer sign for period <code>t</code>. Attempting
+to sign with zeroed-out key material will produce an invalid signature.</p>
+<h3 id="147-kes-period-calculation"><a class="header" href="#147-kes-period-calculation">1.4.7 KES Period Calculation</a></h3>
+<p>A block at slot <code>s</code> uses KES period:</p>
+<pre><code>slot_kes_period = s / slots_per_kes_period      (integer division)
+kes_period_offset = slot_kes_period - opcert.kes_period
+</code></pre>
+<p>where <code>slots_per_kes_period</code> is a protocol parameter (mainnet: 129,600
+slots, approximately 1.5 days). The offset must satisfy:</p>
+<pre><code>0 &lt;= kes_period_offset &lt; max_kes_evolutions
+</code></pre>
+<p>where <code>max_kes_evolutions</code> is 62 on mainnet (leaving 2 periods of
+headroom from the 64-period maximum).</p>
+<hr>
+<h2 id="15-operational-certificates"><a class="header" href="#15-operational-certificates">1.5 Operational Certificates</a></h2>
+<p><strong>Source:</strong> <code>codec/header.py</code>, <code>consensus/header.py</code></p>
+<p>An operational certificate (opcert) delegates block-signing authority
+from a pool’s <strong>cold key</strong> (kept offline) to a <strong>hot key</strong> (the KES
+key, kept on the block-producing node). This separation limits the
+damage from a compromised online key: the attacker gains at most the
+ability to sign blocks for the current KES key’s remaining periods, not
+the permanent ability to act as the pool.</p>
+<h3 id="151-structure"><a class="header" href="#151-structure">1.5.1 Structure</a></h3>
+<pre><code>OpCert = (hot_vk, sequence_number, kes_period, sigma)
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>hot_vk</code></td><td><code>B_32</code></td><td>KES verification key (Merkle root of Sum6KES tree)</td></tr>
+<tr><td><code>sequence_number</code></td><td><code>N</code></td><td>Monotonically increasing counter (anti-replay)</td></tr>
+<tr><td><code>kes_period</code></td><td><code>N</code></td><td>KES period at which this certificate becomes valid</td></tr>
+<tr><td><code>sigma</code></td><td><code>B_64</code></td><td>Ed25519 signature by the cold key</td></tr>
+</tbody>
+</table>
+</div>
+<p>The certificate is serialized as a 4-element CBOR array.</p>
+<h3 id="152-signing"><a class="header" href="#152-signing">1.5.2 Signing</a></h3>
+<p>The cold key signs over the concatenation of the hot key and two
+8-byte big-endian integers:</p>
+<pre><code>message = hot_vk || sequence_number_be64 || kes_period_be64
+sigma   = Ed25519_Sign(cold_sk, message)
+</code></pre>
+<p>Note that the signed message uses fixed-width 8-byte encodings of the
+integers, not variable-length CBOR. This matches the Haskell
+implementation’s <code>serialiseSignableRepresentation</code>.</p>
+<h3 id="153-verification"><a class="header" href="#153-verification">1.5.3 Verification</a></h3>
+<p>Given a block header with <code>issuer_vkey</code> (the cold verification key)
+and an embedded opcert:</p>
+<pre><code>message = opcert.hot_vk
+       || opcert.sequence_number as B_8 (big-endian)
+       || opcert.kes_period as B_8 (big-endian)
+
+valid = Ed25519_Verify(issuer_vkey, message, opcert.sigma)
+</code></pre>
+<h3 id="154-sequence-number-anti-replay"><a class="header" href="#154-sequence-number-anti-replay">1.5.4 Sequence Number Anti-Replay</a></h3>
+<p>Each pool maintains a counter of the last-seen opcert sequence number.
+A new block’s opcert must have:</p>
+<pre><code>opcert.sequence_number &gt;= last_seen_sequence
+</code></pre>
+<p>Gaps are allowed (a pool may skip sequence numbers), but replaying an
+older sequence number is rejected. This prevents an attacker who
+compromises an old KES key from reusing an expired certificate.</p>
+<h3 id="155-block-signing-chain"><a class="header" href="#155-block-signing-chain">1.5.5 Block Signing Chain</a></h3>
+<p>The full signing chain for a block header is:</p>
+<pre><code>cold_sk  --[Ed25519]--&gt; opcert.sigma    (signs hot_vk delegation)
+kes_sk_t --[Sum6KES]--&gt; body_signature  (signs header body CBOR)
+</code></pre>
+<p>Verification proceeds in reverse:</p>
+<ol>
+<li>Verify <code>opcert.sigma</code> under <code>issuer_vkey</code> (the cold key).</li>
+<li>Extract <code>hot_vk</code> from the opcert (this is the KES Merkle root).</li>
+<li>Compute <code>kes_period_offset = slot / slots_per_kes_period - opcert.kes_period</code>.</li>
+<li>Verify <code>body_signature</code> under <code>hot_vk</code> at period <code>kes_period_offset</code>.</li>
+</ol>
+<p>If both verifications succeed and the KES period is within bounds, the
+header is authentic: it was produced by someone who controls both the
+pool’s cold key (for the opcert) and the current KES key (for the block
+signature).</p>
+<hr>
+<h2 id="16-summary-of-cryptographic-sizes"><a class="header" href="#16-summary-of-cryptographic-sizes">1.6 Summary of Cryptographic Sizes</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Primitive</th><th>Key Size</th><th>Signature/Proof Size</th><th>Output Size</th></tr>
+</thead>
+<tbody>
+<tr><td>Blake2b-256</td><td>–</td><td>–</td><td>32 bytes</td></tr>
+<tr><td>Blake2b-224</td><td>–</td><td>–</td><td>28 bytes</td></tr>
+<tr><td>Ed25519</td><td>sk: 64B, vk: 32B</td><td>64 bytes</td><td>–</td></tr>
+<tr><td>VRF (ECVRF-ED25519-SHA512-Elligator2)</td><td>sk: 32B, vk: 32B</td><td>proof: 80 bytes</td><td>beta: 64 bytes</td></tr>
+<tr><td>Sum6KES</td><td>vk: 32B (Merkle root)</td><td>448 bytes</td><td>–</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="17-security-assumptions"><a class="header" href="#17-security-assumptions">1.7 Security Assumptions</a></h2>
+<p>The correctness of Ouroboros Praos depends on the following assumptions
+about these primitives:</p>
+<ol>
+<li>
+<p><strong>Collision resistance of Blake2b.</strong> No adversary can find distinct
+inputs <code>x != y</code> such that <code>H(x) = H(y)</code> in feasible time. This
+ensures transaction IDs, block hashes, and Merkle tree nodes are
+binding.</p>
+</li>
+<li>
+<p><strong>Unforgeability of Ed25519.</strong> No adversary can produce a valid
+signature for a message without knowledge of the secret key (EUF-CMA
+security). This authenticates transactions and operational
+certificates.</p>
+</li>
+<li>
+<p><strong>Uniqueness and pseudorandomness of the VRF.</strong> For any public key
+and input, there is exactly one valid output (uniqueness). The output
+is computationally indistinguishable from random to anyone who does
+not hold the secret key (pseudorandomness). Together, these
+properties ensure that leader election is unpredictable and
+non-manipulable.</p>
+</li>
+<li>
+<p><strong>Forward security of KES.</strong> After key evolution, an adversary who
+compromises the current key cannot forge signatures for past periods.
+This limits the damage from key compromise to the remaining KES
+periods, not the pool’s entire history.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../spec/notation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../spec/data-types.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../spec/notation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../spec/data-types.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

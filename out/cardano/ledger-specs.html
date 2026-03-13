@@ -1,0 +1,1568 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Formal Ledger Specifications - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="cardano-formal-ledger-specifications--implementers-reference"><a class="header" href="#cardano-formal-ledger-specifications--implementers-reference">Cardano Formal Ledger Specifications – Implementer’s Reference</a></h1>
+<p>This document is a comprehensive reference for the Cardano formal ledger specifications, extracted from the official <code>.tex</code> source files in the <code>cardano-ledger</code> repository, supplemented with web research on the Conway era. It covers all eras from Shelley through Conway.</p>
+<hr>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ol>
+<li><a href="#1-the-sts-framework">The STS Framework</a></li>
+<li><a href="#2-cryptographic-primitives">Cryptographic Primitives</a></li>
+<li><a href="#3-shelley-ledger-specification">Shelley Ledger Specification</a>
+<ul>
+<li><a href="#31-utxo-rules">UTxO Rules (UTXO, UTXOW)</a></li>
+<li><a href="#32-delegation-rules">Delegation Rules (DELEG, POOL, DELEGS)</a></li>
+<li><a href="#33-ledger-rules">Ledger Rules (LEDGER, LEDGERS)</a></li>
+<li><a href="#34-epoch-boundary-rules">Epoch Boundary Rules (SNAP, POOLREAP, EPOCH, NEWEPOCH)</a></li>
+<li><a href="#35-chain-rules">Chain Rules (CHAIN, TICK, BBODY, PRTCL, TICKN)</a></li>
+<li><a href="#36-reward-calculation">Reward Calculation</a></li>
+</ul>
+</li>
+<li><a href="#4-alonzo-additions">Alonzo Additions</a></li>
+<li><a href="#5-babbage-additions">Babbage Additions</a></li>
+<li><a href="#6-conway-additions">Conway Additions</a></li>
+<li><a href="#7-cddl-wire-format">CDDL Wire Format</a></li>
+</ol>
+<hr>
+<h2 id="1-the-sts-framework"><a class="header" href="#1-the-sts-framework">1. The STS Framework</a></h2>
+<p><strong>Source</strong>: <code>docs/small-step-semantics/small-step-semantics.tex</code></p>
+<p>The entire Cardano ledger is specified using <strong>Structured Transition Systems (STS)</strong>, also called “small-step semantics.” An STS is a 5-tuple <code>(S, T, Sigma, R, Gamma)</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Component</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>S</strong></td><td>Set of states (not necessarily valid)</td></tr>
+<tr><td><strong>Sigma</strong></td><td>Set of signals that trigger transitions</td></tr>
+<tr><td><strong>Gamma</strong></td><td>Set of environment values (read-only context, never modified)</td></tr>
+<tr><td><strong>T</strong></td><td>Set of transitions: <code>T &lt;= P(Gamma x S x Sigma x S)</code></td></tr>
+<tr><td><strong>R</strong></td><td>Set of derivation rules, each with an antecedent (premises) and a consequent (conclusion)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="notation"><a class="header" href="#notation">Notation</a></h3>
+<p>A transition is written:</p>
+<pre><code>Gamma |- s --[RULE_NAME / signal]--&gt; s'
+</code></pre>
+<p>A derivation rule is written with premises above a horizontal line and the conclusion below:</p>
+<pre><code>    premise_1    premise_2    ...    premise_n
+    ─────────────────────────────────────────── [Rule-Name]
+    Gamma |- s --[rule]{signal}--&gt; s'
+</code></pre>
+<p>All premises must hold (conjunction) for the rule to fire. Let-bindings (<code>x := f(y)</code>) introduce intermediate variables. Sub-rule invocations appear as transitions in the premises.</p>
+<h3 id="validity"><a class="header" href="#validity">Validity</a></h3>
+<p>A state <code>s</code> is valid if it is either:</p>
+<ul>
+<li>A base state (consequent of a rule whose antecedent has no state/signal variables), or</li>
+<li>Reachable from a valid state via a valid transition.</li>
+</ul>
+<h3 id="composition"><a class="header" href="#composition">Composition</a></h3>
+<p>STS rules compose hierarchically. A rule’s antecedent may invoke another STS’s transition, creating a tree of sub-rules. The top-level rule is <strong>CHAIN</strong>. Recursive rules (LEDGERS, DELEGS) process sequences via self-loops.</p>
+<h3 id="rule-dependency-graph-shelley"><a class="header" href="#rule-dependency-graph-shelley">Rule Dependency Graph (Shelley)</a></h3>
+<pre><code>CHAIN
+  |-- TICK
+  |     |-- RUPD (reward update calculation)
+  |     |-- NEWEPOCH
+  |           |-- MIR (move instantaneous rewards)
+  |           |-- EPOCH
+  |                 |-- SNAP (snapshot)
+  |                 |-- POOLREAP (pool retirement)
+  |                 |-- NEWPP (new protocol parameters)
+  |-- PRTCL (protocol, header validation)
+  |     |-- OVERLAY / PRAOS (leader check)
+  |     |-- UPDN (nonce update)
+  |     |-- OCERT (operational certificate)
+  |-- BBODY (block body)
+        |-- LEDGERS (sequence of transactions)
+              |-- LEDGER (single transaction)
+                    |-- DELEGS (certificate sequence)
+                    |     |-- DELPL
+                    |           |-- DELEG (delegation certs)
+                    |           |-- POOL (pool certs)
+                    |-- UTXOW (witnessed UTxO)
+                          |-- UTXO (unwitnessed UTxO)
+                                |-- PPUP (protocol parameter updates)
+</code></pre>
+<hr>
+<h2 id="2-cryptographic-primitives"><a class="header" href="#2-cryptographic-primitives">2. Cryptographic Primitives</a></h2>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/crypto-primitives.tex</code></p>
+<h3 id="key-types"><a class="header" href="#key-types">Key Types</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>SKey</code></td><td>Private signing key</td></tr>
+<tr><td><code>VKey</code></td><td>Public verification key</td></tr>
+<tr><td><code>KeyHash</code></td><td>Blake2b-224 hash of a verification key</td></tr>
+<tr><td><code>Sig</code></td><td>Signature</td></tr>
+<tr><td><code>Ser</code></td><td>Serialized representation of data</td></tr>
+<tr><td><code>Script</code></td><td>Multi-signature script</td></tr>
+<tr><td><code>HashScr</code></td><td>Hash of a script</td></tr>
+<tr><td><code>KeyPair</code></td><td><code>(SKey, VKey)</code> pair</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Signature</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>hashKey</code></td><td><code>VKey -&gt; KeyHash</code></td><td>Hash a verification key</td></tr>
+<tr><td><code>verify</code></td><td><code>P(VKey x Ser x Sig)</code></td><td>Verification relation</td></tr>
+<tr><td><code>sign</code></td><td><code>SKey -&gt; Ser -&gt; Sig</code></td><td>Signing function</td></tr>
+<tr><td><code>hashScript</code></td><td><code>Script -&gt; HashScr</code></td><td>Hash a script</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Constraint</strong>: <code>sign(sk, d) = sigma =&gt; (vk, d, sigma) in verify</code> for all <code>(sk, vk) in KeyPair</code>.</p>
+<h3 id="kes-key-evolving-signatures"><a class="header" href="#kes-key-evolving-signatures">KES (Key Evolving Signatures)</a></h3>
+<p>KES provides forward cryptographic security. The private key evolves incrementally through KES periods. The public key stays constant.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Signature</th></tr>
+</thead>
+<tbody>
+<tr><td><code>sign_ev</code></td><td><code>(N -&gt; SKeyEv) -&gt; N -&gt; Ser -&gt; Sig</code></td></tr>
+<tr><td><code>verify_ev</code></td><td><code>P(VKeyEv x N x Ser x Sig)</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The evolution step <code>n</code> is <code>slot / SlotsPerKESPeriod</code>.</p>
+<h3 id="vrf-verifiable-random-functions"><a class="header" href="#vrf-verifiable-random-functions">VRF (Verifiable Random Functions)</a></h3>
+<p>VRFs allow key-pair owners to evaluate a pseudorandom function provably.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Seed</code></td><td>Pseudorandom seed</td></tr>
+<tr><td><code>Proof</code></td><td>VRF proof</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Signature</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>seedOp</code></td><td><code>Seed -&gt; Seed -&gt; Seed</code></td><td>Binary seed operation (XOR)</td></tr>
+<tr><td><code>vrf_T</code></td><td><code>SKey -&gt; Seed -&gt; (Proof, T)</code></td><td>VRF evaluation</td></tr>
+<tr><td><code>verifyVrf_T</code></td><td><code>VKey -&gt; Seed -&gt; (Proof, T) -&gt; Bool</code></td><td>VRF proof verification</td></tr>
+</tbody>
+</table>
+</div>
+<p>Constants: <code>0_seed</code> (neutral element), <code>Seed_L</code> (leader seed constant “L”), <code>Seed_e</code> (nonce seed constant “N”).</p>
+<p><code>PoolDistr = KeyHash_pool -&gt; ([0,1] x KeyHash_vrf)</code> – maps pool hashes to (relative stake, VRF key hash).</p>
+<h3 id="multi-signature-scripts-shelley-native"><a class="header" href="#multi-signature-scripts-shelley-native">Multi-Signature Scripts (Shelley native)</a></h3>
+<pre><code>MSig = RequireSig KeyHash
+     | RequireAllOf [Script]
+     | RequireAnyOf [Script]
+     | RequireMOf N [Script]
+</code></pre>
+<p>Evaluated by <code>evalMultiSigScript : MSig -&gt; P(KeyHash) -&gt; Bool</code>.</p>
+<hr>
+<h2 id="3-shelley-ledger-specification"><a class="header" href="#3-shelley-ledger-specification">3. Shelley Ledger Specification</a></h2>
+<h3 id="31-utxo-rules"><a class="header" href="#31-utxo-rules">3.1 UTxO Rules</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/utxo.tex</code></p>
+<h4 id="311-utxo-transition"><a class="header" href="#311-utxo-transition">3.1.1 UTXO Transition</a></h4>
+<p><strong>Environment</strong> (<code>UTxOEnv</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>slot</code></td><td><code>Slot</code></td><td>Current slot</td></tr>
+<tr><td><code>pp</code></td><td><code>PParams</code></td><td>Protocol parameters</td></tr>
+<tr><td><code>poolParams</code></td><td><code>KeyHash_pool -&gt; PoolParam</code></td><td>Registered stake pools</td></tr>
+<tr><td><code>genDelegs</code></td><td><code>GenesisDelegation</code></td><td>Genesis key delegations</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>State</strong> (<code>UTxOState</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>utxo</code></td><td><code>UTxO</code></td><td>Current UTxO set</td></tr>
+<tr><td><code>deposited</code></td><td><code>Coin</code></td><td>Total deposits pot</td></tr>
+<tr><td><code>fees</code></td><td><code>Coin</code></td><td>Fee pot</td></tr>
+<tr><td><code>ppup</code></td><td><code>PPUpdateState</code></td><td>Proposed parameter updates</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Signal</strong>: A transaction <code>Tx</code>.</p>
+<h4 id="key-functions"><a class="header" href="#key-functions">Key Functions</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Formula</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>outs(tx)</code></td><td>`{(txid(tx), ix) -&gt; txout</td><td>ix -&gt; txout in txouts(tx)}`</td></tr>
+<tr><td><code>ubalance(utxo)</code></td><td>Sum of all coin in UTxO</td><td>UTxO balance</td></tr>
+<tr><td><code>wbalance(ws)</code></td><td>Sum of all withdrawal amounts</td><td>Withdrawal balance</td></tr>
+<tr><td><code>consumed(pp, utxo, tx)</code></td><td>`ubalance(txins(tx) &lt;</td><td>utxo) + wbalance(txwdrls(tx)) + keyRefunds(pp, tx)`</td></tr>
+<tr><td><code>produced(pp, poolParams, tx)</code></td><td><code>ubalance(outs(tx)) + txfee(tx) + totalDeposits(pp, poolParams, txcerts(tx))</code></td><td>Value produced by tx</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="preservation-of-value"><a class="header" href="#preservation-of-value">Preservation of Value</a></h4>
+<p><strong>The fundamental accounting invariant</strong>: <code>consumed(pp, utxo, tx) = produced(pp, poolParams, tx)</code>.</p>
+<p>This ensures value is only moved between outputs, reward accounts, the fee pot, and the deposit pot – never created or destroyed.</p>
+<h4 id="rule-utxo-inductive-10-predicates"><a class="header" href="#rule-utxo-inductive-10-predicates">Rule: UTxO-inductive (10 predicates)</a></h4>
+<pre><code>    txb := txbody(tx)
+    txttl(txb) &gt;= slot                              -- (1) tx is live (TTL check)
+    txins(txb) != {}                                -- (2) non-empty inputs (replay prevention)
+    minfee(pp, tx) &lt;= txfee(txb)                    -- (3) sufficient fee
+    txins(txb) &lt;= dom(utxo)                         -- (4) all inputs exist in UTxO
+    consumed(pp, utxo, txb) = produced(pp, poolParams, txb)  -- (5) value conservation
+    slot, pp, genDelegs |- ppup --[PPUP / txup(tx)]--&gt; ppup' -- (6) valid update proposals
+    forall (_, (_, c)) in txouts(txb): c &gt;= minUTxOValue(pp)  -- (7) min UTxO value
+    forall (_, (a, _)) in txouts(txb): bootstrapAttrsSize(a) &lt;= 64  -- (8) bootstrap attrs size
+    forall (_, (a, _)) in txouts(txb): netId(a) = NetworkId  -- (9) output network ID
+    forall (a -&gt; _) in txwdrls(txb): netId(a) = NetworkId    -- (10) withdrawal network ID
+    txsize(tx) &lt;= maxTxSize(pp)                     -- (11) max transaction size
+    ─────────────────────────────────────────────────────────
+    utxo' = (txins(txb) &lt;/| utxo) U outs(txb)      -- remove spent, add new
+    deposited' = deposited + depositChange          -- update deposit pot
+    fees' = fees + txfee(txb)                       -- collect fee
+    ppup' = (from PPUP transition)
+</code></pre>
+<p><strong>Predicate failures</strong> (10 total):</p>
+<ol>
+<li><code>BadInput</code> – input not in UTxO</li>
+<li><code>Expired</code> – current slot &gt; TTL</li>
+<li><code>MaxTxSize</code> – transaction too large</li>
+<li><code>InputSetEmpty</code> – no inputs (replay risk)</li>
+<li><code>FeeTooSmall</code> – fee below minimum</li>
+<li><code>ValueNotConserved</code> – balance does not hold</li>
+<li><code>WrongNetwork</code> – output address wrong network</li>
+<li><code>WrongNetworkWithdrawal</code> – withdrawal address wrong network</li>
+<li><code>OutputTooSmall</code> – output below minimum value</li>
+<li><code>OutputBootAddrAttrsTooBig</code> – bootstrap address attributes &gt; 64 bytes</li>
+</ol>
+<h4 id="deposits-and-refunds"><a class="header" href="#deposits-and-refunds">Deposits and Refunds</a></h4>
+<pre><code>totalDeposits(pp, poolParams, certs) =
+    keyDeposit(pp) * |certs intersect DCertRegKey|
+  + poolDeposit(pp) * |{cwitness(c) | c in newPools}|
+  where newPools = {c | c in certs intersect DCertRegPool, cwitness(c) not in poolParams}
+
+keyRefunds(pp, tx) = keyDeposit(pp) * |txcerts(tx) intersect DCertDeRegKey|
+</code></pre>
+<p>Note: Re-registering a pool does NOT require a new deposit. Only new pool registrations do. Refunds use CURRENT protocol parameters (not the parameters at deposit time).</p>
+<h4 id="312-utxow-transition-witnesses"><a class="header" href="#312-utxow-transition-witnesses">3.1.2 UTXOW Transition (Witnesses)</a></h4>
+<p><strong>Rule: UTxO-wit (6 predicates)</strong></p>
+<pre><code>    witsKeyHashes := {hashKey(vk) | vk in dom(txwitsVKey(tx))}
+    -- (1) All signatures valid
+    forall vk -&gt; sigma in txwitsVKey(tx): V_vk(hash(txbody(tx)))_sigma
+    -- (2) Required key hashes present
+    witsVKeyNeeded(utxo, tx, genDelegs) &lt;= witsKeyHashes
+    -- (3) All multisig scripts valid
+    forall hs -&gt; validator in txwitsScript(tx):
+        hashScript(validator) = hs AND validateScript(validator, tx)
+    -- (4) Required scripts present
+    scriptsNeeded(utxo, tx) = dom(txwitsScript(tx))
+    -- (5) MIR quorum
+    {c in txcerts(tx) intersect DCertMir} != {} =&gt; |genSig| &gt;= Quorum
+    -- (6) Metadata hash
+    (mdh = Nothing AND md = Nothing) OR (mdh = hashMD(md))
+    -- then delegate to UTXO
+    ─────────────────────────────────────────────
+    utxoSt --[UTXO / tx]--&gt; utxoSt'
+</code></pre>
+<p><strong><code>witsVKeyNeeded(utxo, tx, genDelegs)</code></strong> gathers all required key hashes:</p>
+<ul>
+<li>Payment keys for spent inputs (from VKey addresses only)</li>
+<li>Stake credentials for reward withdrawals</li>
+<li>Certificate witnesses (for DELEG/POOL certs, NOT for RegKey or MIR)</li>
+<li>Genesis delegates for update proposals</li>
+<li>Pool owners for pool registration certificates</li>
+</ul>
+<p><strong><code>scriptsNeeded(utxo, tx)</code></strong> gathers required script hashes:</p>
+<ul>
+<li>Validator hashes for script-locked inputs</li>
+<li>Stake credentials for script reward withdrawals</li>
+<li>Script credentials in delegation/deregistration certificates</li>
+</ul>
+<p><strong>Predicate failures</strong> (8 total):</p>
+<ol>
+<li><code>InvalidWitnesses</code> – incorrect signature</li>
+<li><code>MissingVKeyWitnesses</code> – missing required key</li>
+<li><code>MissingScriptWitnesses</code> – missing script</li>
+<li><code>ScriptWitnessNotValidating</code> – script evaluates to false</li>
+<li><code>MIRInsufficientGenesisSigs</code> – not enough genesis sigs for MIR</li>
+<li><code>MissingTxBodyMetadataHash</code> – metadata present but no hash in body</li>
+<li><code>MissingTxMetadata</code> – hash present but no metadata</li>
+<li><code>ConflictingMetadataHash</code> – hash mismatch</li>
+</ol>
+<hr>
+<h3 id="32-delegation-rules"><a class="header" href="#32-delegation-rules">3.2 Delegation Rules</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/delegation.tex</code></p>
+<h4 id="certificate-types-shelley"><a class="header" href="#certificate-types-shelley">Certificate Types (Shelley)</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Certificate</th><th>Type ID</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>DCertRegKey</code></td><td>0</td><td>Stake credential registration</td></tr>
+<tr><td><code>DCertDeRegKey</code></td><td>1</td><td>Stake credential deregistration</td></tr>
+<tr><td><code>DCertDeleg</code></td><td>2</td><td>Stake delegation to a pool</td></tr>
+<tr><td><code>DCertRegPool</code></td><td>3</td><td>Pool registration</td></tr>
+<tr><td><code>DCertRetirePool</code></td><td>4</td><td>Pool retirement</td></tr>
+<tr><td><code>DCertGen</code></td><td>5</td><td>Genesis key delegation</td></tr>
+<tr><td><code>DCertMir</code></td><td>6</td><td>Move instantaneous rewards</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="poolparam-fields"><a class="header" href="#poolparam-fields">PoolParam Fields</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>poolOwners</code></td><td><code>P(KeyHash)</code></td><td>Set of pool owner key hashes</td></tr>
+<tr><td><code>poolCost</code></td><td><code>Coin</code></td><td>Fixed cost deducted from rewards</td></tr>
+<tr><td><code>poolMargin</code></td><td><code>[0,1]</code></td><td>Margin (fraction of remaining rewards)</td></tr>
+<tr><td><code>poolPledge</code></td><td><code>Coin</code></td><td>Pool pledge amount</td></tr>
+<tr><td><code>poolRAcnt</code></td><td><code>AddrRWD</code></td><td>Reward account for the pool</td></tr>
+<tr><td><code>poolVRF</code></td><td><code>KeyHash_vrf</code></td><td>VRF verification key hash</td></tr>
+<tr><td><code>relays</code></td><td><code>[URL]</code></td><td>Pool relay addresses</td></tr>
+<tr><td><code>metadata</code></td><td><code>PoolMD?</code></td><td>Optional pool metadata (url + hash)</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="states"><a class="header" href="#states">States</a></h4>
+<p><strong>DState</strong> (delegation state):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>rewards</code></td><td><code>StakeCredential -&gt; Coin</code></td><td>Reward accounts</td></tr>
+<tr><td><code>delegations</code></td><td><code>StakeCredential -&gt; KeyHash_pool</code></td><td>Delegation map</td></tr>
+<tr><td><code>ptrs</code></td><td><code>Ptr -&gt; StakeCredential</code></td><td>Pointer map</td></tr>
+<tr><td><code>fGenDelegs</code></td><td><code>FutGenesisDelegation</code></td><td>Future genesis delegations</td></tr>
+<tr><td><code>genDelegs</code></td><td><code>GenesisDelegation</code></td><td>Current genesis delegations</td></tr>
+<tr><td><code>i_rwd</code></td><td><code>InstantaneousRewards</code></td><td>MIR maps (reserves, treasury)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>PState</strong> (pool state):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>poolParams</code></td><td><code>KeyHash_pool -&gt; PoolParam</code></td><td>Active pool parameters</td></tr>
+<tr><td><code>fPoolParams</code></td><td><code>KeyHash_pool -&gt; PoolParam</code></td><td>Future (staged) pool parameters</td></tr>
+<tr><td><code>retiring</code></td><td><code>KeyHash_pool -&gt; Epoch</code></td><td>Pools scheduled for retirement</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="321-deleg-rules"><a class="header" href="#321-deleg-rules">3.2.1 DELEG Rules</a></h4>
+<p><strong>Rule: Deleg-Reg</strong> (stake registration)</p>
+<ul>
+<li>Preconditions: cert is DCertRegKey; credential NOT already in rewards</li>
+<li>State change: <code>rewards' = rewards U {hk -&gt; 0}</code>; <code>ptrs' = ptrs U {ptr -&gt; hk}</code></li>
+</ul>
+<p><strong>Rule: Deleg-Dereg</strong> (stake deregistration)</p>
+<ul>
+<li>Preconditions: cert is DCertDeRegKey; credential maps to 0 in rewards (balance must be zero)</li>
+<li>State change: remove from rewards, delegations, ptrs</li>
+</ul>
+<p><strong>Rule: Deleg-Deleg</strong> (delegation)</p>
+<ul>
+<li>Preconditions: cert is DCertDeleg; credential in dom(rewards) (must be registered)</li>
+<li>State change: <code>delegations' = delegations |&gt;&gt; {hk -&gt; dpool(c)}</code></li>
+</ul>
+<p><strong>Rule: Deleg-Gen</strong> (genesis key delegation)</p>
+<ul>
+<li>Preconditions: cert is DCertGen; genesis key in dom(genDelegs)</li>
+<li>State change: <code>fGenDelegs' = fGenDelegs |&gt;&gt; {(slot + StabilityWindow, gkh) -&gt; (vkh, vrf)}</code></li>
+<li>Note: Delayed by StabilityWindow slots for header validation safety</li>
+</ul>
+<p><strong>Rule: Deleg-Mir</strong> (move instantaneous rewards)</p>
+<ul>
+<li>Preconditions: slot &lt; firstSlot(epoch(slot) + 1) - StabilityWindow; sufficient funds in pot</li>
+<li>State change: updates i_rwd with the new reward allocations</li>
+</ul>
+<p><strong>DELEG predicate failures</strong> (10):
+<code>StakeKeyAlreadyRegistered</code>, <code>StakeKeyNotRegistered</code>, <code>StakeKeyNonZeroAccountBalance</code>, <code>StakeDelegationImpossible</code>, <code>WrongCertificateType</code>, <code>GenesisKeyNotInMapping</code>, <code>DuplicateGenesisDelegate</code>, <code>InsufficientForInstantaneousRewards</code>, <code>MIRCertificateTooLateinEpoch</code>, <code>DuplicateGenesisVRF</code></p>
+<h4 id="322-pool-rules"><a class="header" href="#322-pool-rules">3.2.2 POOL Rules</a></h4>
+<p><strong>Rule: Pool-Reg</strong> (new pool registration)</p>
+<ul>
+<li>Preconditions: cert is DCertRegPool; hk NOT in dom(poolParams); poolCost &gt;= minPoolCost(pp)</li>
+<li>State change: <code>poolParams' = poolParams U {hk -&gt; pool}</code></li>
+</ul>
+<p><strong>Rule: Pool-reReg</strong> (pool re-registration / parameter update)</p>
+<ul>
+<li>Preconditions: cert is DCertRegPool; hk IN dom(poolParams); poolCost &gt;= minPoolCost(pp)</li>
+<li>State change: <code>fPoolParams' = fPoolParams |&gt;&gt; {hk -&gt; pool}</code>; remove from retiring</li>
+<li>Note: Parameters staged for next epoch, not immediate. This gives delegators time to react.</li>
+</ul>
+<p><strong>Rule: Pool-Retire</strong></p>
+<ul>
+<li>Preconditions: cert is DCertRetirePool; hk in dom(poolParams); cepoch &lt; e &lt;= cepoch + emax(pp)</li>
+<li>State change: <code>retiring' = retiring |&gt;&gt; {hk -&gt; e}</code></li>
+</ul>
+<p><strong>POOL predicate failures</strong> (4): <code>StakePoolCostTooLow</code>, <code>StakePoolNotRegisteredOnKey</code>, <code>StakePoolRetirementWrongEpoch</code>, <code>WrongCertificateType</code></p>
+<h4 id="323-delegs-certificate-sequence-processing"><a class="header" href="#323-delegs-certificate-sequence-processing">3.2.3 DELEGS (Certificate Sequence Processing)</a></h4>
+<p>The DELEGS rule processes the entire list of certificates in a transaction. It is defined recursively:</p>
+<p><strong>Base case</strong> (<code>Seq-delg-base</code>): When the certificate list is empty:</p>
+<ul>
+<li>Precondition: all withdrawals in the transaction must match reward accounts (<code>wdrls &lt;= rewards</code>)</li>
+<li>State change: set reward accounts to zero for withdrawn accounts</li>
+</ul>
+<p><strong>Inductive case</strong> (<code>Seq-delg-ind</code>): Process one certificate, then recurse:</p>
+<ul>
+<li>Additional check: if cert is DCertDeleg, the target pool must exist in poolParams</li>
+<li>Constructs certificate pointer from (slot, txIx, length of remaining certs)</li>
+<li>Calls DELPL (which dispatches to DELEG or POOL based on cert type)</li>
+</ul>
+<p><strong>DELEGS predicate failures</strong> (2): <code>DelegateeNotRegistered</code>, <code>WithdrawalsNotInRewards</code></p>
+<hr>
+<h3 id="33-ledger-rules"><a class="header" href="#33-ledger-rules">3.3 Ledger Rules</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/ledger.tex</code></p>
+<h4 id="ledger-transition"><a class="header" href="#ledger-transition">LEDGER Transition</a></h4>
+<p><strong>Environment</strong> (<code>LEnv</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>slot</code></td><td><code>Slot</code></td></tr>
+<tr><td><code>txIx</code></td><td><code>Ix</code> (transaction index within block)</td></tr>
+<tr><td><code>pp</code></td><td><code>PParams</code></td></tr>
+<tr><td><code>acnt</code></td><td><code>Acnt</code> (treasury, reserves)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>State</strong> (<code>LState</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>utxoSt</code></td><td><code>UTxOState</code></td></tr>
+<tr><td><code>dpstate</code></td><td><code>DPState</code> (DState x PState)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Rule: ledger</strong> – Single rule that:</p>
+<ol>
+<li>First calls DELEGS on the certificate list</li>
+<li>Then calls UTXOW on the transaction</li>
+</ol>
+<p>Important: DELEGS runs first because UTXOW needs the updated <code>poolParams</code> and <code>genDelegs</code> from delegation processing.</p>
+<h4 id="ledgers-transition"><a class="header" href="#ledgers-transition">LEDGERS Transition</a></h4>
+<p>Iterates LEDGER over a sequence of transactions:</p>
+<ul>
+<li><strong>Base case</strong>: empty list, no change</li>
+<li><strong>Inductive case</strong>: process prefix via LEDGERS, then apply LEDGER to the last transaction</li>
+</ul>
+<hr>
+<h3 id="34-epoch-boundary-rules"><a class="header" href="#34-epoch-boundary-rules">3.4 Epoch Boundary Rules</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/epoch.tex</code></p>
+<h4 id="overview-of-the-reward-cycle"><a class="header" href="#overview-of-the-reward-cycle">Overview of the Reward Cycle</a></h4>
+<p>For epoch <code>e_i</code>, rewards involve two surrounding epochs:</p>
+<pre><code>Timeline: e_{i-1}         e_i              e_{i+1}
+          |-------|--------|--------|--------|
+          A   B   C        D   E   F   G
+
+(A) Stake snapshot taken at start of e_{i-1}  -&gt; "mark"
+(B) Randomness for leader election fixed during e_{i-1}
+(C) Epoch e_i begins
+(D) Epoch e_i ends. Snapshot of pool performance + fee pot taken.
+(E) Snapshots from (D) are stable; reward calculation begins.
+(F) Reward calculation finishes; update ready.
+(G) Rewards distributed.
+</code></pre>
+<p>Three snapshots are maintained: <strong>mark</strong> (newest), <strong>set</strong> (middle), <strong>go</strong> (oldest, used for reward calculation).</p>
+<h4 id="accounting-fields-acnt"><a class="header" href="#accounting-fields-acnt">Accounting Fields (<code>Acnt</code>)</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>treasury</code></td><td><code>Coin</code></td><td>Treasury pot</td></tr>
+<tr><td><code>reserves</code></td><td><code>Coin</code></td><td>Reserve pot</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="stake-distribution-stakedistr"><a class="header" href="#stake-distribution-stakedistr">Stake Distribution (<code>stakeDistr</code>)</a></h4>
+<pre><code>stakeDistr(utxo, dstate, pstate) = (activeDelegs &lt;| aggregate+(stakeRelation), delegations, poolParams)
+where
+    stakeRelation = (stakeCred_b^{-1} U (addrPtr . ptr)^{-1}) . range(utxo) U rewards
+    activeDelegs = dom(rewards) &lt;| delegations |&gt; dom(poolParams)
+</code></pre>
+<p>Stake includes:</p>
+<ul>
+<li>Coin at base addresses (via <code>stakeCred_b</code>)</li>
+<li>Coin at pointer addresses (via <code>addrPtr . ptr</code>)</li>
+<li>Reward account balances</li>
+</ul>
+<p>Only stake that is both registered AND delegated to an active pool is counted.</p>
+<h4 id="341-snap-snapshot-transition"><a class="header" href="#341-snap-snapshot-transition">3.4.1 SNAP (Snapshot Transition)</a></h4>
+<p>No preconditions. State change:</p>
+<pre><code>pstake_go'   = pstake_set
+pstake_set'  = pstake_mark
+pstake_mark' = stakeDistr(utxo, dstate, pstate)
+feeSS'       = fees (from current UTxO state)
+</code></pre>
+<h4 id="342-poolreap-pool-retirement"><a class="header" href="#342-poolreap-pool-retirement">3.4.2 POOLREAP (Pool Retirement)</a></h4>
+<p>Processes pools scheduled to retire in the current epoch:</p>
+<ol>
+<li>For each retiring pool, compute pool deposit refund</li>
+<li>Refund goes to the pool’s registered reward account (if the account exists)</li>
+<li>If the reward account does not exist, the refund goes to the treasury</li>
+<li>Remove all delegations to retiring pools</li>
+<li>Remove retiring pools from poolParams, fPoolParams, retiring</li>
+</ol>
+<h4 id="343-epoch-transition"><a class="header" href="#343-epoch-transition">3.4.3 EPOCH Transition</a></h4>
+<p>Calls sub-rules in order:</p>
+<ol>
+<li><strong>SNAP</strong> – take new snapshot</li>
+<li><strong>POOLREAP</strong> – retire pools</li>
+<li><strong>NEWPP</strong> – apply any parameter updates that have reached quorum</li>
+</ol>
+<p>Also handles:</p>
+<ul>
+<li>Applying staged future pool parameters: <code>poolParams' = poolParams |&gt;&gt; fPoolParams</code></li>
+<li>Resetting fPoolParams to empty</li>
+<li>Activating future genesis delegations that have matured</li>
+</ul>
+<h4 id="344-newepoch-transition"><a class="header" href="#344-newepoch-transition">3.4.4 NEWEPOCH Transition</a></h4>
+<p><strong>NewEpochState</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>e_l</code></td><td><code>Epoch</code></td><td>Last epoch number</td></tr>
+<tr><td><code>b_prev</code></td><td><code>BlocksMade</code></td><td>Blocks made in previous epoch</td></tr>
+<tr><td><code>b_cur</code></td><td><code>BlocksMade</code></td><td>Blocks made in current epoch</td></tr>
+<tr><td><code>es</code></td><td><code>EpochState</code></td><td>Full epoch state</td></tr>
+<tr><td><code>ru</code></td><td><code>RewardUpdate?</code></td><td>Pending reward update</td></tr>
+<tr><td><code>pd</code></td><td><code>PoolDistr</code></td><td>Pool stake distribution</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Rule: New-Epoch</strong> (epoch boundary, <code>e = e_l + 1</code>):</p>
+<ol>
+<li>Verify reward update is net-neutral: <code>delta_t + delta_r + sum(rs) + delta_f = 0</code></li>
+<li>Apply reward update to epoch state</li>
+<li>Call MIR transition</li>
+<li>Call EPOCH transition</li>
+<li>Reset blocks_made: <code>b_prev' = b_cur; b_cur' = {}</code></li>
+<li>Calculate new pool distribution from “go” snapshot</li>
+<li>Set <code>ru' = Nothing</code></li>
+</ol>
+<h4 id="345-mir-transition"><a class="header" href="#345-mir-transition">3.4.5 MIR Transition</a></h4>
+<p>Processes instantaneous rewards at epoch boundary:</p>
+<ul>
+<li>Distributes accumulated MIR rewards from both reserves and treasury</li>
+<li>Only pays to registered reward accounts</li>
+<li>Resets both MIR maps to empty</li>
+<li>If pots are insufficient, no rewards are distributed (but maps still reset)</li>
+</ul>
+<hr>
+<h3 id="35-chain-rules"><a class="header" href="#35-chain-rules">3.5 Chain Rules</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/chain.tex</code></p>
+<h4 id="block-structure"><a class="header" href="#block-structure">Block Structure</a></h4>
+<p><strong>Operational Certificate</strong> (<code>OCert</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>vk_hot</code></td><td><code>VKeyEv</code></td><td>Operational (hot) KES key</td></tr>
+<tr><td><code>n</code></td><td><code>N</code></td><td>Certificate issue number</td></tr>
+<tr><td><code>c_0</code></td><td><code>KESPeriod</code></td><td>Start KES period</td></tr>
+<tr><td><code>sigma</code></td><td><code>Sig</code></td><td>Cold key signature of (vk_hot, n, c_0)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Block Header Body</strong> (<code>BHBody</code>):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>prev</code></td><td><code>HashHeader?</code></td><td>Hash of previous block header</td></tr>
+<tr><td><code>vk</code></td><td><code>VKey</code></td><td>Block issuer (cold key)</td></tr>
+<tr><td><code>vrfVk</code></td><td><code>VKey</code></td><td>VRF verification key</td></tr>
+<tr><td><code>blockno</code></td><td><code>BlockNo</code></td><td>Block number</td></tr>
+<tr><td><code>slot</code></td><td><code>Slot</code></td><td>Block slot</td></tr>
+<tr><td><code>eta</code></td><td><code>Seed</code></td><td>Nonce VRF output</td></tr>
+<tr><td><code>prf_eta</code></td><td><code>Proof</code></td><td>Nonce VRF proof</td></tr>
+<tr><td><code>l</code></td><td><code>[0,1]</code></td><td>Leader election VRF value</td></tr>
+<tr><td><code>prf_l</code></td><td><code>Proof</code></td><td>Leader election VRF proof</td></tr>
+<tr><td><code>bsize</code></td><td><code>N</code></td><td>Block body size</td></tr>
+<tr><td><code>bhash</code></td><td><code>HashBBody</code></td><td>Block body hash</td></tr>
+<tr><td><code>oc</code></td><td><code>OCert</code></td><td>Operational certificate</td></tr>
+<tr><td><code>pv</code></td><td><code>ProtVer</code></td><td>Protocol version</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>Block = BHeader x [Tx]</code> where <code>BHeader = BHBody x Sig</code>.</p>
+<h4 id="chain-transition"><a class="header" href="#chain-transition">CHAIN Transition</a></h4>
+<p>The top-level rule. Calls:</p>
+<ol>
+<li><strong>TICK</strong> – epoch boundary + reward update</li>
+<li><strong>PRTCL</strong> – protocol/header validation (leader check, nonce, opcert)</li>
+<li><strong>BBODY</strong> – block body validation</li>
+</ol>
+<h4 id="tick-transition"><a class="header" href="#tick-transition">TICK Transition</a></h4>
+<p>Invoked at every block to check for epoch boundaries:</p>
+<ol>
+<li>If new epoch: call <strong>NEWEPOCH</strong> transition</li>
+<li>Call <strong>RUPD</strong> (reward update calculation if in the right window)</li>
+</ol>
+<h4 id="rupd-reward-update"><a class="header" href="#rupd-reward-update">RUPD (Reward Update)</a></h4>
+<p>The reward update is calculated during a specific window in each epoch (after StabilityWindow slots into the epoch). It produces a <code>RewardUpdate</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>delta_t</code></td><td><code>Coin</code></td><td>Change to treasury</td></tr>
+<tr><td><code>delta_r</code></td><td><code>Coin</code></td><td>Change to reserves</td></tr>
+<tr><td><code>rs</code></td><td><code>StakeCredential -&gt; Coin</code></td><td>Per-credential rewards</td></tr>
+<tr><td><code>delta_f</code></td><td><code>Coin</code></td><td>Change to fee pot (negative)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Constraint: <code>delta_t + delta_r + sum(rs) + delta_f = 0</code> (zero-sum).</p>
+<h4 id="bbody-block-body"><a class="header" href="#bbody-block-body">BBODY (Block Body)</a></h4>
+<p>Validates the block body:</p>
+<ol>
+<li>Block body hash matches header</li>
+<li>Block body size matches header</li>
+<li>Calls LEDGERS to process all transactions</li>
+</ol>
+<hr>
+<h3 id="36-reward-calculation"><a class="header" href="#36-reward-calculation">3.6 Reward Calculation</a></h3>
+<p><strong>Source</strong>: <code>eras/shelley/formal-spec/epoch.tex</code> (sections on reward distribution)</p>
+<p>The reward calculation <code>createRUpd</code> uses the “go” snapshot (the oldest of the three):</p>
+<h4 id="key-formula"><a class="header" href="#key-formula">Key Formula</a></h4>
+<ol>
+<li>
+<p><strong>Monetary expansion</strong>: <code>delta_r1 = rho * reserves</code> where <code>rho</code> is the monetary expansion rate.</p>
+</li>
+<li>
+<p><strong>Reward pot</strong>: <code>rewardPot = feeSS + delta_r1</code></p>
+</li>
+<li>
+<p><strong>Treasury cut</strong>: <code>delta_t1 = tau * rewardPot</code> where <code>tau</code> is the treasury cut ratio.</p>
+</li>
+<li>
+<p><strong>Available rewards</strong>: <code>R = rewardPot - delta_t1</code></p>
+</li>
+<li>
+<p><strong>Per-pool reward</strong>: Uses the <code>maxPool</code> desirability function from the design doc:</p>
+</li>
+</ol>
+<pre><code>maxPool(R, sigma, pledge_rel, pool_params) based on:
+  - sigma = pool_stake / total_stake (actual relative stake)
+  - sigma_a = pool_stake / active_stake
+  - s = pledge / total_stake (relative pledge)
+  - a0 = pledge influence factor (protocol parameter)
+</code></pre>
+<ol start="6">
+<li>
+<p><strong>Apparent performance</strong>: <code>beta = blocks_made_by_pool / expected_blocks_for_pool</code></p>
+</li>
+<li>
+<p><strong>Pool reward</strong>: <code>poolR = maxPool * beta</code> (capped by apparent performance)</p>
+</li>
+<li>
+<p><strong>Operator reward</strong>: <code>r_operator = poolCost + poolMargin * (poolR - poolCost)</code> (if poolR &gt; poolCost)</p>
+</li>
+<li>
+<p><strong>Member reward</strong>: For each member <code>m</code> with stake <code>t</code> in pool with total member stake <code>s_total</code>:
+<code>r_member(m) = (poolR - r_operator) * (t / s_total)</code> (if poolR &gt; poolCost, else 0)</p>
+</li>
+<li>
+<p><strong>Pledge enforcement</strong>: If the total stake from pool owners &lt; pledge, the pool receives NO rewards (entire pool reward = 0).</p>
+</li>
+<li>
+<p><strong>Circulation</strong>: <code>circulation = maxLovelaceSupply - reserves</code> (NOT active_stake).</p>
+</li>
+</ol>
+<h4 id="rewardupdate-assembly"><a class="header" href="#rewardupdate-assembly">RewardUpdate Assembly</a></h4>
+<pre><code>delta_f = -feeSS
+delta_r = -delta_r1 + unclaimed_rewards
+delta_t = delta_t1 + unclaimed_from_unregistered_MIR
+rs = {credential -&gt; reward for each active delegator}
+</code></pre>
+<hr>
+<h2 id="4-alonzo-additions"><a class="header" href="#4-alonzo-additions">4. Alonzo Additions</a></h2>
+<p><strong>Source</strong>: <code>eras/alonzo/formal-spec/</code></p>
+<p>The Alonzo era introduced Plutus smart contracts via two-phase validation.</p>
+<h3 id="41-new-transaction-fields"><a class="header" href="#41-new-transaction-fields">4.1 New Transaction Fields</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>collateral</code></td><td><code>P(TxIn)</code></td><td>Collateral inputs (for failed scripts)</td></tr>
+<tr><td><code>reqSignerHashes</code></td><td><code>P(KeyHash)</code></td><td>Extra required signatories (for scripts)</td></tr>
+<tr><td><code>scriptIntegrityHash</code></td><td><code>ScriptIntegrityHash?</code></td><td>Hash of script-related data</td></tr>
+<tr><td><code>txnetworkid</code></td><td><code>Network?</code></td><td>Transaction network ID</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>TxOut</strong> extended: <code>Addr x Value x DataHash?</code> (optional datum hash)</p>
+<p><strong>IsValid</strong>: A <code>Bool</code> tag on the transaction indicating whether all phase-2 scripts validate. Set by the block producer.</p>
+<p><strong>Validity interval</strong>: Changed from <code>TTL</code> to <code>ValidityInterval = Slot? x Slot?</code> (both bounds optional).</p>
+<h3 id="42-new-witness-fields"><a class="header" href="#42-new-witness-fields">4.2 New Witness Fields</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>txscripts</code></td><td><code>ScriptHash -&gt; Script</code></td><td>All scripts (phase-1 and phase-2)</td></tr>
+<tr><td><code>txdats</code></td><td><code>DataHash -&gt; Datum</code></td><td>Datum objects</td></tr>
+<tr><td><code>txrdmrs</code></td><td><code>RdmrPtr -&gt; (Redeemer x ExUnits)</code></td><td>Redeemers with execution budgets</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>RdmrPtr</strong> = <code>Tag x Ix</code> where <code>Tag in {Spend, Mint, Cert, Rewrd}</code>.</p>
+<h3 id="43-two-phase-validation"><a class="header" href="#43-two-phase-validation">4.3 Two-Phase Validation</a></h3>
+<p><strong>Phase 1</strong> (ledger rules): All non-script validation. If phase 1 fails, the transaction is completely rejected (no fees collected).</p>
+<p><strong>Phase 2</strong> (script execution): Run Plutus scripts. If phase 2 fails, collateral is collected but the transaction’s main effects are not applied.</p>
+<h3 id="44-utxos-transition-new"><a class="header" href="#44-utxos-transition-new">4.4 UTXOS Transition (New)</a></h3>
+<p>Two rules based on the <code>isValid</code> tag:</p>
+<p><strong>Rule: Scripts-Yes</strong> (<code>isValid = True</code>):</p>
+<ul>
+<li>Standard UTxO state update (same as Shelley: remove inputs, add outputs, collect fees)</li>
+<li>Verify: <code>isValid(tx) = evalScripts(tx, sLst) = True</code></li>
+</ul>
+<p><strong>Rule: Scripts-No</strong> (<code>isValid = False</code>):</p>
+<ul>
+<li>UTxO state change: only remove collateral inputs, add collateral amount to fee pot</li>
+<li>Nothing else changes (deposits, updates, etc. are not applied)</li>
+<li>Verify: <code>isValid(tx) = evalScripts(tx, sLst) = False</code></li>
+</ul>
+<h3 id="45-collateral-mechanism"><a class="header" href="#45-collateral-mechanism">4.5 Collateral Mechanism</a></h3>
+<p><code>feesOK(pp, tx, utxo)</code> checks:</p>
+<ol>
+<li><code>minfee(pp, tx) &lt;= txfee(txb)</code> – sufficient declared fee</li>
+<li>If tx has redeemers (uses phase-2 scripts):
+<ul>
+<li>Collateral inputs must use VKey addresses only</li>
+<li>Collateral UTxOs must contain Ada only (no multi-asset)</li>
+<li><code>collateral_balance * 100 &gt;= txfee * collateralPercent(pp)</code></li>
+<li>Collateral set must be non-empty</li>
+</ul>
+</li>
+</ol>
+<h3 id="46-script-data-hash-integrity-hash"><a class="header" href="#46-script-data-hash-integrity-hash">4.6 Script Data Hash (Integrity Hash)</a></h3>
+<pre><code>hashScriptIntegrity(pp, langs, rdmrs, dats) =
+    Nothing                                          if rdmrs = {} AND langs = {} AND dats = {}
+    hash(rdmrs, dats, {getLanguageView(pp, l) | l in langs})  otherwise
+</code></pre>
+<p>This hash is included in the transaction body, binding the script-execution-relevant data to the body so signatures cover it.</p>
+<h3 id="47-minimum-fee-with-script-costs"><a class="header" href="#47-minimum-fee-with-script-costs">4.7 Minimum Fee with Script Costs</a></h3>
+<pre><code>minfee(pp, tx) = a * txSize(tx) + b + txscriptfee(prices(pp), totExunits(txbody(tx)))
+
+txscriptfee((pr_mem, pr_steps), (mem, steps)) = ceiling(pr_mem * mem + pr_steps * steps)
+</code></pre>
+<h3 id="48-exunits-and-cost-models"><a class="header" href="#48-exunits-and-cost-models">4.8 ExUnits and Cost Models</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ExUnits</code></td><td><code>(mem: N, steps: N)</code> – execution budget (memory, CPU steps)</td></tr>
+<tr><td><code>CostMod</code></td><td>Language-specific cost model for script execution</td></tr>
+<tr><td><code>Prices</code></td><td><code>(pr_mem: Rational, pr_steps: Rational)</code> – price per unit</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="49-script-purpose-and-indexing"><a class="header" href="#49-script-purpose-and-indexing">4.9 Script Purpose and Indexing</a></h3>
+<p><code>ScriptPurpose = PolicyID | TxIn | AddrRWD | DCert</code></p>
+<p>Scripts are indexed via <code>RdmrPtr</code>:</p>
+<ul>
+<li><code>Spend</code>: index in sorted set of spend inputs</li>
+<li><code>Mint</code>: index in sorted set of minting policy IDs</li>
+<li><code>Cert</code>: index in certificate list</li>
+<li><code>Rewrd</code>: index in sorted withdrawal map</li>
+</ul>
+<h3 id="410-utxow-changes"><a class="header" href="#410-utxow-changes">4.10 UTXOW Changes</a></h3>
+<p>Additional UTXOW predicates for Alonzo:</p>
+<ol>
+<li>Phase-1 scripts must all validate</li>
+<li>Scripts provided = scripts needed (exact match)</li>
+<li>All datum hashes for phase-2 script inputs have corresponding datums in witnesses</li>
+<li>Datum hashes in witnesses are subset of (input datums U output datums)</li>
+<li>Every phase-2 script has a redeemer entry</li>
+<li>No extraneous redeemer entries</li>
+<li><code>reqSignerHashes</code> keys have signed the transaction</li>
+<li><code>scriptIntegrityHash</code> matches computed hash</li>
+</ol>
+<h3 id="411-txinfo-v1-script-context"><a class="header" href="#411-txinfo-v1-script-context">4.11 TxInfo (V1 Script Context)</a></h3>
+<p>The <code>txInfo</code> function builds a <code>TxInfo</code> with 10 fields:</p>
+<ol>
+<li><strong>inputs</strong>: <code>[(TxOutRef, TxOut)]</code> – realized inputs (3-field TxOut: addr, value, datumHash)</li>
+<li><strong>outputs</strong>: <code>[TxOut]</code> – transaction outputs</li>
+<li><strong>fee</strong>: <code>Value</code> – fee as a Value</li>
+<li><strong>mint</strong>: <code>Value</code> – minted value</li>
+<li><strong>dcerts</strong>: <code>[DCert]</code> – certificates (translated)</li>
+<li><strong>wdrl</strong>: <code>[(StakingCredential, Integer)]</code> – withdrawals as list of pairs</li>
+<li><strong>validRange</strong>: <code>POSIXTimeRange</code> – validity interval in POSIX time</li>
+<li><strong>signatories</strong>: <code>[PubKeyHash]</code> – required signers</li>
+<li><strong>data</strong>: <code>[(DatumHash, Datum)]</code> – datum map as list of pairs</li>
+<li><strong>txId</strong>: <code>TxId</code> – transaction hash</li>
+</ol>
+<p><strong>Time translation</strong>: Slot numbers are converted to POSIX time via <code>epochInfoSlotToUTCTime</code>. This is why scripts see time ranges, not slot numbers.</p>
+<p><strong>V1 spending scripts take 3 args</strong>: datum, redeemer, ScriptContext(TxInfo, ScriptPurpose).
+<strong>V1 minting/reward scripts take 2 args</strong>: redeemer, ScriptContext.</p>
+<hr>
+<h2 id="5-babbage-additions"><a class="header" href="#5-babbage-additions">5. Babbage Additions</a></h2>
+<p><strong>Source</strong>: <code>eras/babbage/formal-spec/</code></p>
+<h3 id="51-reference-inputs-cip-31"><a class="header" href="#51-reference-inputs-cip-31">5.1 Reference Inputs (CIP-31)</a></h3>
+<p>New transaction field: <code>refInputs : P(TxIn)</code> – reference inputs.</p>
+<p>Reference inputs:</p>
+<ul>
+<li>Are NOT spent (not removed from UTxO)</li>
+<li>Do NOT require witnesses</li>
+<li>MUST exist in the UTxO</li>
+<li>ARE visible to Plutus scripts via TxInfo</li>
+<li>Cannot be used with PlutusV1 (which has no reference input field)</li>
+</ul>
+<p>Regular inputs renamed to <code>spendInputs</code>, collateral to <code>collInputs</code>.</p>
+<h3 id="52-inline-datums-cip-32"><a class="header" href="#52-inline-datums-cip-32">5.2 Inline Datums (CIP-32)</a></h3>
+<p><strong>TxOut</strong> changed to: <code>Addr x Value x (Datum | DataHash)? x Script?</code></p>
+<p>The third field can now be either:</p>
+<ul>
+<li>A <code>DataHash</code> (hash reference, as in Alonzo)</li>
+<li>A <code>Datum</code> directly (inline datum, new in Babbage)</li>
+</ul>
+<p>Inline datums:</p>
+<ul>
+<li>Do not need to be included in the transaction witness set</li>
+<li>Are passed directly to scripts via <code>getDatum</code></li>
+<li>Cannot be used with PlutusV1</li>
+</ul>
+<h3 id="53-reference-scripts-cip-33"><a class="header" href="#53-reference-scripts-cip-33">5.3 Reference Scripts (CIP-33)</a></h3>
+<p><strong>TxOut</strong> now has an optional fourth field: <code>Script?</code></p>
+<p>Reference scripts:</p>
+<ul>
+<li>Scripts stored in UTxO outputs</li>
+<li>Can be referenced by transactions without including the script in witnesses</li>
+<li><code>txscripts(tx, utxo) = txwitscripts(tx) U refScripts(tx, utxo)</code></li>
+<li><code>refScripts</code> collects scripts from outputs of both spend and reference inputs</li>
+<li>Cannot be used with PlutusV1</li>
+</ul>
+<h3 id="54-collateral-return-output"><a class="header" href="#54-collateral-return-output">5.4 Collateral Return Output</a></h3>
+<p>New fields:</p>
+<ul>
+<li><code>collRet : TxOut?</code> – collateral return output (created on script failure)</li>
+<li><code>txcoll : Coin?</code> – declared total collateral amount</li>
+</ul>
+<p>On script failure (Scripts-No):</p>
+<pre><code>utxo' = (collInputs(txb) &lt;/| utxo) U collOuts(txb)
+fees' = fees + collateralFees
+</code></pre>
+<p>where <code>collOuts</code> creates a return output at index <code>|txouts(txb)|</code>.</p>
+<h3 id="55-min-utxo-change"><a class="header" href="#55-min-utxo-change">5.5 Min UTxO Change</a></h3>
+<p>Changed from <code>coinsPerUTxOWord</code> to <code>coinsPerUTxOByte</code>:</p>
+<pre><code>minUTxO = (serSize(txout) + 160) * coinsPerUTxOByte(pp)
+</code></pre>
+<p>The 160 bytes account for the TxIn key overhead in the UTxO map.</p>
+<h3 id="56-language-restrictions"><a class="header" href="#56-language-restrictions">5.6 Language Restrictions</a></h3>
+<p>Transactions involving PlutusV1 scripts cannot use:</p>
+<ul>
+<li>Reference inputs</li>
+<li>Inline datums</li>
+<li>Reference scripts</li>
+</ul>
+<p>The <code>allowedLanguages</code> function enforces this:</p>
+<pre><code>allowedLanguages(tx, utxo) =
+    {}              if any output has bootstrap address
+    {PlutusV2}      if any output has inline datum/script, or refInputs != {}
+    {PlutusV1, V2}  otherwise
+</code></pre>
+<h3 id="57-txinfo-v2-plutusv2-script-context"><a class="header" href="#57-txinfo-v2-plutusv2-script-context">5.7 TxInfo V2 (PlutusV2 Script Context)</a></h3>
+<p>V2 TxInfo adds:</p>
+<ul>
+<li><strong>referenceInputs</strong>: <code>[(TxOutRef, TxOut)]</code> – reference inputs with their UTxO entries</li>
+<li><strong>redeemers</strong>: <code>[(ScriptPurpose, Redeemer)]</code> – all redeemers (without ExUnits)</li>
+<li><strong>TxOut</strong> now has 4 fields: <code>(Address, Value, OutputDatum, Maybe ScriptHash)</code></li>
+</ul>
+<hr>
+<h2 id="6-conway-additions"><a class="header" href="#6-conway-additions">6. Conway Additions</a></h2>
+<p><strong>Sources</strong>: <a href="https://cips.cardano.org/cip/CIP-1694">CIP-1694</a>, <a href="https://intersectmbo.github.io/formal-ledger-specifications/conway-ledger.pdf">Conway Formal Spec (Agda)</a></p>
+<p>The Conway era implements CIP-1694 on-chain governance. The formal spec for Conway is written in literate Agda (not LaTeX like previous eras).</p>
+<h3 id="61-governance-bodies"><a class="header" href="#61-governance-bodies">6.1 Governance Bodies</a></h3>
+<p>Three governance bodies:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Body</th><th>Description</th><th>Voting Power</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Constitutional Committee (CC)</strong></td><td>Small group ensuring constitutional compliance</td><td>1 vote per member</td></tr>
+<tr><td><strong>DReps</strong> (Delegated Representatives)</td><td>Stake-weighted representatives</td><td>Proportional to delegated stake</td></tr>
+<tr><td><strong>SPOs</strong> (Stake Pool Operators)</td><td>Block producers</td><td>Proportional to delegated stake</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="62-governance-actions-7-types"><a class="header" href="#62-governance-actions-7-types">6.2 Governance Actions (7 types)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>CC Required</th><th>DRep Required</th><th>SPO Required</th></tr>
+</thead>
+<tbody>
+<tr><td>Motion of No-Confidence</td><td>–</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>New Constitutional Committee</td><td>–</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Constitution Update</td><td>Yes</td><td>Yes</td><td>–</td></tr>
+<tr><td>Hard Fork Initiation</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Protocol Parameter Changes</td><td>Yes</td><td>Yes</td><td>Yes*</td></tr>
+<tr><td>Treasury Withdrawals</td><td>Yes</td><td>Yes</td><td>–</td></tr>
+<tr><td>Info</td><td>–</td><td>Yes</td><td>Yes</td></tr>
+</tbody>
+</table>
+</div>
+<p>* SPOs required only for security-relevant parameters.</p>
+<p>Each governance action has:</p>
+<ul>
+<li>A <strong>deposit</strong> (returned when the action is enacted or expires)</li>
+<li>A <strong>return address</strong> for the deposit</li>
+<li>A <strong>lifetime</strong> (expires if not ratified within this many epochs)</li>
+<li>A <strong>previous action ID</strong> (for chaining, except Info actions)</li>
+</ul>
+<h3 id="63-new-transition-systems"><a class="header" href="#63-new-transition-systems">6.3 New Transition Systems</a></h3>
+<h4 id="gov-transition"><a class="header" href="#gov-transition">GOV Transition</a></h4>
+<p>Processes governance proposals and votes within transactions:</p>
+<ul>
+<li>Validates proposal deposits</li>
+<li>Checks proposal procedure validity</li>
+<li>Records votes (Yes/No/Abstain) from CC members, DReps, and SPOs</li>
+</ul>
+<h4 id="ratify-transition"><a class="header" href="#ratify-transition">RATIFY Transition</a></h4>
+<p>Runs at the epoch boundary:</p>
+<ul>
+<li>Loops over all active (unratified, unexpired) governance actions</li>
+<li>Checks ratification thresholds per action type</li>
+<li>Uses stake snapshots for vote weight calculation</li>
+<li>Ratified actions are staged for enactment</li>
+</ul>
+<p>Vote thresholds vary by action type and governance body. Each threshold is a percentage of active voting stake.</p>
+<h4 id="enact-transition"><a class="header" href="#enact-transition">ENACT Transition</a></h4>
+<p>Called after RATIFY at the epoch boundary:</p>
+<ul>
+<li>Enacts ratified governance actions in priority order</li>
+<li>Priority: NoConfidence &gt; NewCommittee &gt; Constitution &gt; HardFork &gt; PPUpdate &gt; TreasuryWdrl &gt; Info</li>
+<li>Actions that overlap (modify the same state) are checked for conflicts</li>
+</ul>
+<p><strong>EnactState</strong> contains:</p>
+<ul>
+<li>Current committee</li>
+<li>Current constitution (hash + optional guardrail script)</li>
+<li>Current protocol parameters</li>
+<li>Current protocol version</li>
+<li>Treasury and withdrawal tracking</li>
+</ul>
+<h4 id="govcert-transition"><a class="header" href="#govcert-transition">GOVCERT Transition</a></h4>
+<p>Handles the new Conway certificate types:</p>
+<ul>
+<li>DRep registration/deregistration/update</li>
+<li>Constitutional committee hot key authorization</li>
+<li>Constitutional committee member resignation</li>
+</ul>
+<h3 id="64-new-certificate-types-conway"><a class="header" href="#64-new-certificate-types-conway">6.4 New Certificate Types (Conway)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Cert</th><th>ID</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>RegDRepCert</code></td><td>16</td><td>DRep registration</td></tr>
+<tr><td><code>UnRegDRepCert</code></td><td>17</td><td>DRep deregistration</td></tr>
+<tr><td><code>UpdateDRepCert</code></td><td>18</td><td>DRep update (metadata)</td></tr>
+<tr><td><code>AuthCommitteeHotCert</code></td><td>14</td><td>CC hot key authorization</td></tr>
+<tr><td><code>ResignCommitteeColdCert</code></td><td>15</td><td>CC member resignation</td></tr>
+<tr><td><code>RegCert</code></td><td>7</td><td>Stake reg (with deposit)</td></tr>
+<tr><td><code>UnRegCert</code></td><td>8</td><td>Stake unreg (with refund)</td></tr>
+<tr><td><code>VoteDelegCert</code></td><td>9</td><td>Vote delegation to DRep</td></tr>
+<tr><td><code>StakeVoteDelegCert</code></td><td>10</td><td>Combined stake+vote delegation</td></tr>
+<tr><td><code>StakeRegDelegCert</code></td><td>11</td><td>Register + delegate stake</td></tr>
+<tr><td><code>VoteRegDelegCert</code></td><td>12</td><td>Register + delegate vote</td></tr>
+<tr><td><code>StakeVoteRegDelegCert</code></td><td>13</td><td>Register + delegate both</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="65-drep-delegation"><a class="header" href="#65-drep-delegation">6.5 DRep Delegation</a></h3>
+<p>Stake holders can delegate their voting power to DReps via <code>VoteDelegCert</code>. Special DReps:</p>
+<ul>
+<li><strong>AlwaysAbstain</strong> – stake does not count in active voting stake</li>
+<li><strong>AlwaysNoConfidence</strong> – counts as a Yes vote for NoConfidence motions, No for everything else</li>
+</ul>
+<h3 id="66-vote-thresholds-and-tallying"><a class="header" href="#66-vote-thresholds-and-tallying">6.6 Vote Thresholds and Tallying</a></h3>
+<p>For each governance action, ratification requires meeting thresholds from the relevant governance bodies. The threshold depends on:</p>
+<ul>
+<li>Action type</li>
+<li>Protocol parameters (threshold values are protocol parameters themselves)</li>
+<li>Whether the CC is in a state of no-confidence</li>
+</ul>
+<p>Active voting stake = lovelace in UTxOs with registered credentials delegated to registered DReps (excluding AlwaysAbstain).</p>
+<p>Threshold is met when: <code>sum(Yes_stake) / active_voting_stake &gt;= threshold_percentage</code></p>
+<h3 id="67-plutusv3"><a class="header" href="#67-plutusv3">6.7 PlutusV3</a></h3>
+<p>PlutusV3 scripts receive a single argument (not 2 or 3):</p>
+<ul>
+<li><code>ScriptContext</code> containing: <code>TxInfo</code>, <code>Redeemer</code>, <code>ScriptInfo</code></li>
+</ul>
+<p><code>ScriptInfo</code> variants:</p>
+<ul>
+<li><code>MintingScript PolicyID</code></li>
+<li><code>SpendingScript TxOutRef (Maybe Datum)</code></li>
+<li><code>RewardingScript Credential</code></li>
+<li><code>CertifyingScript Int TxCert</code></li>
+<li><code>VotingScript Voter</code></li>
+<li><code>ProposingScript Int ProposalProcedure</code></li>
+</ul>
+<p>V3 TxInfo includes:</p>
+<ul>
+<li>All V2 fields</li>
+<li><code>txInfoVotes</code> – governance votes</li>
+<li><code>txInfoProposalProcedures</code> – governance proposals</li>
+<li><code>txInfoCurrentTreasuryAmount</code> – current treasury balance (if queried)</li>
+<li><code>txInfoTreasuryDonation</code> – treasury donation from this tx</li>
+</ul>
+<p>V3 certificates use a different encoding than V1/V2 (<code>TxCert</code> with Conway cert types).</p>
+<h3 id="68-other-conway-changes"><a class="header" href="#68-other-conway-changes">6.8 Other Conway Changes</a></h3>
+<ul>
+<li><strong>Protocol parameter update mechanism</strong>: Replaced with governance actions (no more genesis key-based updates)</li>
+<li><strong>MIR certificates</strong>: Removed (replaced by treasury withdrawal governance actions)</li>
+<li><strong>Genesis delegations</strong>: Removed</li>
+<li><strong>Proposal policy</strong>: Optional guardrail script attached to the constitution, checked against parameter changes</li>
+<li><strong>Treasury donations</strong>: New tx body field allowing voluntary treasury contributions</li>
+<li><strong>DRep expiry</strong>: DReps have an activity epoch; if they don’t vote for too long, they become inactive</li>
+</ul>
+<hr>
+<h2 id="7-cddl-wire-format"><a class="header" href="#7-cddl-wire-format">7. CDDL Wire Format</a></h2>
+<p><strong>Source</strong>: <code>node/docs/blueprint/src/codecs/</code> and <code>node/docs/blueprint/src/network/</code></p>
+<h3 id="71-base-types-basecddl"><a class="header" href="#71-base-types-basecddl">7.1 Base Types (<code>base.cddl</code>)</a></h3>
+<pre><code class="language-cddl">blockNo = word64
+epochNo = word64
+slotNo  = word64
+coin    = word64
+rational = [int, int]
+keyhash = bstr .size 28
+hash    = bstr .size 32
+
+word8  = uint .size 1
+word16 = uint .size 2
+word32 = uint .size 4
+word64 = uint .size 8
+</code></pre>
+<h3 id="72-block-encoding-blockcddl"><a class="header" href="#72-block-encoding-blockcddl">7.2 Block Encoding (<code>block.cddl</code>)</a></h3>
+<p>Blocks are era-tagged:</p>
+<pre><code class="language-cddl">cardanoBlock = byron.block          -- era tag implicit
+             / [2, shelley.block]
+             / [3, allegra.block]
+             / [4, mary.block]
+             / [5, alonzo.block]
+             / [6, babbage.block]
+             / [7, conway.block]
+</code></pre>
+<p>Blocks are wrapped in CBOR tag 24 (embedded CBOR):</p>
+<pre><code class="language-cddl">serialisedCardanoBlock = #6.24(bytes .cbor cardanoBlock)
+</code></pre>
+<h3 id="73-header-encoding-headercddl"><a class="header" href="#73-header-encoding-headercddl">7.3 Header Encoding (<code>header.cddl</code>)</a></h3>
+<p>Headers use the same era-namespace tagging:</p>
+<pre><code class="language-cddl">header = ns7&lt;byronHeader, shelleyHeader, ..., conwayHeader&gt;
+
+ns7&lt;byron, shelley, allegra, mary, alonzo, babbage, conway&gt;
+  = [6, conway] / [5, babbage] / [4, alonzo] / [3, mary]
+  / [2, allegra] / [1, shelley] / [0, byron]
+
+serialisedShelleyHeader&lt;era&gt; = #6.24(bytes .cbor era)
+</code></pre>
+<p>Byron headers have additional complexity with boundary/regular block distinction.</p>
+<h3 id="74-chainsync-protocol-chainsyncmessagescddl"><a class="header" href="#74-chainsync-protocol-chainsyncmessagescddl">7.4 ChainSync Protocol (<code>chainsync/messages.cddl</code>)</a></h3>
+<pre><code class="language-cddl">chainSyncMessage
+    = [0]                           -- MsgRequestNext
+    / [1]                           -- MsgAwaitReply
+    / [2, header, tip]              -- MsgRollForward
+    / [3, point, tip]               -- MsgRollBackward
+    / [4, [* point]]                -- MsgFindIntersect
+    / [5, point, tip]               -- MsgIntersectFound
+    / [6, tip]                      -- MsgIntersectNotFound
+    / [7]                           -- MsgDone
+
+tip   = [point, blockNo]
+point = []                          -- genesis
+      / [slotNo, hash]              -- (slot, block hash)
+</code></pre>
+<h3 id="75-blockfetch-protocol-blockfetchmessagescddl"><a class="header" href="#75-blockfetch-protocol-blockfetchmessagescddl">7.5 BlockFetch Protocol (<code>blockfetch/messages.cddl</code>)</a></h3>
+<pre><code class="language-cddl">blockFetchMessage
+     = [0, point, point]            -- MsgRequestRange (start, end)
+     / [1]                          -- MsgClientDone
+     / [2]                          -- MsgStartBatch
+     / [3]                          -- MsgNoBlocks
+     / [4, block]                   -- MsgBlock (serialised block)
+     / [5]                          -- MsgBatchDone
+</code></pre>
+<h3 id="76-handshake-protocol-handshakemessagescddl"><a class="header" href="#76-handshake-protocol-handshakemessagescddl">7.6 Handshake Protocol (<code>handshake/messages.cddl</code>)</a></h3>
+<pre><code class="language-cddl">handshakeMessage
+    = [0, versionTable]                        -- MsgProposeVersions
+    / [1, versionNumber, nodeToNodeVersionData] -- MsgAcceptVersion
+    / [2, refuseReason]                        -- MsgRefuse
+    / [3, versionTable]                        -- MsgQueryReply
+
+versionNumber = 13 / 14                       -- NTN v13 and v14 only
+nodeToNodeVersionData = [networkMagic, initiatorOnlyDiffusionMode, peerSharing, query]
+networkMagic = 0..4294967295
+</code></pre>
+<h3 id="77-txsubmission2-protocol-txsubmission2messagescddl"><a class="header" href="#77-txsubmission2-protocol-txsubmission2messagescddl">7.7 TxSubmission2 Protocol (<code>txsubmission2/messages.cddl</code>)</a></h3>
+<pre><code class="language-cddl">txSubmission2Message
+    = [6]                                      -- MsgInit
+    / [0, blocking, txCount, txCount]          -- MsgRequestTxIds
+    / [1, txIdsAndSizes]                       -- MsgReplyTxIds
+    / [2, txIdList]                            -- MsgRequestTxs
+    / [3, txList]                              -- MsgReplyTxs
+    / [4]                                      -- MsgDone
+</code></pre>
+<h3 id="78-multiplexer"><a class="header" href="#78-multiplexer">7.8 Multiplexer</a></h3>
+<p>All mini-protocols share a TCP connection via a multiplexer with an 8-byte header:</p>
+<pre><code>[4 bytes: transmission time][2 bytes: protocol ID][2 bytes: payload length]
+</code></pre>
+<p>Protocol IDs (NTN):</p>
+<ul>
+<li>0: Handshake</li>
+<li>2: ChainSync</li>
+<li>3: BlockFetch</li>
+<li>4: TxSubmission2</li>
+<li>8: KeepAlive</li>
+</ul>
+<p>Initiator uses the protocol ID as-is; responder adds <code>0x8000</code> (bit 15 set).</p>
+<hr>
+<h2 id="appendix-a-complete-sts-rule-index"><a class="header" href="#appendix-a-complete-sts-rule-index">Appendix A: Complete STS Rule Index</a></h2>
+<h3 id="shelley-rules"><a class="header" href="#shelley-rules">Shelley Rules</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rule</th><th>Signal</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>CHAIN</strong></td><td>Block</td><td>Top-level chain extension</td></tr>
+<tr><td><strong>TICK</strong></td><td>Slot</td><td>Epoch boundary check + reward update</td></tr>
+<tr><td><strong>TICKN</strong></td><td>–</td><td>Nonce evolution</td></tr>
+<tr><td><strong>NEWEPOCH</strong></td><td>Epoch</td><td>New epoch processing</td></tr>
+<tr><td><strong>MIR</strong></td><td>–</td><td>Move instantaneous rewards</td></tr>
+<tr><td><strong>EPOCH</strong></td><td>Epoch</td><td>Epoch boundary (snap + poolreap + newpp)</td></tr>
+<tr><td><strong>SNAP</strong></td><td>–</td><td>Take stake distribution snapshot</td></tr>
+<tr><td><strong>POOLREAP</strong></td><td>Epoch</td><td>Retire scheduled pools</td></tr>
+<tr><td><strong>NEWPP</strong></td><td>–</td><td>Apply protocol parameter updates</td></tr>
+<tr><td><strong>RUPD</strong></td><td>Slot</td><td>Reward update calculation</td></tr>
+<tr><td><strong>PRTCL</strong></td><td>BHeader</td><td>Protocol/header validation</td></tr>
+<tr><td><strong>OVERLAY</strong></td><td>BHeader</td><td>Leader schedule (overlay + Praos)</td></tr>
+<tr><td><strong>UPDN</strong></td><td>Seed</td><td>Nonce update</td></tr>
+<tr><td><strong>OCERT</strong></td><td>BHeader</td><td>Operational certificate validation</td></tr>
+<tr><td><strong>BBODY</strong></td><td>Block</td><td>Block body validation</td></tr>
+<tr><td><strong>LEDGERS</strong></td><td>[Tx]</td><td>Process transaction sequence</td></tr>
+<tr><td><strong>LEDGER</strong></td><td>Tx</td><td>Process single transaction</td></tr>
+<tr><td><strong>UTXOW</strong></td><td>Tx</td><td>UTxO with witnesses</td></tr>
+<tr><td><strong>UTXO</strong></td><td>Tx</td><td>UTxO accounting</td></tr>
+<tr><td><strong>PPUP</strong></td><td>Update?</td><td>Protocol parameter update proposals</td></tr>
+<tr><td><strong>DELEGS</strong></td><td>[DCert]</td><td>Certificate sequence</td></tr>
+<tr><td><strong>DELPL</strong></td><td>DCert</td><td>Dispatch cert to DELEG or POOL</td></tr>
+<tr><td><strong>DELEG</strong></td><td>DCert</td><td>Delegation/registration/MIR certs</td></tr>
+<tr><td><strong>POOL</strong></td><td>DCert</td><td>Pool registration/retirement certs</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="alonzo-additions"><a class="header" href="#alonzo-additions">Alonzo Additions</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rule</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>UTXOS</strong></td><td>Script execution state update (Scripts-Yes / Scripts-No)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="conway-additions"><a class="header" href="#conway-additions">Conway Additions</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rule</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>GOV</strong></td><td>Governance proposal and vote processing</td></tr>
+<tr><td><strong>RATIFY</strong></td><td>Governance action ratification (epoch boundary)</td></tr>
+<tr><td><strong>ENACT</strong></td><td>Governance action enactment</td></tr>
+<tr><td><strong>GOVCERT</strong></td><td>DRep and committee certificate processing</td></tr>
+<tr><td><strong>CERT</strong></td><td>Extended certificate processing (DELEG + POOL + GOVCERT)</td></tr>
+<tr><td><strong>CERTS</strong></td><td>Certificate sequence (replaces DELEGS)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="appendix-b-protocol-parameters-shelley-through-conway"><a class="header" href="#appendix-b-protocol-parameters-shelley-through-conway">Appendix B: Protocol Parameters (Shelley through Conway)</a></h2>
+<h3 id="shelley-parameters"><a class="header" href="#shelley-parameters">Shelley Parameters</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>a</code>, <code>b</code></td><td>Min fee coefficients: <code>fee &gt;= a * size + b</code></td></tr>
+<tr><td><code>maxBlockBodySize</code></td><td>Maximum block body size (bytes)</td></tr>
+<tr><td><code>maxTxSize</code></td><td>Maximum transaction size (bytes)</td></tr>
+<tr><td><code>maxBlockHeaderSize</code></td><td>Maximum block header size</td></tr>
+<tr><td><code>keyDeposit</code></td><td>Stake key registration deposit</td></tr>
+<tr><td><code>poolDeposit</code></td><td>Pool registration deposit</td></tr>
+<tr><td><code>emax</code></td><td>Maximum pool retirement epoch offset</td></tr>
+<tr><td><code>nOpt</code></td><td>Desired number of pools (k)</td></tr>
+<tr><td><code>a0</code></td><td>Pool pledge influence factor</td></tr>
+<tr><td><code>rho</code></td><td>Monetary expansion rate</td></tr>
+<tr><td><code>tau</code></td><td>Treasury cut</td></tr>
+<tr><td><code>d</code></td><td>Decentralization parameter (0 = fully decentralized)</td></tr>
+<tr><td><code>extraEntropy</code></td><td>Extra nonce</td></tr>
+<tr><td><code>protocolVersion</code></td><td>(major, minor)</td></tr>
+<tr><td><code>minUTxOValue</code></td><td>Minimum UTxO output value</td></tr>
+<tr><td><code>minPoolCost</code></td><td>Minimum pool fixed cost</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="alonzo-additions-1"><a class="header" href="#alonzo-additions-1">Alonzo Additions</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>coinsPerUTxOWord</code></td><td>Min UTxO calculation basis</td></tr>
+<tr><td><code>costmdls</code></td><td>Language -&gt; CostModel mapping</td></tr>
+<tr><td><code>prices</code></td><td>(prMem, prSteps) script execution prices</td></tr>
+<tr><td><code>maxTxExUnits</code></td><td>Max ExUnits per transaction</td></tr>
+<tr><td><code>maxBlockExUnits</code></td><td>Max ExUnits per block</td></tr>
+<tr><td><code>maxValSize</code></td><td>Max serialized Value size (bytes)</td></tr>
+<tr><td><code>collateralPercent</code></td><td>Collateral percentage (e.g., 150 = 150%)</td></tr>
+<tr><td><code>maxCollateralInputs</code></td><td>Max collateral inputs per tx</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="babbage-changes"><a class="header" href="#babbage-changes">Babbage Changes</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>coinsPerUTxOByte</code></td><td>Replaces coinsPerUTxOWord</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="conway-additions-1"><a class="header" href="#conway-additions-1">Conway Additions</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>drepDeposit</code></td><td>DRep registration deposit</td></tr>
+<tr><td><code>drepActivity</code></td><td>DRep activity period (epochs)</td></tr>
+<tr><td><code>govActionDeposit</code></td><td>Governance action deposit</td></tr>
+<tr><td><code>govActionLifetime</code></td><td>Max epochs before expiry</td></tr>
+<tr><td><code>committeeMinSize</code></td><td>Minimum committee size</td></tr>
+<tr><td><code>committeeMaxTermLength</code></td><td>Max committee member term</td></tr>
+<tr><td><code>ccThreshold</code></td><td>Constitutional Committee threshold</td></tr>
+<tr><td>Various DRep/SPO thresholds</td><td>Per-action-type vote thresholds</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="appendix-c-key-references"><a class="header" href="#appendix-c-key-references">Appendix C: Key References</a></h2>
+<ul>
+<li>Shelley Formal Spec: <code>eras/shelley/formal-spec/shelley-ledger.tex</code></li>
+<li>Alonzo Formal Spec: <code>eras/alonzo/formal-spec/alonzo-ledger.tex</code></li>
+<li>Babbage Formal Spec: <code>eras/babbage/formal-spec/babbage-ledger.tex</code></li>
+<li>Conway Formal Spec (Agda): https://intersectmbo.github.io/formal-ledger-specifications/conway-ledger.pdf</li>
+<li>CIP-1694 Governance: https://cips.cardano.org/cip/CIP-1694</li>
+<li>Cardano Ledger GitHub: https://github.com/IntersectMBO/cardano-ledger</li>
+<li>Small-Step Semantics: <code>docs/small-step-semantics/small-step-semantics.tex</code></li>
+<li>Reward Calculation Doc: <code>docs/reward-calculation/</code></li>
+<li>CDDL Base Types: <code>node/docs/blueprint/src/codecs/base.cddl</code></li>
+<li>Network Protocol CDDL: <code>node/docs/blueprint/src/network/node-to-node/</code></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cardano/node-architecture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../cardano/networking.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cardano/node-architecture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../cardano/networking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

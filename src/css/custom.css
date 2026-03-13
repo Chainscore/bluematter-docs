@@ -1,0 +1,234 @@
+/* Cardano Blue + Dark theme */
+
+:root {
+  /* Light mode (secondary) */
+  --ifm-color-primary: #0033AD;
+  --ifm-color-primary-dark: #002d9b;
+  --ifm-color-primary-darker: #002a92;
+  --ifm-color-primary-darkest: #002278;
+  --ifm-color-primary-light: #0039bf;
+  --ifm-color-primary-lighter: #003cc8;
+  --ifm-color-primary-lightest: #0044e2;
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ifm-code-font-size: 90%;
+  --ifm-heading-font-weight: 600;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 51, 173, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4d8bff;
+  --ifm-color-primary-dark: #2b73ff;
+  --ifm-color-primary-darker: #1a67ff;
+  --ifm-color-primary-darkest: #0052e6;
+  --ifm-color-primary-light: #6fa3ff;
+  --ifm-color-primary-lighter: #80adff;
+  --ifm-color-primary-lightest: #b3d1ff;
+
+  --ifm-background-color: #0a0a0f;
+  --ifm-background-surface-color: #12121a;
+  --ifm-navbar-background-color: #0a0a0f;
+  --ifm-footer-background-color: #060609;
+  --ifm-toc-border-color: #1e1e2e;
+  --ifm-color-emphasis-300: #2a2a3a;
+  --ifm-menu-color-background-active: rgba(77, 139, 255, 0.1);
+
+  --docusaurus-highlighted-code-line-bg: rgba(77, 139, 255, 0.15);
+}
+
+/* Navbar - sleek dark */
+.navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme='dark'] .navbar {
+  background: rgba(10, 10, 15, 0.85);
+}
+
+.navbar__title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+/* Sidebar - clean dark */
+[data-theme='dark'] .theme-doc-sidebar-container {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.menu__link {
+  border-radius: 6px;
+  font-size: 0.88rem;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.menu__link:hover {
+  background: rgba(77, 139, 255, 0.08);
+}
+
+.menu__link--active {
+  font-weight: 600;
+}
+
+/* Content area */
+.markdown {
+  --ifm-heading-color: var(--ifm-font-color-base);
+}
+
+.markdown h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  border-bottom: none;
+}
+
+.markdown h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 2.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.markdown h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Code blocks - dark with glow */
+[data-theme='dark'] pre {
+  background: #0d1117 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+[data-theme='dark'] code {
+  background: rgba(77, 139, 255, 0.1);
+  border: 1px solid rgba(77, 139, 255, 0.15);
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-size: 0.88em;
+  color: #8db4ff;
+}
+
+[data-theme='dark'] pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #e6edf3;
+}
+
+/* Tables - clean dark style */
+[data-theme='dark'] table {
+  border-collapse: collapse;
+}
+
+[data-theme='dark'] table th {
+  background: rgba(77, 139, 255, 0.08);
+  border-bottom: 2px solid rgba(77, 139, 255, 0.2);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+}
+
+[data-theme='dark'] table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] table tr:hover td {
+  background: rgba(77, 139, 255, 0.04);
+}
+
+/* Blockquotes - accent bar */
+[data-theme='dark'] blockquote {
+  border-left: 3px solid #4d8bff;
+  background: rgba(77, 139, 255, 0.05);
+  border-radius: 0 8px 8px 0;
+}
+
+/* TOC on right */
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: #4d8bff;
+}
+
+/* Footer minimal */
+.footer {
+  padding: 1.5rem 0;
+}
+
+.footer__copyright {
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
+/* Breadcrumbs subtle */
+.breadcrumbs__link {
+  font-size: 0.82rem;
+}
+
+/* Pagination */
+.pagination-nav__link {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .pagination-nav__link:hover {
+  border-color: rgba(77, 139, 255, 0.3);
+  background: rgba(77, 139, 255, 0.05);
+}
+
+/* Scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+/* Category labels in sidebar */
+.menu__list-item-collapsible .menu__link {
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Search bar */
+[data-theme='dark'] .DocSearch-Button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+/* Emphasis color for teal accent (like ChainScore green) */
+.markdown strong {
+  color: inherit;
+}
+
+/* Wider content */
+.container {
+  max-width: 1400px !important;
+}
+
+article {
+  max-width: 860px;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}

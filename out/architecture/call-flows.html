@@ -1,0 +1,887 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Call Flows (Function-by-Function) - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="bluematter---complete-call-flows-function-by-function"><a class="header" href="#bluematter---complete-call-flows-function-by-function">Bluematter - Complete Call Flows (Function-by-Function)</a></h1>
+<p>Every function call in the main sync path, traced from CLI entry to disk write.
+Shows exact arguments, return values, and where each call happens.</p>
+<hr>
+<h2 id="1-entry-point-cli--live_sync"><a class="header" href="#1-entry-point-cli--live_sync">1. Entry Point: CLI → live_sync</a></h2>
+<pre><code>User runs: python -m bluematter sync --network preprod --snapshot snap.cbor --genesis-dir ./genesis
+
+main()                                          # cli.py:19
+  parser.parse_args() → args
+  _cmd_sync(args)                               # cli.py:67
+    magic = PREPROD_MAGIC (1)                    # types.py:69
+    host = "preprod-node.world.dev.cardano.org"
+    port = 30000
+    loop.run_until_complete(
+      live_sync(                                 # sync.py:56
+        peer_host="preprod-node...",
+        peer_port=30000,
+        network_magic=1,
+        snapshot_path="snap.cbor",
+        genesis_dir="./genesis",
+        max_blocks=None,
+        checkpoint_interval=50,
+        data_dir=None,
+      )
+    )
+</code></pre>
+<h2 id="2-state-bootstrap-live_sync"><a class="header" href="#2-state-bootstrap-live_sync">2. State Bootstrap: live_sync()</a></h2>
+<pre><code>live_sync()                                      # sync.py:56
+  │
+  ├── ImmutableDB(path)                          # immutable.py -  SQLite append-only store
+  ├── LedgerDB(path)                             # ledger_db.py -  HMAC-authenticated checkpoints
+  ├── VolatileDB()                               # volatile.py -  in-memory recent blocks
+  ├── NonceState()                               # nonce.py:25 -  epoch_nonce, evolving, candidate
+  │
+  ├── # Priority 1: Crash recovery
+  │   ledger_db.load_latest_checkpoint()         # ledger_db.py:130
+  │     → (LedgerState, slot) or None
+  │     # Reads SQLite: SELECT data, data_hash FROM checkpoints ORDER BY slot DESC LIMIT 1
+  │     # _verify_and_load(data, hash) checks HMAC-SHA256 with node-local key
+  │     # pickle.loads(data) → LedgerState
+  │
+  ├── # Priority 2: Snapshot import
+  │   load_snapshot(snapshot_path)               # snapshot.py:27
+  │     → LedgerState
+  │     # Reads Amaru-format NewEpochState CBOR (.cbor or .cbor.gz)
+  │     # Extracts: epoch, treasury, reserves, fees, pools, accounts, UTxO
+  │     # Parses UMap: [StrictMaybe&lt;(rewards,deposit)&gt;, ptrs, StrictMaybe&lt;pool&gt;, StrictMaybe&lt;DRep&gt;]
+  │     # Parses pool params: operator, vrf, pledge, cost, margin, reward_acct, owners
+  │
+  ├── # Priority 3: Empty state
+  │   LedgerState()                              # state.py:60 -  empty UTxO, zero pots
+  │
+  ├── # Load protocol params from genesis
+  │   parse_protocol_params(                     # protocol_params.py:71
+  │     shelley="./genesis/shelley-genesis.json",
+  │     alonzo="./genesis/alonzo-genesis.json",
+  │     conway="./genesis/conway-genesis.json",
+  │   ) → ProtocolParameters
+  │   # Merges 3 genesis files into one dataclass:
+  │   #   Shelley: min_fee_a, min_fee_b, max_tx_size, stake_pool_deposit, ...
+  │   #   Alonzo: lovelace_per_utxo_byte, cost_models, price_mem, price_step, ...
+  │   #   Conway: pool_voting_thresholds, drep_deposit, gov_action_lifetime, ...
+  │
+  └── # Reconnect loop (up to 100 retries, exponential backoff 1s→60s)
+      SyncSession(...).run()                     # sync_session.py:159
+</code></pre>
+<h2 id="3-tcp-connect--handshake"><a class="header" href="#3-tcp-connect--handshake">3. TCP Connect + Handshake</a></h2>
+<pre><code>SyncSession.run()                                # sync_session.py:159
+  │
+  ├── asyncio.open_connection(host, port)        # TCP connect, 15s timeout
+  │     → (reader: StreamReader, writer: StreamWriter)
+  │
+  ├── Multiplexer(reader, writer, is_initiator=True)  # mux.py:126
+  │   # Creates the mux layer that frames all mini-protocols
+  │   # 8-byte header: [timestamp:4][mode+proto_id:2][length:2]
+  │
+  ├── ProtocolBuffer() × 4                       # mux.py:44 -  one per mini-protocol
+  │   mux.register_protocol(PROTO_HANDSHAKE, hs_buf)   # proto_id = 0
+  │   mux.register_protocol(PROTO_CHAIN_SYNC, cs_buf)  # proto_id = 2
+  │   mux.register_protocol(PROTO_BLOCK_FETCH, bf_buf)  # proto_id = 3
+  │   mux.register_protocol(PROTO_KEEP_ALIVE, ka_buf)   # proto_id = 8
+  │
+  ├── read_task = asyncio.create_task(mux.read_loop())  # mux.py:155
+  │   # Background task: reads 8-byte headers from TCP, routes payload to correct ProtocolBuffer
+  │   # Loop: read_header → extract proto_id → read payload → buffer.append(payload)
+  │   #   ProtocolBuffer reassembles CBOR: uses cbor_item_length to detect complete messages
+  │
+  └── perform_handshake(                         # handshake.py:24
+        mux,                                     # Multiplexer to send/recv on
+        hs_buf,                                  # ProtocolBuffer for handshake proto
+        network_magic=1,                         # preprod
+        timeout=10.0,
+      ) → version: int (13 or 14)
+      │
+      ├── # Build proposal: {13: [1, False, 0, False], 14: [1, False, 0, False]}
+      │   #   [magic, initiator_only, peer_sharing, query]
+      │   mux.send(PROTO_HANDSHAKE, cbor2.dumps([0, version_table]))
+      │   # Sends MsgProposeVersions through the mux
+      │
+      ├── hs_buf.recv_message(timeout=10.0)      # mux.py:74
+      │   # Waits for complete CBOR message on handshake buffer
+      │   # Returns raw bytes of MsgAcceptVersion or MsgRefuse
+      │
+      └── # Parse reply:
+          #   [1, 14, [1, False, 0, False]] → MsgAcceptVersion, version=14
+          #   Verify version in NTN_VERSIONS [13, 14]
+          #   Verify peer_magic == our magic (1)
+          #   Return 14
+</code></pre>
+<h2 id="4-chainsync-find-intersection"><a class="header" href="#4-chainsync-find-intersection">4. ChainSync: Find Intersection</a></h2>
+<pre><code>SyncSession.run() continued                      # sync_session.py:199
+  │
+  ├── # If we have a known slot/hash (from checkpoint):
+  │   intersect_points = [[slot, hash], []]      # Specific point + origin fallback
+  │
+  ├── # If no known point -  discover tip first:
+  │   mux.send(PROTO_CHAIN_SYNC, cbor2.dumps([4, [[]]]))  # MsgFindIntersect with origin
+  │   reply = cbor2.loads(cs_buf.recv_message(timeout=15.0))
+  │   # reply[0]==5 → MsgIntersectFound: tip = reply[2]
+  │   # reply[0]==6 → MsgIntersectNotFound: tip = reply[1]
+  │   # tip = [[slot, hash], block_number]
+  │   intersect_points = [[tip_slot, tip_hash], []]
+  │
+  └── mux.send(PROTO_CHAIN_SYNC, cbor2.dumps([4, intersect_points]))
+      # MsgFindIntersect: "I know block at (slot, hash), start from there"
+      reply = cbor2.loads(cs_buf.recv_message())
+      # IntersectFound (tag 5) → we share this point, sync starts here
+      # IntersectNotFound (tag 6) → peer doesn't have this block
+</code></pre>
+<h2 id="5-main-sync-loop-per-block"><a class="header" href="#5-main-sync-loop-per-block">5. Main Sync Loop (per block)</a></h2>
+<pre><code>while blocks_synced &lt; max_blocks:                # sync_session.py:243
+  │
+  │ ┌─────────── STEP 1: Request Next Header ───────────┐
+  │ │                                                     │
+  │ │  mux.send(PROTO_CHAIN_SYNC, cbor2.dumps([0]))      │
+  │ │  # MsgRequestNext: "give me the next header"       │
+  │ │                                                     │
+  │ │  raw = cs_buf.recv_message(timeout=120.0)           │
+  │ │  msg = cbor2.loads(raw)                             │
+  │ │                                                     │
+  │ │  msg[0] == 1 → MsgAwaitReply: at tip, wait...      │
+  │ │  msg[0] == 3 → MsgRollBackward: handle rollback    │
+  │ │  msg[0] == 2 → MsgRollForward:                     │
+  │ │    header_data = msg[1]  # [era_tag, #6.24(cbor)]  │
+  │ │    tip_data = msg[2]     # [[slot, hash], block_no] │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 2: Decode Header ─────────────────┐
+  │ │                                                     │
+  │ │  _decode_header_point(header_data)                  │
+  │ │    # sync_session.py:51                             │
+  │ │    # header_data = [6, #6.24(header_cbor)]          │
+  │ │    # era_tag = 6 (Conway)                           │
+  │ │    # Extract raw header bytes from tag-24 wrapper   │
+  │ │    # block_hash = blake2b_256(header_raw)           │
+  │ │    # ConwayHeader.from_cbor(header_raw)             │
+  │ │    #   → hdr.header_body.slot                       │
+  │ │    → (slot, block_hash, era_tag=6)                  │
+  │ │                                                     │
+  │ │  Skip if era_tag != 6 (non-Conway)                  │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 3: Fetch Block Body ──────────────┐
+  │ │                                                     │
+  │ │  bf = BlockFetchClient(mux, bf_buf)                 │
+  │ │  bf.fetch_range(                                    │
+  │ │    start=Point(slot, block_hash),                   │
+  │ │    end=Point(slot, block_hash),  # same = 1 block   │
+  │ │  ) → list[bytes]                 # blockfetch.py:38 │
+  │ │                                                     │
+  │ │  # Sends MsgRequestRange [0, [slot, hash], [slot, hash]]
+  │ │  # Receives MsgStartBatch [2]                       │
+  │ │  # Loop: MsgBlock [3, #6.24(block_cbor)] → extract  │
+  │ │  # Until: MsgBatchDone [4]                          │
+  │ │  # Returns [block_bytes, ...]                       │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 4: Decode Block ──────────────────┐
+  │ │                                                     │
+  │ │  decode_block_from_wire(block_bytes)                 │
+  │ │    # block.py:179                                   │
+  │ │    # Unwrap mux tag-24 wrapper                      │
+  │ │    # CBOR decode outer: [era_tag, block_cbor]       │
+  │ │    # era_tag=7 → Conway                             │
+  │ │    # decode_block(block_cbor)                       │
+  │ │    #   _walk_array_items(block_cbor) → 5 items      │
+  │ │    #   ConwayHeader.from_cbor(items[0])             │
+  │ │    #   _walk_array_items(items[1]) → tx bodies      │
+  │ │    #   ConwayTxBody.from_cbor(body) per tx          │
+  │ │    #   tx_witnesses_raw = items[2] slices           │
+  │ │    #   auxiliary_data_raw = items[3]                 │
+  │ │    #   invalid_txs from items[4]                    │
+  │ │    → ConwayBlock                                    │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 5: Header Validation ─────────────┐
+  │ │                                                     │
+  │ │  validate_header(                                   │
+  │ │    block.header,                # ConwayHeader      │
+  │ │    prev_hash=volatile_tip.hash, # from VolatileDB   │
+  │ │    prev_slot=state.slot,        # from LedgerState  │
+  │ │    prev_block_number=tip.block_number,              │
+  │ │    slots_per_kes_period=0,      # skip KES for now  │
+  │ │  ) → list[str]  # errors        # header.py:33     │
+  │ │                                                     │
+  │ │  Checks (when params provided):                     │
+  │ │  1. slot &gt; prev_slot                                │
+  │ │  2. block_number == prev + 1                        │
+  │ │  3. prev_hash matches                               │
+  │ │  4. VRF proof verifies (vrf_verify)                 │
+  │ │  5. Leader eligible (vrf_value &lt; threshold)         │
+  │ │  6. KES signature valid (kes_verify)                │
+  │ │  7. Opcert valid (ed25519 verify)                   │
+  │ │  8. Body size matches header claim                  │
+  │ │  9. Body hash matches header claim                  │
+  │ │  10. Protocol version &lt;= max                        │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 6: Apply Block ───────────────────┐
+  │ │                                                     │
+  │ │  Runs in executor (not blocking asyncio):           │
+  │ │  loop.run_in_executor(None, apply_block, state, block)
+  │ │  → LedgerState                   # block.py:25     │
+  │ │                                                     │
+  │ │  See DETAILED FLOW in Section 6 below               │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 7: Store ─────────────────────────┐
+  │ │                                                     │
+  │ │  volatile_db.add(VolatileBlock(                     │
+  │ │    slot, block_number, block_hash, prev_hash, raw   │
+  │ │  ))                              # volatile.py:48   │
+  │ │  # _by_hash[block_hash] = block                     │
+  │ │  # _by_slot[slot].append(block_hash)                │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 8: Nonce Evolution ───────────────┐
+  │ │                                                     │
+  │ │  vrf_output = block.header.header_body.vrf_result[0]│
+  │ │  # Raw 64-byte VRF beta from wire                   │
+  │ │                                                     │
+  │ │  vrf_nonce = tagged_nonce_from_vrf_output(vrf_output)
+  │ │  # nonce.py:49                                      │
+  │ │  # blake2b_256(b"N" + raw_64_bytes) → 32 bytes     │
+  │ │                                                     │
+  │ │  update_nonce_for_block(                            │
+  │ │    nonce_state,     # NonceState                    │
+  │ │    vrf_nonce,       # 32-byte tagged nonce          │
+  │ │    block.slot,      # current slot                  │
+  │ │    state.epoch,     # current epoch                 │
+  │ │  )                               # nonce.py:118    │
+  │ │  # new_eta_v = evolve_nonce(eta_v, vrf_nonce)       │
+  │ │  #   = blake2b_256(eta_v + blake2b_256(vrf_nonce))  │
+  │ │  # state.evolving_nonce = new_eta_v                 │
+  │ │  # if before stability window:                      │
+  │ │  #   state.candidate_nonce = new_eta_v              │
+  │ └─────────────────────────────────────────────────────┘
+  │
+  │ ┌─────────── STEP 9: Graduate + Checkpoint ─────────┐
+  │ │                                                     │
+  │ │  # Graduate old volatile blocks to immutable        │
+  │ │  if volatile_db.count() &gt; 100:                      │
+  │ │    volatile_db.graduate(cutoff_slot)                 │
+  │ │    # Returns blocks older than cutoff               │
+  │ │    # Removes from _by_hash and _by_slot             │
+  │ │    for g in graduated:                              │
+  │ │      immutable_db.append(slot, block_no, hash, raw) │
+  │ │      # INSERT INTO blocks (slot, block_number,      │
+  │ │      #   block_hash, raw) VALUES (?,?,?,?)          │
+  │ │                                                     │
+  │ │  # Periodic checkpoint                              │
+  │ │  if blocks_synced % 50 == 0:                        │
+  │ │    ledger_db.save_checkpoint(state)                  │
+  │ │    # pickle.dumps(state) → data                     │
+  │ │    # _hmac_sign(data) → hmac_hex                    │
+  │ │    # INSERT INTO checkpoints (slot, data, data_hash)│
+  │ └─────────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="6-apply_block---detailed-internal-flow"><a class="header" href="#6-apply_block---detailed-internal-flow">6. apply_block() - Detailed Internal Flow</a></h2>
+<pre><code>apply_block(state, block)                        # block.py:25
+  │
+  ├── # Strict slot check
+  │   if block.slot &lt;= state.slot and state.slot &gt; 0:
+  │     raise BlockValidationError(...)
+  │
+  ├── # TICK: epoch boundary transition
+  │   tick(state, block.slot)                    # epoch.py:31
+  │   │
+  │   │  new_epoch = slot // epoch_length
+  │   │  if new_epoch &gt; state.epoch:
+  │   │    _apply_epoch_transition(state, new_epoch)  # epoch.py:42
+  │   │    │
+  │   │    ├── new_fee_ss = state.pots.fees      # Capture BEFORE rewards
+  │   │    │
+  │   │    ├── _apply_rewards(state)             # epoch.py:119
+  │   │    │   compute_reward_update(state, blocks, active_stake) → RewardUpdate
+  │   │    │     # rewards.py:83
+  │   │    │     # eta = sum(blocks_made) / expected_blocks
+  │   │    │     # delta_r1 = floor(reserves * rho) -  monetary expansion
+  │   │    │     # rewardPot = fees + delta_r1
+  │   │    │     # delta_t1 = floor(tau * rewardPot) -  treasury cut
+  │   │    │     # R = rewardPot - delta_t1 -  distributable rewards
+  │   │    │     # For each pool:
+  │   │    │     #   _reward_one_pool(pp, R, pool, state, circulation, active_stake)
+  │   │    │     #     maxPool = (R / (1 + a0)) * (sigma + s*a0*((sigma - s*(z-sigma)/z) / z))
+  │   │    │     #     appPerf = beta / sigma_a  (if d &lt; 0.8, else 1)
+  │   │    │     #     pool_R = min(maxPool, maxPool * appPerf)
+  │   │    │     #     r_operator = pool_R * (cost + margin * (pool_R - cost))
+  │   │    │     #     r_member = pool_R * (1 - margin) * member_stake / pool_stake
+  │   │    │   apply_reward_update(state, update)
+  │   │    │     # For each (cred, amount) in rewards:
+  │   │    │     #   state.accounts[cred].rewards += amount
+  │   │    │     # state.pots.treasury += delta_treasury
+  │   │    │     # state.pots.reserves += delta_reserves
+  │   │    │
+  │   │    ├── _rotate_snapshots(state)          # SnapshotRotation for leader schedule
+  │   │    │
+  │   │    ├── _retire_pools(state, new_epoch)   # epoch.py:223
+  │   │    │   # For each pool where retiring_epoch &lt;= new_epoch:
+  │   │    │   #   refund deposit to reward account
+  │   │    │   #   remove pool from state.pools
+  │   │    │   #   clear delegations pointing to this pool
+  │   │    │
+  │   │    ├── _enact_governance(state, new_epoch)  # epoch.py:188
+  │   │    │   # For each ratified proposal:
+  │   │    │   #   _enact_parameter_change / _enact_treasury_withdrawals / etc.
+  │   │    │   # Expire old proposals (epoch &gt; expires_epoch)
+  │   │    │
+  │   │    ├── # Rotate block counts: blocks_made → _prev → _go
+  │   │    ├── state._fee_ss = new_fee_ss        # Fee snapshot for next epoch
+  │   │    ├── state.pots.fees = 0               # Reset fee pot
+  │   │    ├── # Rotate stake dists: _mark → _set → _go
+  │   │    └── state.epoch = new_epoch
+  │
+  ├── # BBODY: process each transaction
+  │   pp = state.protocol_params
+  │   invalid_set = set(block.invalid_txs)       # Indices of phase-2-failed txs
+  │   aux_data_map = _parse_auxiliary_data_map(block.auxiliary_data_raw)
+  │
+  │   for idx, tx in enumerate(block.transactions):
+  │     │
+  │     ├── if idx in invalid_set:
+  │     │     # Phase-2 failed transaction -  consume collateral only
+  │     │     _apply_invalid_tx(state, block, idx)     # block.py:228
+  │     │       # Delete collateral inputs from UTxO
+  │     │       # Add collateral_return output to UTxO
+  │     │       # Collect total_collateral (or net) as fees
+  │     │
+  │     └── else:  # Valid transaction
+  │           │
+  │           ├── _validate_tx(state, pp, tx, slot, witnesses_raw, idx, aux)
+  │           │     # block.py:185
+  │           │     │
+  │           │     ├── validate_utxo(pp, state, tx, slot)  # utxo.py:28
+  │           │     │     → list[str] errors
+  │           │     │     # 19 checks:
+  │           │     │     #  1. Inputs non-empty
+  │           │     │     #  2. All inputs exist in UTxO
+  │           │     │     #  3. Fee &gt;= 0
+  │           │     │     #  4. min_fee = pp.a * tx_size + pp.b + script_fee + ref_script_fee
+  │           │     │     #  5. Fee &gt;= min_fee
+  │           │     │     #  6. Value conservation: consumed == produced
+  │           │     │     #     consumed = inputs + withdrawals + mint
+  │           │     │     #     produced = outputs + fee + deposits + treasury + donation
+  │           │     │     #  7. ExUnit budget &lt;= maxTxExUnits
+  │           │     │     #  8. ADA minting prohibited (empty policy ID)
+  │           │     │     #  9. TTL check (slot &lt;= ttl)
+  │           │     │     # 10. Validity start (slot &gt;= validity_start)
+  │           │     │     # 11. Output min UTxO value
+  │           │     │     # 12. Output max value size
+  │           │     │     # 13. Max tx size
+  │           │     │     # 14. Per-output network ID matches state
+  │           │     │     # 15. Collateral return min UTxO + max value size
+  │           │     │     # 16. Reference inputs exist in UTxO
+  │           │     │     # 17. Collateral address checks (VKey, not Byron/script)
+  │           │     │     # 18. Collateral balance &gt;= fee * collateralPercent / 100
+  │           │     │     # 19. Withdrawal amounts match account balances
+  │           │     │
+  │           │     └── validate_witnesses(pp, state, tx, witnesses_raw, slot, aux)
+  │           │           # utxow.py:34
+  │           │           → list[str] errors
+  │           │           │
+  │           │           ├── decode_witnesses(witnesses_raw[idx])  # utxow.py:148
+  │           │           │     # CBOR map: {0: vkey_witnesses, 1: native_scripts,
+  │           │           │     #            3: plutusV1, 4: datums, 5: redeemers,
+  │           │           │     #            6: plutusV2, 7: plutusV3}
+  │           │           │     → dict[int, object]
+  │           │           │
+  │           │           ├── required_key_hashes(tx, state.utxo)  # utxow.py:172
+  │           │           │     # Collects ALL key hashes that must sign:
+  │           │           │     # 1. Payment credentials from each input's address
+  │           │           │     # 2. Staking credentials from each withdrawal
+  │           │           │     # 3. required_signers from tx body (key 14)
+  │           │           │     # 4. Certificate witnesses (deleg, retire, pool owner)
+  │           │           │     # 5. Collateral input payment credentials
+  │           │           │     → set[bytes]
+  │           │           │
+  │           │           ├── # For each vkey_witness [vkey, signature]:
+  │           │           │     ed25519.verify(vkey, signature, tx_body_hash)
+  │           │           │     # crypto/ed25519.py:5
+  │           │           │     # nacl.signing.VerifyKey(vkey).verify(body_hash, sig)
+  │           │           │     # catch Exception → False
+  │           │           │
+  │           │           ├── # Check: provided_key_hashes ⊇ required_key_hashes
+  │           │           │
+  │           │           ├── # Script data hash verification:
+  │           │           │     _validate_script_data_hash(tx, witnesses, pp)
+  │           │           │     # Recompute: blake2b_256(redeemers || datums || language_views)
+  │           │           │     # Compare against tx.script_data_hash (key 11)
+  │           │           │
+  │           │           └── # Auxiliary data hash:
+  │           │                 blake2b_256(aux_data_raw) == tx.auxiliary_data_hash
+  │           │
+  │           ├── _validate_phase2(state, pp, tx, slot, witnesses_raw, idx, is_valid=True)
+  │           │     # block.py:275
+  │           │     │
+  │           │     └── eval_scripts(tx, witnesses, utxo, slot, pp, is_valid)
+  │           │           # evaluate.py:43
+  │           │           │
+  │           │           ├── _decode_redeemers(witnesses[5])  # evaluate.py:177
+  │           │           │     → {(tag, index): (data_cbor, mem, steps)}
+  │           │           │     # tag: 0=SPEND, 1=MINT, 2=CERT, 3=REWARD
+  │           │           │
+  │           │           ├── _collect_scripts(witnesses)  # Both witness + reference
+  │           │           │   + _collect_reference_scripts(tx, utxo)
+  │           │           │     → {script_hash: (version, flat_bytes)}
+  │           │           │
+  │           │           ├── For each (tag, index) in redeemers:
+  │           │           │     │
+  │           │           │     ├── _resolve_script_hash(tag, index, ...) → hash
+  │           │           │     │     # Determines WHICH script to run:
+  │           │           │     │     #   SPEND → script_hash from input's address
+  │           │           │     │     #   MINT  → policy_id from sorted minting policies
+  │           │           │     │     #   CERT  → credential hash from certificate
+  │           │           │     │     #   REWARD → credential hash from withdrawal
+  │           │           │     │
+  │           │           │     ├── _build_purpose(tag, index, ..., plutus_version)
+  │           │           │     │     # V1/V2: ScriptPurpose (Minting=0, Spending=1, ...)
+  │           │           │     │     # V3: ScriptInfo (Spending=0, Minting=1, ...)
+  │           │           │     │
+  │           │           │     ├── _get_tx_info(version)
+  │           │           │     │     # Lazy-builds TxInfo (cached per version):
+  │           │           │     │     # V1: build_tx_info_v1() -  10 fields, 3-field TxOut
+  │           │           │     │     # V2: build_tx_info_v2() -  12 fields, 4-field TxOut
+  │           │           │     │     # V3: build_tx_info_v3() -  16 fields, governance
+  │           │           │     │
+  │           │           │     ├── # Build args:
+  │           │           │     │   V1/V2 SPEND: [datum, redeemer, ScriptContext]
+  │           │           │     │   V1/V2 MINT:  [redeemer, ScriptContext]
+  │           │           │     │   V3 (all):    [ScriptContext(TxInfo, Redeemer, ScriptInfo)]
+  │           │           │     │
+  │           │           │     └── _run_script(flat_bytes, args, version, mem, steps, pp)
+  │           │           │           # evaluate.py:392
+  │           │           │           # unflatten(flat_bytes) → Program
+  │           │           │           # Apply args: Apply(f=term, x=arg) for each arg
+  │           │           │           # Machine(Budget(steps, mem), cek_cost_model(), builtin_cost_model())
+  │           │           │           # result = machine.eval(applied_term)
+  │           │           │           # Success if result.result is not RuntimeError
+  │           │           │
+  │           │           └── # Cross-check: is_valid must match actual outcomes
+  │           │
+  │           └── apply_tx(state, tx, pp)        # apply.py:37
+  │                 │
+  │                 ├── process_certificates(state, tx.certificates, pp)
+  │                 │     # certs.py:35
+  │                 │     # For each [cert_type, ...]:
+  │                 │     #   0: _stake_reg → state.accounts[cred] = Account(deposit=pp.stake_cred_deposit)
+  │                 │     #   1: _stake_unreg → del state.accounts[cred] (if rewards==0)
+  │                 │     #   2: _stake_deleg → state.accounts[cred].pool = pool_id
+  │                 │     #   3: _pool_reg → state.pools[operator] = PoolParams(...)
+  │                 │     #   4: _pool_retire → pool.retiring_epoch = epoch
+  │                 │     #   7-8: Conway reg/unreg with explicit deposit
+  │                 │     #   9-13: Conway delegation combos
+  │                 │     #   14-18: DRep/committee certs
+  │                 │
+  │                 ├── process_voting_procedures(gov_state, tx.voting_procedures)
+  │                 ├── process_proposal_procedures(gov_state, tx.proposals, ...)
+  │                 │
+  │                 ├── # Remove consumed inputs
+  │                 │   for inp in tx.inputs:
+  │                 │     key = input_key(inp) → (tx_hash, output_index)
+  │                 │     del state.utxo[key]
+  │                 │
+  │                 ├── # Add new outputs
+  │                 │   for idx, output in enumerate(tx.outputs):
+  │                 │     state.utxo[(tx.tx_id, idx)] = output
+  │                 │
+  │                 ├── state.pots.fees += tx.fee
+  │                 │
+  │                 └── # Debit withdrawals
+  │                     for addr, amount in tx.withdrawals:
+  │                       cred = addr[1:29]
+  │                       state.accounts[cred].rewards = 0
+  │
+  ├── state.slot = block.slot
+  │
+  └── # Track block production
+      pool_id = blake2b_224(block.header.header_body.issuer_vkey)
+      state.blocks_made[pool_id] += 1
+</code></pre>
+<h2 id="7-rollback-flow"><a class="header" href="#7-rollback-flow">7. Rollback Flow</a></h2>
+<pre><code>ChainSync sends MsgRollBackward [3, [rb_slot, rb_hash], tip]:
+  │
+  ├── volatile_db.get_blocks_in_range(0, rb_slot)  → blocks to replay
+  │
+  ├── volatile_db.rollback_to(rb_slot)              # Remove blocks after rb_slot
+  │
+  ├── ledger_db.load_checkpoint_before(rb_slot)     # ledger_db.py:149
+  │     → (LedgerState, checkpoint_slot)
+  │     # SQL: SELECT ... WHERE slot &lt;= ? ORDER BY slot DESC LIMIT 1
+  │
+  └── # Replay blocks from checkpoint_slot to rb_slot:
+      for blk_data in replay_blocks:
+        blk = decode_block_from_wire(blk_data)
+        if blk.slot &gt; checkpoint_slot and blk.slot &lt;= rb_slot:
+          state = apply_block(state, blk)
+</code></pre>
+<h2 id="8-epoch-boundary-flow"><a class="header" href="#8-epoch-boundary-flow">8. Epoch Boundary Flow</a></h2>
+<pre><code>tick(state, block_slot)                          # epoch.py:31
+  │  new_epoch = block_slot // state.epoch_length
+  │  if new_epoch &lt;= state.epoch: return         # No boundary crossed
+  │
+  └── _apply_epoch_transition(state, new_epoch)  # epoch.py:42
+        │
+        ├── 1. Capture fee snapshot (BEFORE rewards)
+        │     new_fee_ss = state.pots.fees
+        │
+        ├── 2. Compute + apply rewards
+        │     active_stake = state._go_stake_dist      # Frozen 2 epochs ago
+        │     blocks = state._go_blocks_made           # Frozen 2 epochs ago
+        │     compute_reward_update(state, blocks, active_stake) → RewardUpdate
+        │     apply_reward_update(state, update)
+        │       treasury += delta_treasury
+        │       reserves += delta_reserves
+        │       for (cred, amt): accounts[cred].rewards += amt
+        │
+        ├── 3. Rotate SnapshotRotation (for leader schedule)
+        │
+        ├── 4. Retire pools scheduled for this epoch
+        │     Refund deposits, clear delegations
+        │
+        ├── 5. Enact ratified governance proposals
+        │     Parameter changes, treasury withdrawals, committee updates
+        │
+        ├── 6. Rotate block counts: blocks_made → _prev → _go
+        │
+        ├── 7. Set fee snapshot: state._fee_ss = new_fee_ss; fees = 0
+        │
+        ├── 8. Rotate stake distributions: _mark → _set → _go
+        │     New _mark = fresh computation from current UTxO + accounts
+        │
+        └── 9. state.epoch = new_epoch
+</code></pre>
+<h2 id="9-background-tasks"><a class="header" href="#9-background-tasks">9. Background Tasks</a></h2>
+<pre><code>Running concurrently during sync:
+
+  ┌── read_task: mux.read_loop()                 # mux.py:155
+  │   # Continuously reads TCP → routes to ProtocolBuffers
+  │   while not closed:
+  │     header = reader.readexactly(8)
+  │     proto_id = (header[4] &lt;&lt; 8 | header[5]) &amp; 0x7FFF
+  │     length = header[6] &lt;&lt; 8 | header[7]
+  │     payload = reader.readexactly(length)
+  │     buffers[proto_id].append(payload)
+  │     buffers[proto_id]._data_available.set()
+  │
+  └── ka_task: _keepalive_loop(mux, ka_buf)      # sync_session.py:107
+      # Every 30 seconds:
+      mux.send(PROTO_KEEP_ALIVE, cbor2.dumps([0, cookie]))
+      reply = ka_buf.recv_message(timeout=60.0)
+      # [1, cookie] → MsgKeepAliveResponse
+      cookie = (cookie + 1) &amp; 0xFFFF
+</code></pre>
+<h2 id="10-key-data-types-flowing-through"><a class="header" href="#10-key-data-types-flowing-through">10. Key Data Types Flowing Through</a></h2>
+<pre><code>ConwayBlock                                      # codec/block.py
+  .header: ConwayHeader
+    .header_body: ConwayHeaderBody
+      .slot: int
+      .block_number: int
+      .prev_hash: bytes (32)
+      .issuer_vkey: bytes (32)
+      .vrf_vkey: bytes (32)
+      .vrf_result: [bytes(64), bytes(80)]  # [output, proof]
+      .block_body_size: int
+      .block_body_hash: bytes (32)
+      .protocol_version: [int, int]
+    .body_signature: bytes                 # KES signature
+    .block_hash: bytes (32)                # blake2b_256(raw header)
+    .prev_hash: bytes (32)
+  .transactions: list[ConwayTxBody]
+  .tx_witnesses_raw: list[bytes]           # Per-tx witness CBOR
+  .auxiliary_data_raw: bytes               # Block-level aux data map
+  .invalid_txs: list[int]                  # Indices of phase-2 failures
+
+ConwayTxBody                                     # codec/transaction.py
+  .raw: bytes                              # Original CBOR (for hashing)
+  .tx_id: bytes (32)                       # blake2b_256(raw)
+  .inputs: set                             # [{tx_hash, output_index}, ...]
+  .outputs: list[TxOut]
+  .fee: int
+  .ttl: int | None
+  .certificates: list | None
+  .withdrawals: dict | None                # {reward_addr: amount}
+  .mint: dict | None                       # {policy_id: {asset: qty}}
+  .collateral: list | None
+  .required_signers: list | None
+  .script_data_hash: bytes | None
+  .reference_inputs: list | None
+  .voting_procedures: dict | None
+  .proposal_procedures: list | None
+  .total_collateral: int | None
+  .collateral_return: TxOut | None
+  .treasury: int | None
+  .donation: int | None
+
+TxOut                                            # codec/transaction.py
+  .address: bytes
+  .amount: int | [int, {policy: {asset: qty}}]
+  .datum_hash: bytes | None
+  .script_ref: bytes | None
+  .inline_datum: bytes | None
+  .raw: bytes
+
+LedgerState                                      # ledger/state.py
+  .utxo: dict[(bytes, int), TxOut]         # The UTxO set
+  .pots: Pots(treasury, reserves, fees, deposited)
+  .accounts: dict[bytes, Account]          # Stake accounts
+  .pools: dict[bytes, PoolParams]          # Registered pools
+  .epoch: int
+  .slot: int
+  .blocks_made: dict[bytes, int]           # Pool → block count
+  .gov_state: GovState | None              # Conway governance
+  ._go_stake_dist: dict[bytes, int] | None # Frozen 2 epochs ago
+  ._fee_ss: int | None                    # Fee snapshot
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../architecture/codec.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../architecture/codec.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

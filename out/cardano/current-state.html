@@ -1,0 +1,869 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Current State &amp; Roadmap - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="cardano-ecosystem-current-state-and-roadmap-march-2026"><a class="header" href="#cardano-ecosystem-current-state-and-roadmap-march-2026">Cardano Ecosystem: Current State and Roadmap (March 2026)</a></h1>
+<p><em>Last updated: 2026-03-12</em></p>
+<p>This document provides a comprehensive overview of the Cardano ecosystem as of March 2026,
+covering the current network state, governance, consensus research, scaling solutions,
+alternative node implementations, and the forward-looking roadmap.</p>
+<hr>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ol>
+<li><a href="#1-current-network-state">Current Network State</a></li>
+<li><a href="#2-conwayvoltaire-governance">Conway/Voltaire Governance</a></li>
+<li><a href="#3-ouroboros-genesis">Ouroboros Genesis</a></li>
+<li><a href="#4-ouroboros-leios">Ouroboros Leios</a></li>
+<li><a href="#5-utxo-hd">UTxO-HD</a></li>
+<li><a href="#6-alternative-node-implementations">Alternative Node Implementations</a></li>
+<li><a href="#7-ecosystem-tools-and-scaling">Ecosystem Tools and Scaling</a></li>
+<li><a href="#8-upcoming-roadmap-2026-2027">Upcoming Roadmap (2026-2027)</a></li>
+<li><a href="#9-notable-events">Notable Events</a></li>
+</ol>
+<hr>
+<h2 id="1-current-network-state"><a class="header" href="#1-current-network-state">1. Current Network State</a></h2>
+<h3 id="node-version"><a class="header" href="#node-version">Node Version</a></h3>
+<ul>
+<li><strong>Latest release</strong>: cardano-node <strong>v10.6.2</strong> (February 2026)
+<ul>
+<li>Removes legacy networking stack entirely</li>
+<li>Enhanced tracing system for observability and diagnostics</li>
+<li>Foundational work for Protocol Version 11 (intra-era hard fork) and Protocol Version 12 (Dijkstra era)</li>
+</ul>
+</li>
+<li><strong>Upcoming release</strong>: cardano-node <strong>v10.7.0</strong> (hard fork candidate)
+<ul>
+<li>Capable of the Protocol Version 11 hard fork</li>
+<li>Pending successful testnet deployments and formal benchmarking</li>
+<li>Will first activate on Preview and PreProd before mainnet</li>
+</ul>
+</li>
+</ul>
+<h3 id="protocol-version-and-era"><a class="header" href="#protocol-version-and-era">Protocol Version and Era</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Current era</strong></td><td>Conway</td></tr>
+<tr><td><strong>Current protocol version</strong></td><td>10</td></tr>
+<tr><td><strong>Next protocol version</strong></td><td>11 (intra-era hard fork, slated ~March 2026)</td></tr>
+<tr><td><strong>Future era</strong></td><td>Dijkstra (protocol version 12)</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Conway era was activated in two stages:</p>
+<ul>
+<li><strong>Chang #1</strong> (September 1, 2024, epoch 507): bootstrapping phase, introduced PlutusV3, DReps, Interim Constitutional Committee, genesis keys burned</li>
+<li><strong>Chang #2 / Plomin hard fork</strong> (January 29, 2025): full governance activation, complete CIP-1694 implementation</li>
+</ul>
+<h3 id="network-statistics-approximate-early-2026"><a class="header" href="#network-statistics-approximate-early-2026">Network Statistics (approximate, early 2026)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metric</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Stake pools</strong></td><td>~3,000 active</td></tr>
+<tr><td><strong>Staking addresses</strong></td><td>~1.3 million</td></tr>
+<tr><td><strong>Unique wallets</strong></td><td>~4.83 million</td></tr>
+<tr><td><strong>Daily active addresses</strong></td><td>~110,000</td></tr>
+<tr><td><strong>Daily transactions</strong></td><td>~2.6 million</td></tr>
+<tr><td><strong>Base layer TPS</strong></td><td>~0.41 real-time, ~11.62 max observed, ~18 theoretical cap</td></tr>
+<tr><td><strong>Total transactions (all time)</strong></td><td>&gt;450 million</td></tr>
+<tr><td><strong>Staking yield</strong></td><td>~2-4% annually</td></tr>
+<tr><td><strong>Treasury balance</strong></td><td>~1.7 billion ADA (~25.92M ADA monthly inflow)</td></tr>
+<tr><td><strong>Market cap</strong></td><td>~$20 billion+ (late 2025)</td></tr>
+<tr><td><strong>Smart contracts</strong></td><td>~129,637 (6,949 V1, 120,494 V2, 2,194+ V3)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="2-conwayvoltaire-governance"><a class="header" href="#2-conwayvoltaire-governance">2. Conway/Voltaire Governance</a></h2>
+<h3 id="cip-1694-implementation-status-deployed"><a class="header" href="#cip-1694-implementation-status-deployed">CIP-1694 Implementation Status: DEPLOYED</a></h3>
+<p>CIP-1694 defines Cardano’s on-chain governance framework, the core of the Voltaire era. It
+implements a tripartite governance model:</p>
+<ol>
+<li><strong>Delegated Representatives (DReps)</strong>: ADA holders delegate voting power; one lovelace = one vote</li>
+<li><strong>Constitutional Committee (CC)</strong>: Votes on constitutionality of governance actions</li>
+<li><strong>Stake Pool Operators (SPOs)</strong>: Vote on technical/protocol changes</li>
+</ol>
+<h3 id="drep-statistics-early-2026"><a class="header" href="#drep-statistics-early-2026">DRep Statistics (early 2026)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metric</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Total registered DReps</strong></td><td>~1,532</td></tr>
+<tr><td><strong>Active DReps</strong></td><td>~1,021</td></tr>
+<tr><td><strong>Total delegated voting power</strong></td><td>~11.73 billion ADA</td></tr>
+<tr><td><strong>Delegated to Abstain</strong></td><td>~6.23 billion ADA (105,400 people)</td></tr>
+<tr><td><strong>Delegated to No Confidence</strong></td><td>~173 million ADA (5,200 people)</td></tr>
+<tr><td><strong>Active autonomous delegation</strong></td><td>~14% of circulating ADA</td></tr>
+<tr><td><strong>Top 14 DReps</strong></td><td>Hold &gt;50% of voting power</td></tr>
+</tbody>
+</table>
+</div>
+<p>Key DRep participants include the Cardano Foundation (100% voting record in 2025), EMURGO,
+and wallet providers (Yoroi, Eternl). The Cardano Foundation delegated 140M ADA to seven
+community DReps and later 220M ADA to eleven more.</p>
+<h3 id="cardano-constitution"><a class="header" href="#cardano-constitution">Cardano Constitution</a></h3>
+<ul>
+<li><strong>Constitutional Convention</strong>: December 4-6, 2024, held simultaneously in Buenos Aires and Nairobi
+<ul>
+<li>63 workshops across 51 countries preceded it</li>
+<li>95% of elected delegates approved the draft</li>
+</ul>
+</li>
+<li><strong>On-chain DRep vote</strong>: Constitution submitted January 30, 2025; achieved overwhelming support by February 23, 2025</li>
+<li><strong>Constitution v2.4</strong>: Enacted January 24, 2026, with stricter requirements for immutable metadata</li>
+</ul>
+<h3 id="key-governance-actions-enacted-2025-2026"><a class="header" href="#key-governance-actions-enacted-2025-2026">Key Governance Actions Enacted (2025-2026)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Action</th><th>Details</th><th>Status</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Constitution ratification</strong></td><td>v2.4 enacted Jan 24, 2026</td><td>ENACTED</td></tr>
+<tr><td><strong>$71M treasury withdrawal</strong></td><td>96M ADA for IOG 12-month development (Leios, Hydra, Mithril)</td><td>ENACTED (Aug 2025, 74% approval)</td></tr>
+<tr><td><strong>Net Change Limit (NCL)</strong></td><td>350M ADA cap on treasury withdrawals per budget cycle</td><td>ENACTED</td></tr>
+<tr><td><strong>NCL extension</strong></td><td>8-epoch extension to prevent spending cliff (83.8% DRep support)</td><td>ENACTED</td></tr>
+<tr><td><strong>Critical Integrations Budget</strong></td><td>70M ADA for stablecoins, custody, bridges, oracles, analytics</td><td>ENACTED</td></tr>
+<tr><td><strong>CC snap election</strong></td><td>Replacement member elected Dec 2025 after resignation</td><td>ENACTED</td></tr>
+<tr><td><strong>Community roadmap 2025</strong></td><td>Approved with 63.81% DRep support</td><td>ENACTED</td></tr>
+<tr><td><strong>Cardano 2030 Vision</strong></td><td>Long-term strategic plan</td><td>ENACTED</td></tr>
+<tr><td><strong>2026 Budget Process Framework</strong></td><td>Standardized templates, structured review stages</td><td>IN PROGRESS</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="governance-infrastructure"><a class="header" href="#governance-infrastructure">Governance Infrastructure</a></h3>
+<ul>
+<li><strong>GovTool</strong>: Web interface for DRep registration and governance action voting</li>
+<li><strong>Budget Process Framework 2026</strong>: Data-driven approach with standardized templates</li>
+<li><strong>Net Change Limit</strong>: 350M ADA for 2026 budget cycle</li>
+<li><strong>Governance action deposit</strong>: 100,000 ADA (refundable)</li>
+</ul>
+<hr>
+<h2 id="3-ouroboros-genesis"><a class="header" href="#3-ouroboros-genesis">3. Ouroboros Genesis</a></h2>
+<h3 id="what-it-solves"><a class="header" href="#what-it-solves">What It Solves</a></h3>
+<p>Ouroboros Genesis addresses the fundamental problem of <strong>trustless bootstrapping</strong>: how can a
+node safely join the network from scratch (or after prolonged absence) without relying on
+trusted checkpoints or centralized bootstrap peers?</p>
+<p>Currently, new nodes use “bootstrap peers” – a set of ~20 trusted relays operated by IOG and
+EMURGO. Genesis replaces this centralized mechanism with a trustless protocol where a syncing
+node can safely include untrustworthy peers, as long as at least one peer is honest.</p>
+<h3 id="how-it-changes-chain-selection"><a class="header" href="#how-it-changes-chain-selection">How It Changes Chain Selection</a></h3>
+<p>Genesis extends Praos with a novel chain selection rule that:</p>
+<ul>
+<li>Allows nodes to distinguish between honest and adversarial chains during bootstrap</li>
+<li>Uses the <strong>Limit on Eagerness (LoE)</strong>, <strong>Genesis Density Disconnect (GDD)</strong>, and <strong>Limit on Patience (LoP)</strong> mechanisms</li>
+<li>Once synced, behavior is externally indistinguishable from standard Praos</li>
+</ul>
+<h3 id="deployment-status-deployed-on-testnets-optional-on-mainnet"><a class="header" href="#deployment-status-deployed-on-testnets-optional-on-mainnet">Deployment Status: DEPLOYED ON TESTNETS, OPTIONAL ON MAINNET</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Milestone</th><th>Node Version</th><th>Status</th></tr>
+</thead>
+<tbody>
+<tr><td>Experimental feature (disabled by default)</td><td>10.2 - 10.4</td><td>DEPLOYED</td></tr>
+<tr><td>Default on Preview &amp; PreProd testnets</td><td>10.5.0</td><td>DEPLOYED</td></tr>
+<tr><td>Optional on mainnet (PraosMode still default)</td><td>10.6.0</td><td>DEPLOYED</td></tr>
+<tr><td>Expected mainnet default</td><td>10.7 (2026)</td><td>PLANNED</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Current mainnet config</strong>: <code>ConsensusMode: PraosMode</code> (Genesis available via <code>GenesisMode</code>)</p>
+<p>When Genesis becomes the mainnet default (possibly node 10.7), a peer snapshot file will be
+mandatory and the node will fail to start without it. Operators can already opt in by setting
+<code>ConsensusMode: GenesisMode</code> in their config.</p>
+<h3 id="known-issues"><a class="header" href="#known-issues">Known Issues</a></h3>
+<ul>
+<li>A bug in Genesis as of 10.2-10.4 releases made caught-up nodes susceptible to a kind of eclipse attack (fixed in later releases)</li>
+<li>Lightweight checkpoints were not integrated in early releases</li>
+<li>Genesis mode and bootstrap peers are mutually exclusive; enabling one disables the other</li>
+</ul>
+<hr>
+<h2 id="4-ouroboros-leios"><a class="header" href="#4-ouroboros-leios">4. Ouroboros Leios</a></h2>
+<h3 id="what-it-is"><a class="header" href="#what-it-is">What It Is</a></h3>
+<p>Ouroboros Leios is a major redesign of Cardano’s consensus protocol that introduces <strong>parallel
+block processing</strong> through a three-tier block architecture. It extends (rather than replaces)
+Ouroboros Praos.</p>
+<h3 id="three-block-types"><a class="header" href="#three-block-types">Three Block Types</a></h3>
+<pre><code>  Input Blocks (IBs)         Endorsement Blocks (EBs)      Ranking Blocks (RBs)
+  ==================         ========================      ====================
+  - Contain transactions     - Reference one or more IBs   - Praos-style blocks
+  - Produced frequently      - Undergo voting/cert process - ~20 second interval
+  - Parallel production      - Validate IBs in parallel    - Establish final tx order
+  - Won via IB sortition     - Won via EB sortition        - Contains certificates
+  - Pending until endorsed   - Endorsement = validation    - Main blockchain
+</code></pre>
+<p><strong>Analogy</strong>: In Praos, one worker builds a block every 20 seconds. In Leios, dozens of workers
+create IBs continuously, others check them with EBs, and a supervisor (RB) approves the batch
+every 20 seconds.</p>
+<h3 id="expected-performance"><a class="header" href="#expected-performance">Expected Performance</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metric</th><th>Current (Praos)</th><th>Leios Target</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Throughput</strong></td><td>~4.5 TxkB/s</td><td>140-300 TxkB/s (30-50x improvement)</td></tr>
+<tr><td><strong>TPS</strong></td><td>5-15 TPS</td><td>300-1,000+ TPS (peaks to 10,000)</td></tr>
+<tr><td><strong>Confirmation latency</strong></td><td>~20 seconds</td><td>45-60 seconds (CIP approach)</td></tr>
+<tr><td><strong>Block interval</strong></td><td>20 seconds</td><td>20 seconds (RBs unchanged)</td></tr>
+</tbody>
+</table>
+</div>
+<p>The CIP specification strikes a balance between throughput gains and ecosystem compatibility,
+choosing modest latency increases (45-60s vs 20s) over the research paper’s approach (which
+achieves higher throughput but requires 2-3 minute confirmations and extensive ecosystem changes).</p>
+<h3 id="deployment-status-in-development"><a class="header" href="#deployment-status-in-development">Deployment Status: IN DEVELOPMENT</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Milestone</th><th>Status</th></tr>
+</thead>
+<tbody>
+<tr><td>Research paper published</td><td>COMPLETE</td></tr>
+<tr><td>CIP specification</td><td>~67% complete (Jan 2026)</td></tr>
+<tr><td>Detailed specifications</td><td>IN PROGRESS</td></tr>
+<tr><td>Simulations</td><td>IN PROGRESS</td></tr>
+<tr><td>Code implementation</td><td>IN PROGRESS</td></tr>
+<tr><td>Testnet deployment</td><td>PLANNED (2026)</td></tr>
+<tr><td>Mainnet deployment</td><td>PLANNED (2026, originally 2028 – accelerated)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Funding</strong>: Part of the community-approved $71M 12-month upgrade roadmap (August 2025).</p>
+<p><strong>Leios Lite</strong>: The practical deployment approach extends Praos by introducing parallel block
+processing through input and endorsement blocks while preserving a single linear chain of
+ranking blocks. Estimated 1-1.5 year deployment timeline from CIP finalization.</p>
+<hr>
+<h2 id="5-utxo-hd"><a class="header" href="#5-utxo-hd">5. UTxO-HD</a></h2>
+<h3 id="what-it-is-1"><a class="header" href="#what-it-is-1">What It Is</a></h3>
+<p>UTxO-HD is a rework of the Consensus layer that allows the UTxO set to be stored either fully
+in-memory (as before) or on external storage (SSD/HD). This addresses the growing memory
+requirements as the UTxO set expands.</p>
+<h3 id="two-backends"><a class="header" href="#two-backends">Two Backends</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Backend</th><th>Status</th><th>Use Case</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>V2InMemory</strong></td><td>PRODUCTION READY</td><td>Block producers, relays (recommended)</td></tr>
+<tr><td><strong>V1LMDB</strong> (on-disk)</td><td>EXPERIMENTAL</td><td>Edge nodes, wallets, explorers, exchanges</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="deployment-status-deployed-in-memory-experimental-lmdb"><a class="header" href="#deployment-status-deployed-in-memory-experimental-lmdb">Deployment Status: DEPLOYED (IN-MEMORY), EXPERIMENTAL (LMDB)</a></h3>
+<ul>
+<li><strong>Node 10.4.1</strong>: First integration of UTxO-HD into Cardano node</li>
+<li><strong>In-memory backend</strong>: Mainnet ready, recommended for production</li>
+<li><strong>LMDB on-disk backend</strong>: Fully functional but with performance regression; not recommended for block producers</li>
+<li><strong>Benchmarking</strong> (Q3 2025): Internal performance benchmarking comparing disk-based LMDB with in-memory solutions; challenges with GHC memory management and direct SSD requirements</li>
+</ul>
+<h3 id="roadmap"><a class="header" href="#roadmap">Roadmap</a></h3>
+<p>The long-term plan has three phases:</p>
+<ol>
+<li>Move UTxO set on-disk using LMDB (CURRENT)</li>
+<li>Migrate to a <strong>custom LSM tree library</strong> (being developed by Well-Typed) for better on-disk performance</li>
+<li>Identify other ledger state components to migrate</li>
+</ol>
+<p>The LSM tree approach aims to allow Cardano to scale to potentially billions of users and
+significantly larger UTxO sets while enabling nodes to run on optimized hardware.</p>
+<hr>
+<h2 id="6-alternative-node-implementations"><a class="header" href="#6-alternative-node-implementations">6. Alternative Node Implementations</a></h2>
+<h3 id="amaru-rust--pragma"><a class="header" href="#amaru-rust--pragma">Amaru (Rust) – PRAGMA</a></h3>
+<p><strong>Status</strong>: IN DEVELOPMENT (relay functional, block production not yet)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Details</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Language</strong></td><td>Rust</td></tr>
+<tr><td><strong>Organization</strong></td><td>PRAGMA (Cardano Foundation, Blink Labs, DC Spark, Sundae Labs, TxPipe)</td></tr>
+<tr><td><strong>Repository</strong></td><td>github.com/pragma-org/amaru</td></tr>
+<tr><td><strong>Funding</strong></td><td>1.5M ADA from Cardano treasury (2025)</td></tr>
+<tr><td><strong>First release target</strong></td><td>September 2025</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Current capabilities</strong>:</p>
+<ul>
+<li>Functions as a Cardano relay node (externally indistinguishable from Haskell relay)</li>
+<li>On-disk ledger storage (UTxO, stake pools, rewards, delegations)</li>
+<li>Snapshot bootstrapping</li>
+<li>gRPC interfaces</li>
+<li>Multi-platform (ARM, WASM, RISC-V)</li>
+<li>Trace forwarding mini-protocol implemented in native Rust</li>
+</ul>
+<p><strong>Roadmap</strong>:</p>
+<ul>
+<li>Simple mempool: Q2 2025</li>
+<li>Block forging: Q3 2025</li>
+<li>Complex mempool: Q4 2025</li>
+<li>Conformance testing suite</li>
+<li>Leios compatibility (critical for 2026 mainnet deployment)</li>
+</ul>
+<p><strong>Why it matters</strong>: Alternative implementations improve spec quality (bugs found via conformance
+testing), documentation, and network resilience. Amaru has already identified discrepancies in
+the original Haskell implementation through its development process.</p>
+<h3 id="dolos-rust--txpipe"><a class="header" href="#dolos-rust--txpipe">Dolos (Rust) – TxPipe</a></h3>
+<p><strong>Status</strong>: APPROACHING 1.0 (v1.0.0-rc.10 as of Feb 2026)</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th>Details</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Language</strong></td><td>Rust</td></tr>
+<tr><td><strong>Organization</strong></td><td>TxPipe</td></tr>
+<tr><td><strong>Repository</strong></td><td>github.com/txpipe/dolos</td></tr>
+<tr><td><strong>Role</strong></td><td>Data node (not a full consensus node)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Key features</strong>:</p>
+<ul>
+<li>Optimized for keeping an updated ledger and responding to queries</li>
+<li>Fraction of the resources of a full node</li>
+<li>Rich API surface: REST, gRPC, HTTP, JSON-RPC, Ouroboros protocols</li>
+<li>Flexible storage: ledger-only, sliding window, or full archive</li>
+<li>Phase-1 transaction validation (everything except Plutus script execution)</li>
+<li>Pluggable storage backends (Redb v3 or Fjall LSM-tree)</li>
+<li>Connects via Ouroboros N2N mini-protocols (via Pallas library)</li>
+</ul>
+<p><strong>Recent releases</strong>:</p>
+<ul>
+<li>v1.0.0-rc.10 (Feb 17, 2026): Comprehensive mempool support, OTLP integration</li>
+<li>v1.0.0-rc.8 (Feb 7, 2026): Byron address parsing, memory caches, mainnet genesis support</li>
+</ul>
+<h3 id="pallas-rust-library--txpipe"><a class="header" href="#pallas-rust-library--txpipe">Pallas (Rust Library) – TxPipe</a></h3>
+<p>A foundational Rust library providing building blocks for Cardano:</p>
+<ul>
+<li>Ouroboros mini-protocol implementations</li>
+<li>CBOR codec for Cardano data types</li>
+<li>Used by 36+ projects (including Amaru and Dolos)</li>
+<li>Repository: github.com/txpipe/pallas (188 stars, 89 forks)</li>
+</ul>
+<h3 id="comparison"><a class="header" href="#comparison">Comparison</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th>Haskell (cardano-node)</th><th>Amaru</th><th>Dolos</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Language</strong></td><td>Haskell</td><td>Rust</td><td>Rust</td></tr>
+<tr><td><strong>Consensus participation</strong></td><td>Full</td><td>Not yet</td><td>No (by design)</td></tr>
+<tr><td><strong>Block production</strong></td><td>Yes</td><td>Planned Q3 2025</td><td>No</td></tr>
+<tr><td><strong>Relay mode</strong></td><td>Yes</td><td>Yes</td><td>Yes (data relay)</td></tr>
+<tr><td><strong>Ledger storage</strong></td><td>In-memory + LMDB</td><td>On-disk</td><td>On-disk (Redb/Fjall)</td></tr>
+<tr><td><strong>Memory footprint</strong></td><td>High (~16GB+)</td><td>Lower</td><td>Minimal</td></tr>
+<tr><td><strong>API</strong></td><td>Ouroboros mini-protocols</td><td>gRPC + Ouroboros</td><td>REST, gRPC, HTTP, JSON-RPC</td></tr>
+<tr><td><strong>Maturity</strong></td><td>Production</td><td>Exploratory/Beta</td><td>RC (approaching 1.0)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="7-ecosystem-tools-and-scaling"><a class="header" href="#7-ecosystem-tools-and-scaling">7. Ecosystem Tools and Scaling</a></h2>
+<h3 id="mithril--stake-based-threshold-signatures"><a class="header" href="#mithril--stake-based-threshold-signatures">Mithril – Stake-Based Threshold Signatures</a></h3>
+<p><strong>Status</strong>: DEPLOYED, actively advancing toward SNARK-based proofs</p>
+<p><strong>What it does</strong>: Provides certified snapshots of blockchain state using stake-based
+multi-signatures. Primary use case: fast node bootstrapping without processing entire chain
+history.</p>
+<p><strong>Key developments (2025-2026)</strong>:</p>
+<ul>
+<li><strong>SNARK-based proofs</strong>: Halo2 circuit achieves 4 kB certificate size, 7ms verification, 6 min generation</li>
+<li><strong>ALBA proof circuit</strong>: Same 4 kB size but only 1.5 min generation time</li>
+<li><strong>Distribution 2603.1</strong> (Feb 2026): Decentralized message queue protocol, Blockfrost API integration</li>
+<li><strong>Signer authentication</strong>: SNARK verification keys, precision calibration for lottery computation</li>
+<li><strong>Decentralization</strong>: Draft CIP for signature diffusion through Cardano network under review</li>
+<li><strong>Security</strong>: IOG-owned key signs ledger state snapshots to prevent tampering; mitigation for snapshot inconsistency advisory</li>
+</ul>
+<p><strong>Future</strong>: On-chain certificate verification (target &lt;16 kB, achieved 4 kB), fully decentralized signature orchestration.</p>
+<h3 id="hydra--layer-2-state-channels"><a class="header" href="#hydra--layer-2-state-channels">Hydra – Layer-2 State Channels</a></h3>
+<p><strong>Status</strong>: PRODUCTION READY (v1, October 2025)</p>
+<p><strong>Architecture</strong>: Off-chain “Hydra Heads” process transactions with near-instant finality,
+settle final state on Layer 1. Isomorphic design supports native tokens, NFTs, and Plutus
+smart contracts.</p>
+<p><strong>Performance</strong>:</p>
+<ul>
+<li>Stress test: sustained 650,000 TPS, peaked over 1,000,000 TPS, processed 14 billion total transactions</li>
+<li>Near-instant settlement within heads</li>
+<li>Each new Hydra Head adds additional capacity (linear scalability)</li>
+</ul>
+<p><strong>Real-world usage</strong>:</p>
+<ul>
+<li>Hydra vending machine demos at Rare Evo (Las Vegas) and TOKEN2049 (Singapore)</li>
+<li>Midnight NIGHT token generation event (Q3 2025)</li>
+<li><strong>Echo</strong> by Pondora: first non-custodial DEX built on Hydra</li>
+<li><strong>Hydrozoa</strong>: community-driven protocol for lightweight, flexible Hydra Heads with dynamic membership</li>
+</ul>
+<p><strong>Roadmap</strong>: Multi-head interconnection protocols, improved developer APIs, monitoring tools.</p>
+<h3 id="midnight--privacy-sidechain-partner-chain"><a class="header" href="#midnight--privacy-sidechain-partner-chain">Midnight – Privacy Sidechain (Partner Chain)</a></h3>
+<p><strong>Status</strong>: FEDERATED MAINNET launching late March 2026</p>
+<p><strong>What it is</strong>: Privacy-focused partner chain using zero-knowledge proofs for “rational privacy” –
+protecting sensitive data while maintaining regulatory compliance. Dual-state architecture
+separates public and private data.</p>
+<p><strong>Token (NIGHT)</strong>:</p>
+<ul>
+<li>Launched December 4, 2025 on Cardano</li>
+<li>“Glacier Drop”: 3.5B tokens claimed, 170K+ eligible wallets across 8 chains</li>
+<li>“Scavenger Mine”: 1B tokens claimed by 8M+ unique wallets (industry record)</li>
+<li>Market: near $1B valuation, listed on OKX, Bybit, MEXC</li>
+</ul>
+<p><strong>Phased rollout</strong>:</p>
+<ol>
+<li><strong>Kukolu</strong> (current): Federated Mainnet, late March 2026 (secured by Google Cloud, Blockdaemon)</li>
+<li><strong>Mohalu</strong> (Q2-Q3 2026): Open to Cardano SPOs, DUST Capacity Exchange</li>
+<li><strong>Hua</strong> (late 2026): LayerZero integration, universal privacy-as-a-service for Ethereum, Solana, etc.</li>
+</ol>
+<p><strong>Partnerships</strong>: 100+ including Google Cloud, Brave, Bitcoin.com, AlphaTON Capital (Telegram integration).</p>
+<h3 id="plutus-v3-and-smart-contract-ecosystem"><a class="header" href="#plutus-v3-and-smart-contract-ecosystem">Plutus V3 and Smart Contract Ecosystem</a></h3>
+<p><strong>Status</strong>: DEPLOYED (since Chang #1, September 2024)</p>
+<p><strong>Key capabilities</strong>:</p>
+<ul>
+<li><strong>BLS12-381 curve pairing</strong>: 17 primitives for ZK proof verification</li>
+<li><strong>Blake2b-224 and Keccak-256</strong>: Additional hash functions</li>
+<li><strong>Sums of Products (SOPs)</strong>: ~30% faster script execution, smaller scripts</li>
+<li><strong>Bitwise primitives</strong>: CIP-58 low-level bit manipulation</li>
+<li><strong>Governance integration</strong>: Script context includes CIP-1694 governance entities</li>
+<li><strong>Zero-knowledge proofs</strong>: First ZK smart contract (Halo2) verified on mainnet</li>
+</ul>
+<p><strong>Developer tooling</strong>:</p>
+<ul>
+<li><strong>Plinth</strong>: Property-based testing tool for Plutus contracts (IOG + MLabs)</li>
+<li><strong>Aiken</strong>: Popular alternative smart contract language</li>
+<li><strong>OpShin</strong>: Python-to-Plutus compiler</li>
+</ul>
+<p><strong>Growth</strong>: ~129,637 total smart contracts on Cardano (early 2025), with V3 seeing 5x growth rate.</p>
+<hr>
+<h2 id="8-upcoming-roadmap-2026-2027"><a class="header" href="#8-upcoming-roadmap-2026-2027">8. Upcoming Roadmap (2026-2027)</a></h2>
+<h3 id="protocol-version-11--intra-era-hard-fork-march-2026"><a class="header" href="#protocol-version-11--intra-era-hard-fork-march-2026">Protocol Version 11 – Intra-Era Hard Fork (March 2026)</a></h3>
+<p><strong>Status</strong>: IMMINENT (node 10.7.0 is the hard fork candidate)</p>
+<p>Named the “van Rossem Hard Fork” by the Hard Fork Working Group.</p>
+<p>Key changes:</p>
+<ul>
+<li>VRF uniqueness enforcement for stake pools</li>
+<li>Unified built-in Plutus functions</li>
+<li>Native BLS12-381 and multi-scalar multiplication (MSM) for ZK proof acceleration</li>
+<li>Expanded Plutus built-in functionality</li>
+<li>Stability improvements (networking, mempool)</li>
+<li>ARM64 support for release artifacts and OCI images</li>
+<li>Will NOT change transaction shape (minimal ecosystem upgrade effort)</li>
+</ul>
+<h3 id="protocol-version-12--dijkstra-era"><a class="header" href="#protocol-version-12--dijkstra-era">Protocol Version 12 – Dijkstra Era</a></h3>
+<p><strong>Status</strong>: IN DEVELOPMENT</p>
+<p>Major features under implementation:</p>
+<ul>
+<li><strong>CIP-118 (Nested Transactions)</strong>: Sub-transactions within transactions; full binary format defined, ledger rules structured</li>
+<li><strong>CIP-159 (Account Address Enhancement)</strong>: Enables micropayments in ADA</li>
+<li><strong>CIP-165 (Canonical Ledger State)</strong>: Structural foundation for standardized ledger state representation</li>
+<li><strong>CIP-167 (Remove isValid)</strong>: Accepted and fully implemented in Ledger</li>
+<li><strong>Plutus V4</strong>: Next-generation smart contract capabilities</li>
+</ul>
+<h3 id="ouroboros-leios-mainnet-2026"><a class="header" href="#ouroboros-leios-mainnet-2026">Ouroboros Leios Mainnet (2026)</a></h3>
+<ul>
+<li>30-50x throughput improvement</li>
+<li>Parallel block processing via Input/Endorsement/Ranking blocks</li>
+<li>Currently ~67% CIP completion</li>
+<li>Accelerated from 2028 to 2026 timeline</li>
+</ul>
+<h3 id="ouroboros-genesis-mainnet-default-2026"><a class="header" href="#ouroboros-genesis-mainnet-default-2026">Ouroboros Genesis Mainnet Default (2026)</a></h3>
+<ul>
+<li>Expected with node 10.7</li>
+<li>Trustless node bootstrapping replaces centralized bootstrap peers</li>
+<li>Peer snapshot file becomes mandatory</li>
+</ul>
+<h3 id="scaling-roadmap-summary"><a class="header" href="#scaling-roadmap-summary">Scaling Roadmap Summary</a></h3>
+<pre><code>2024  Chang #1 (PlutusV3, DReps, ICC)
+ |
+2025  Plomin hard fork (full governance)
+ |    Hydra v1 (production)
+ |    Mithril SNARK proofs
+ |    UTxO-HD (in-memory production, LMDB experimental)
+ |    $71M treasury-funded development approved
+ |
+2026  Protocol Version 11 (intra-era, ~March 2026)
+ |    Ouroboros Genesis mainnet default (~2026)
+ |    Midnight federated mainnet (March 2026)
+ |    Ouroboros Leios mainnet deployment (2026)
+ |    Dijkstra era development continues
+ |    UTxO-HD LSM tree backend development
+ |    Amaru relay + block production
+ |
+2027  Dijkstra era (Protocol Version 12, Plutus V4)
+ |    Midnight fully decentralized (LayerZero integration)
+ |    UTxO-HD LSM tree production
+ |    Leios ecosystem maturation
+ |
+2030  Cardano 2030 Vision (approved by governance)
+</code></pre>
+<h3 id="organizational-coordination"><a class="header" href="#organizational-coordination">Organizational Coordination</a></h3>
+<p>The <strong>Pentad</strong> was established in late 2025 as a formal coordination framework between:</p>
+<ul>
+<li>Input Output Global (IOG)</li>
+<li>EMURGO</li>
+<li>Cardano Foundation</li>
+<li>Intersect (member-based organization)</li>
+<li>Midnight Foundation</li>
+</ul>
+<p>This coalition coordinates on commercial strategy, development priorities, and governance.</p>
+<h3 id="key-cips-in-pipeline"><a class="header" href="#key-cips-in-pipeline">Key CIPs in Pipeline</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>CIP</th><th>Title</th><th>Status</th><th>Target</th></tr>
+</thead>
+<tbody>
+<tr><td>CIP-118</td><td>Nested Transactions</td><td>Implementation in progress</td><td>Dijkstra era</td></tr>
+<tr><td>CIP-159</td><td>Account Address Enhancement</td><td>Implementation started</td><td>Dijkstra era</td></tr>
+<tr><td>CIP-165</td><td>Canonical Ledger State</td><td>3 namespaces implemented</td><td>Dijkstra era</td></tr>
+<tr><td>CIP-167</td><td>Remove isValid from Transactions</td><td>Fully implemented</td><td>Dijkstra era</td></tr>
+<tr><td>Leios CIP</td><td>Ouroboros Leios specification</td><td>~67% complete</td><td>2026</td></tr>
+<tr><td>Mithril CIP</td><td>Signature diffusion through Cardano</td><td>Draft under review</td><td>2026</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="9-notable-events"><a class="header" href="#9-notable-events">9. Notable Events</a></h2>
+<h3 id="november-2025-mainnet-chain-split"><a class="header" href="#november-2025-mainnet-chain-split">November 2025 Mainnet Chain Split</a></h3>
+<p>On November 21, 2025, the Cardano mainnet experienced its first major consensus-level
+disruption in eight years:</p>
+<ul>
+<li><strong>Cause</strong>: A deliberately crafted delegation transaction exploited a deserialization bug that had existed since 2022</li>
+<li><strong>Effect</strong>: Network split into two competing chains for ~14.5 hours</li>
+<li><strong>Impact</strong>: Exchanges paused deposits/withdrawals, DeFi settlement times ballooned, ADA dropped ~16%</li>
+<li><strong>Resolution</strong>: Patched node (v10.5.3) released within ~3 hours; SPOs upgraded; longest chain won</li>
+<li><strong>Aftermath</strong>: FBI notified (Hoskinson characterized it as attack); one IOG engineer resigned over concerns about legal risks for security testing; no user funds compromised</li>
+</ul>
+<p>The Ouroboros protocol’s self-healing design successfully resolved the partition without
+central intervention, as analyzed by Professor Aggelos Kiayias in a December 2025 blog post.</p>
+<p>The incident underscored the importance of:</p>
+<ul>
+<li>Node version consistency across the network</li>
+<li>Robust bug disclosure pathways (attacker used mainnet instead of bug bounty)</li>
+<li>The value of client diversity (analogous to Ethereum’s client diversity concerns)</li>
+</ul>
+<h3 id="first-treasury-funded-core-development-august-2025"><a class="header" href="#first-treasury-funded-core-development-august-2025">First Treasury-Funded Core Development (August 2025)</a></h3>
+<p>The community’s approval of $71M for core protocol development marked the first time Cardano’s
+infrastructure funding was directly approved through on-chain governance, a milestone for
+decentralized protocol sustainability.</p>
+<h3 id="constitutional-committee-elections-2025"><a class="header" href="#constitutional-committee-elections-2025">Constitutional Committee Elections (2025)</a></h3>
+<p>The transition from the Interim Constitutional Committee (ICC) to a fully community-elected
+Constitutional Committee of seven members demonstrated the practical functioning of CIP-1694’s
+governance model. A snap election in December 2025 (after a resignation) further tested the
+system’s responsiveness.</p>
+<hr>
+<h2 id="sources"><a class="header" href="#sources">Sources</a></h2>
+<h3 id="official-documentation-and-updates"><a class="header" href="#official-documentation-and-updates">Official Documentation and Updates</a></h3>
+<ul>
+<li><a href="https://docs.cardano.org/about-cardano/evolution/eras-and-phases">Cardano Docs - Development Phases and Eras</a></li>
+<li><a href="https://cardano.org/news/2026-02-20-weekly-development-report/">Cardano Weekly Development Report (Feb 20, 2026)</a></li>
+<li><a href="https://www.essentialcardano.io/development-update/weekly-development-report-as-of-2026-02-20">Essential Cardano Weekly Report (Feb 20, 2026)</a></li>
+<li><a href="https://github.com/intersectmbo/cardano-node/releases">Cardano Node Releases (GitHub)</a></li>
+<li><a href="https://docs.cardano.org/developer-resources/release-notes/release-notes">Cardano Release Notes</a></li>
+<li><a href="https://ouroboros-consensus.cardano.intersectmbo.org/docs/for-developers/utxo-hd/Overview/">Ouroboros Consensus - UTxO-HD Overview</a></li>
+</ul>
+<h3 id="governance"><a class="header" href="#governance">Governance</a></h3>
+<ul>
+<li><a href="https://cips.cardano.org/cip/CIP-1694">CIP-1694 Full Text</a></li>
+<li><a href="https://cardanofoundation.org/blog/reflecting-cardano-governance-2025">Cardano Foundation - Reflecting on Governance in 2025</a></li>
+<li><a href="https://intersectmbo.org/news/recent-cardano-governance-actions">Intersect - Recent Governance Actions</a></li>
+<li><a href="https://www.intersectmbo.org/news/the-evolution-of-cardano-governance-a-brief-history">Intersect - Evolution of Cardano Governance</a></li>
+<li><a href="https://docs.cardano.org/about-cardano/evolution/upgrades/chang">Chang Upgrade Documentation</a></li>
+<li><a href="https://cexplorer.io/article/how-decentralized-is-cardano-governance">How Decentralized is Cardano Governance? (cexplorer)</a></li>
+</ul>
+<h3 id="consensus-and-scaling"><a class="header" href="#consensus-and-scaling">Consensus and Scaling</a></h3>
+<ul>
+<li><a href="https://www.iog.io/news/ouroboros-genesis-enhanced-security-in-a-dynamic-environment">IOG - Ouroboros Genesis Enhanced Security</a></li>
+<li><a href="https://www.iog.io/news/advancing-ouroboros-leios-as-the-next-leap-in-scalability">IOG - Advancing Ouroboros: Leios</a></li>
+<li><a href="https://leios.cardano-scaling.org/">Ouroboros Leios Documentation</a></li>
+<li><a href="https://leios.cardano-scaling.org/docs/faq/">Ouroboros Leios FAQ</a></li>
+<li><a href="https://www.iog.io/news/scaling-cardano-applications-with-hydra">IOG - Scaling Cardano Applications with Hydra</a></li>
+<li><a href="https://hydra.family/head-protocol/">Hydra Head Protocol Documentation</a></li>
+<li><a href="https://docs.cardano.org/developer-resources/scalability-solutions/mithril">Mithril Documentation</a></li>
+</ul>
+<h3 id="alternative-implementations"><a class="header" href="#alternative-implementations">Alternative Implementations</a></h3>
+<ul>
+<li><a href="https://github.com/pragma-org/amaru">Amaru (GitHub)</a></li>
+<li><a href="https://pragma.builders/projects/amaru/">PRAGMA - Amaru Project</a></li>
+<li><a href="https://amaru.global/about/">Amaru Documentation</a></li>
+<li><a href="https://github.com/txpipe/dolos">Dolos (GitHub)</a></li>
+<li><a href="https://github.com/txpipe/pallas">Pallas (GitHub)</a></li>
+<li><a href="https://docs.txpipe.io/">TxPipe Documentation</a></li>
+</ul>
+<h3 id="midnight-and-partner-chains"><a class="header" href="#midnight-and-partner-chains">Midnight and Partner Chains</a></h3>
+<ul>
+<li><a href="https://midnight.network/night">Midnight Network</a></li>
+<li><a href="https://midnight.network/blog/state-of-the-network-december-2025">Midnight State of the Network (Dec 2025)</a></li>
+<li><a href="https://www.coindesk.com/markets/2025/12/11/cardano-ecosystem-gets-a-privacy-boost-as-midnight-s-night-goes-live">CoinDesk - Midnight NIGHT Goes Live</a></li>
+</ul>
+<h3 id="november-2025-incident"><a class="header" href="#november-2025-incident">November 2025 Incident</a></h3>
+<ul>
+<li><a href="https://cardanofoundation.org/blog/november-2025-cardano-shows-resilience">Cardano Foundation - November 2025 Incident</a></li>
+<li><a href="https://intersectmbo.org/news/incident-report-network-partition-analysis-and-resolution-strategy">Intersect - Incident Report</a></li>
+<li><a href="https://www.coindesk.com/markets/2025/11/23/cardano-temporarily-splits-into-two-chains-after-attacker-uses-ai-generated-script-to-exploit-a-known-bug">CoinDesk - Cardano Splits After AI-Generated Exploit</a></li>
+<li><a href="https://cardano.org/news/2025-12-03-ouroboros-self-healing/">Ouroboros Self-Healing Analysis</a></li>
+</ul>
+<h3 id="network-statistics"><a class="header" href="#network-statistics">Network Statistics</a></h3>
+<ul>
+<li><a href="https://pooltool.io/">PoolTool.io</a></li>
+<li><a href="https://cardanoscan.io/">CardanoScan</a></li>
+<li><a href="https://cexplorer.io/">cexplorer.io</a></li>
+<li><a href="https://iohk.io/blog/posts/2025/10/29/strengthening-cardanos-foundations-q3-2025-progress-report">IOG - Q3 2025 Progress Report</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cardano/networking.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../spec/notation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cardano/networking.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../spec/notation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

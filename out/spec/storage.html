@@ -1,0 +1,844 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Storage &amp; Persistence - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="13-storage"><a class="header" href="#13-storage">13 Storage</a></h1>
+<p>The Bluematter storage layer manages block persistence, ledger state
+checkpointing, and transaction buffering across three tiers. Blocks
+flow from the network into volatile storage, graduate to immutable
+storage once finalized, while ledger state snapshots enable crash
+recovery without full chain replay.</p>
+<p><strong>Notation.</strong> B = bytes, N = naturals, H = B_32 (Blake2b-256 hash),
+sigma = LedgerState. SQL schemas follow SQLite syntax. Map and List
+types are written M[K, V] and L[T] respectively.</p>
+<hr>
+<h2 id="131-storage-architecture"><a class="header" href="#131-storage-architecture">13.1 Storage Architecture</a></h2>
+<h3 id="1311-three-tier-model"><a class="header" href="#1311-three-tier-model">13.1.1 Three-Tier Model</a></h3>
+<pre><code>                        network
+                          |
+                          v
+                    +-----------+
+                    | VolatileDB|   in-memory, fork-aware
+                    +-----------+
+                          |
+                   graduation (slot &lt; tip - 2000)
+                          |
+                          v
+                    +------------+
+                    | ImmutableDB|   SQLite, append-only
+                    +------------+
+
+                    +-----------+
+                    |  LedgerDB |   SQLite, HMAC-authenticated
+                    +-----------+
+                          |
+                    sigma checkpoints
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tier</th><th>Medium</th><th>Mutability</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>VolatileDB</td><td>Memory</td><td>Mutable</td><td>Recent blocks subject to rollback</td></tr>
+<tr><td>ImmutableDB</td><td>SQLite</td><td>Append-only</td><td>Finalized blocks (permanent)</td></tr>
+<tr><td>LedgerDB</td><td>SQLite</td><td>Replace</td><td>Ledger state checkpoints</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="1312-block-lifecycle"><a class="header" href="#1312-block-lifecycle">13.1.2 Block Lifecycle</a></h3>
+<pre><code>1. Block arrives from network (BlockFetch)
+2. Decoded, validated, applied to sigma
+3. Stored in VolatileDB (indexed by hash and slot)
+4. When volatile_db.count() &gt; 100:
+     cutoff &lt;- current_slot - 2000
+     graduated &lt;- volatile_db.graduate(cutoff)
+     for each block in graduated:
+       immutable_db.append(block)
+5. Block is now permanently stored and removed from volatile memory
+</code></pre>
+<hr>
+<h2 id="132-volatiledb"><a class="header" href="#132-volatiledb">13.2 VolatileDB</a></h2>
+<p>In-memory store for recent blocks within the security parameter
+window. Supports fork tracking via multiple blocks per slot.</p>
+<h3 id="1321-data-types"><a class="header" href="#1321-data-types">13.2.1 Data Types</a></h3>
+<pre><code>VolatileBlock:
+  slot         : N
+  block_number : N
+  block_hash   : H          (B_32)
+  prev_hash    : H | null   (B_32 or null for genesis successor)
+  raw          : B           (wire-format block bytes)
+</code></pre>
+<h3 id="1322-state"><a class="header" href="#1322-state">13.2.2 State</a></h3>
+<pre><code>VolatileDB:
+  k        : N                     -- security parameter (default 2160)
+  _by_hash : M[H, VolatileBlock]   -- primary index
+  _by_slot : M[N, L[H]]            -- slot -&gt; list of block hashes (fork support)
+</code></pre>
+<p>The <code>_by_slot</code> index maps each slot to a <strong>list</strong> of block hashes,
+supporting the case where multiple blocks exist at the same slot due
+to forks. The last element in the list is the most recently added.</p>
+<h3 id="1323-operations"><a class="header" href="#1323-operations">13.2.3 Operations</a></h3>
+<p><strong>add(block : VolatileBlock):</strong></p>
+<pre><code>  _by_hash[block.block_hash] &lt;- block
+  if block.slot not in _by_slot:
+    _by_slot[block.slot] &lt;- []
+  hashes &lt;- _by_slot[block.slot]
+  if block.block_hash not in hashes:
+    hashes.append(block.block_hash)
+</code></pre>
+<p><strong>get_by_hash(h : H) -&gt; VolatileBlock | null:</strong></p>
+<pre><code>  return _by_hash[h]      -- null if absent
+</code></pre>
+<p><strong>get_by_slot(s : N) -&gt; VolatileBlock | null:</strong></p>
+<pre><code>  hashes &lt;- _by_slot[s]
+  if hashes = null or hashes = []: return null
+  return _by_hash[hashes[-1]]    -- last-added block at this slot
+</code></pre>
+<p><strong>get_all_at_slot(s : N) -&gt; L[VolatileBlock]:</strong></p>
+<pre><code>  hashes &lt;- _by_slot.get(s, [])
+  return [_by_hash[h] | h in hashes, h in _by_hash]
+</code></pre>
+<p><strong>tip() -&gt; VolatileBlock | null:</strong></p>
+<pre><code>  if _by_slot = {}: return null
+  max_slot &lt;- max(keys(_by_slot))
+  hashes &lt;- _by_slot[max_slot]
+  if hashes = []: return null
+  return _by_hash[hashes[-1]]
+</code></pre>
+<p><strong>rollback_to(s : N) -&gt; L[VolatileBlock]:</strong></p>
+<p>Remove all blocks with slot strictly greater than s. Returns removed
+blocks in descending slot order (suitable for undo operations).</p>
+<pre><code>  removed &lt;- []
+  slots_to_remove &lt;- sort_descending([s' | s' in keys(_by_slot), s' &gt; s])
+  for s' in slots_to_remove:
+    hashes &lt;- _by_slot.remove(s')
+    for h in hashes:
+      block &lt;- _by_hash.remove(h)
+      if block != null:
+        removed.append(block)
+  return removed
+</code></pre>
+<p><strong>graduate(up_to_slot : N) -&gt; L[VolatileBlock]:</strong></p>
+<p>Remove and return all blocks with slot less than or equal to
+up_to_slot, in ascending slot order. These blocks are considered
+finalized and ready for transfer to ImmutableDB.</p>
+<pre><code>  graduated &lt;- []
+  slots_to_remove &lt;- sort_ascending([s' | s' in keys(_by_slot), s' &lt;= up_to_slot])
+  for s' in slots_to_remove:
+    hashes &lt;- _by_slot.remove(s')
+    for h in hashes:
+      block &lt;- _by_hash.remove(h)
+      if block != null:
+        graduated.append(block)
+  return graduated
+</code></pre>
+<p><strong>get_chain(tip_hash : H) -&gt; L[VolatileBlock]:</strong></p>
+<p>Trace the chain backward from a given tip hash following prev_hash
+links. Returns blocks in chronological order (oldest first).</p>
+<pre><code>  chain &lt;- []
+  current &lt;- _by_hash[tip_hash]
+  while current != null:
+    chain.append(current)
+    if current.prev_hash = null: break
+    current &lt;- _by_hash[current.prev_hash]
+  reverse(chain)
+  return chain
+</code></pre>
+<p><strong>get_blocks_in_range(from_slot : N, to_slot : N) -&gt; L[B]:</strong></p>
+<p>Return raw block bytes for blocks with <code>from_slot &lt; slot &lt;= to_slot</code>,
+sorted by slot ascending. Used for re-applying blocks after rollback.</p>
+<pre><code>  result &lt;- []
+  for s in sort_ascending(keys(_by_slot)):
+    if s &lt;= from_slot: continue
+    if s &gt; to_slot: break
+    for h in _by_slot[s]:
+      block &lt;- _by_hash[h]
+      if block != null:
+        result.append(block.raw)
+  return result
+</code></pre>
+<p><strong>count() -&gt; N:</strong></p>
+<pre><code>  return |_by_hash|
+</code></pre>
+<hr>
+<h2 id="133-immutabledb"><a class="header" href="#133-immutabledb">13.3 ImmutableDB</a></h2>
+<p>Append-only persistent store for finalized blocks. Uses SQLite with
+WAL journaling for concurrent read access during writes.</p>
+<h3 id="1331-sql-schema"><a class="header" href="#1331-sql-schema">13.3.1 SQL Schema</a></h3>
+<pre><code class="language-sql">PRAGMA journal_mode = WAL;
+
+CREATE TABLE IF NOT EXISTS blocks (
+  slot         INTEGER PRIMARY KEY,
+  block_number INTEGER NOT NULL,
+  block_hash   BLOB    NOT NULL,
+  raw          BLOB    NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_block_hash ON blocks(block_hash);
+</code></pre>
+<p>The primary key on <code>slot</code> enforces uniqueness (one finalized block per
+slot). The <code>block_hash</code> index enables O(log n) lookup by hash.</p>
+<h3 id="1332-operations"><a class="header" href="#1332-operations">13.3.2 Operations</a></h3>
+<p><strong>append(slot : N, block_number : N, block_hash : H, raw : B):</strong></p>
+<pre><code>  INSERT INTO blocks (slot, block_number, block_hash, raw)
+  VALUES (?, ?, ?, ?);
+  COMMIT;
+  -- Raises ValueError if slot already exists (IntegrityError)
+</code></pre>
+<p><strong>get_by_slot(slot : N) -&gt; (N, H, B) | null:</strong></p>
+<pre><code>  SELECT block_number, block_hash, raw
+  FROM blocks WHERE slot = ?
+  -- Returns (block_number, block_hash, raw) or null
+</code></pre>
+<p><strong>get_by_hash(block_hash : H) -&gt; (N, N, B) | null:</strong></p>
+<pre><code>  SELECT slot, block_number, raw
+  FROM blocks WHERE block_hash = ?
+  -- Returns (slot, block_number, raw) or null
+</code></pre>
+<p><strong>tip() -&gt; (N, N, H) | null:</strong></p>
+<pre><code>  SELECT slot, block_number, block_hash
+  FROM blocks
+  ORDER BY slot DESC LIMIT 1
+  -- Returns (slot, block_number, block_hash) or null if empty
+</code></pre>
+<p><strong>iter_blocks(from_slot : N, to_slot : N | null) -&gt; Iterator[(N, N, H, B)]:</strong></p>
+<pre><code>  if to_slot != null:
+    SELECT slot, block_number, block_hash, raw
+    FROM blocks
+    WHERE slot &gt;= ? AND slot &lt;= ?
+    ORDER BY slot
+  else:
+    SELECT slot, block_number, block_hash, raw
+    FROM blocks
+    WHERE slot &gt;= ?
+    ORDER BY slot
+  -- Yields (slot, block_number, block_hash, raw) tuples
+</code></pre>
+<p><strong>count() -&gt; N:</strong></p>
+<pre><code>  SELECT COUNT(*) FROM blocks
+</code></pre>
+<h3 id="1333-initialization"><a class="header" href="#1333-initialization">13.3.3 Initialization</a></h3>
+<p>On construction with a file path, the database opens the SQLite file
+(creating it if absent), enables WAL journal mode, and ensures the
+schema exists. When constructed with <code>path = null</code>, an in-memory
+database is used (suitable for testing).</p>
+<hr>
+<h2 id="134-ledgerdb"><a class="header" href="#134-ledgerdb">13.4 LedgerDB</a></h2>
+<p>Persistent ledger state checkpoint store. Periodically serializes
+the full LedgerState to SQLite, authenticated with HMAC-SHA256 to
+prevent tampered checkpoint injection.</p>
+<h3 id="1341-sql-schema"><a class="header" href="#1341-sql-schema">13.4.1 SQL Schema</a></h3>
+<pre><code class="language-sql">PRAGMA journal_mode = WAL;
+
+CREATE TABLE IF NOT EXISTS checkpoints (
+  slot       INTEGER PRIMARY KEY,
+  epoch      INTEGER NOT NULL,
+  utxo_count INTEGER NOT NULL,
+  data       BLOB    NOT NULL,
+  data_hash  TEXT
+);
+</code></pre>
+<p>The <code>data</code> column stores the pickle-serialized LedgerState. The
+<code>data_hash</code> column stores the HMAC-SHA256 authentication tag (32 raw
+bytes for current format, or hex SHA-256 digest for legacy format).</p>
+<h3 id="1342-hmac-key-management"><a class="header" href="#1342-hmac-key-management">13.4.2 HMAC Key Management</a></h3>
+<pre><code>Key resolution priority:
+  1. BLUEMATTER_HMAC_KEY environment variable (hex-encoded)
+  2. ~/.bluematter/hmac.key file (raw bytes)
+  3. Generate: secrets.token_bytes(32), persist to ~/.bluematter/hmac.key
+
+_get_hmac_key() -&gt; B_32:
+  if env[BLUEMATTER_HMAC_KEY] exists:
+    return hex_decode(env[BLUEMATTER_HMAC_KEY])
+  if ~/.bluematter/hmac.key exists:
+    return read_file(~/.bluematter/hmac.key)
+  key &lt;- random_bytes(32)
+  write_file(~/.bluematter/hmac.key, key)
+  return key
+</code></pre>
+<h3 id="1343-authentication"><a class="header" href="#1343-authentication">13.4.3 Authentication</a></h3>
+<pre><code>_hmac_sign(data : B) -&gt; B_32:
+  return HMAC-SHA256(_get_hmac_key(), data)
+
+_hmac_verify(data : B, expected_mac : B_32) -&gt; Bool:
+  return constant_time_compare(_hmac_sign(data), expected_mac)
+</code></pre>
+<h3 id="1344-serialization"><a class="header" href="#1344-serialization">13.4.4 Serialization</a></h3>
+<pre><code>serialize(sigma : LedgerState) -&gt; B:
+  return pickle.dumps(sigma, protocol=HIGHEST_PROTOCOL)
+
+deserialize(data : B) -&gt; LedgerState:
+  return pickle.loads(data)
+</code></pre>
+<h3 id="1345-operations"><a class="header" href="#1345-operations">13.4.5 Operations</a></h3>
+<p><strong>save_checkpoint(sigma : LedgerState, slot : N | null):</strong></p>
+<pre><code>  s    &lt;- slot if slot != null else sigma.slot
+  data &lt;- serialize(sigma)
+  mac  &lt;- _hmac_sign(data)
+
+  INSERT OR REPLACE INTO checkpoints
+    (slot, epoch, utxo_count, data, data_hash)
+  VALUES (s, sigma.epoch, |sigma.utxo|, data, mac);
+  COMMIT;
+</code></pre>
+<p><strong>load_latest_checkpoint() -&gt; (LedgerState, N) | null:</strong></p>
+<pre><code>  SELECT slot, data, data_hash
+  FROM checkpoints
+  ORDER BY slot DESC LIMIT 1
+
+  if no row: return null
+  sigma &lt;- _verify_and_load(data, data_hash, slot)
+  return (sigma, slot)
+</code></pre>
+<p><strong>load_checkpoint(slot : N) -&gt; LedgerState | null:</strong></p>
+<pre><code>  SELECT data, data_hash
+  FROM checkpoints WHERE slot = ?
+
+  if no row: return null
+  return _verify_and_load(data, data_hash, slot)
+</code></pre>
+<p><strong>load_checkpoint_before(s : N) -&gt; (LedgerState, N) | null:</strong></p>
+<pre><code>  SELECT slot, data, data_hash
+  FROM checkpoints
+  WHERE slot &lt;= ?
+  ORDER BY slot DESC LIMIT 1
+
+  if no row: return null
+  sigma &lt;- _verify_and_load(data, data_hash, slot)
+  return (sigma, slot)
+</code></pre>
+<p><strong>list_checkpoints() -&gt; L[(N, N, N)]:</strong></p>
+<pre><code>  SELECT slot, epoch, utxo_count
+  FROM checkpoints
+  ORDER BY slot
+  -- Returns [(slot, epoch, utxo_count), ...]
+</code></pre>
+<p><strong>prune(keep_latest : N = 3) -&gt; N:</strong></p>
+<p>Remove old checkpoints, retaining only the <code>keep_latest</code> most recent.</p>
+<pre><code>  all_slots &lt;- SELECT slot FROM checkpoints ORDER BY slot DESC
+  if |all_slots| &lt;= keep_latest: return 0
+  to_remove &lt;- all_slots[keep_latest..]
+  DELETE FROM checkpoints WHERE slot IN (to_remove)
+  COMMIT
+  return |to_remove|
+</code></pre>
+<h3 id="1346-integrity-verification"><a class="header" href="#1346-integrity-verification">13.4.6 Integrity Verification</a></h3>
+<p>The <code>_verify_and_load</code> function supports two authentication formats
+for backward compatibility:</p>
+<pre><code>_verify_and_load(data : B, mac : B | String | null, slot : N) -&gt; LedgerState:
+  if mac != null:
+    if mac is B and |mac| = 32:
+      -- Current format: HMAC-SHA256
+      require _hmac_verify(data, mac)
+        else raise ValueError("HMAC mismatch at slot {slot}")
+    else if mac is String:
+      -- Legacy format: SHA-256 hex digest
+      actual &lt;- sha256_hex(data)
+      require actual = mac
+        else raise ValueError("SHA-256 mismatch at slot {slot}")
+  return deserialize(data)
+</code></pre>
+<hr>
+<h2 id="135-chain-validator"><a class="header" href="#135-chain-validator">13.5 Chain Validator</a></h2>
+<p>Sequential block validation pipeline for catch-up from a snapshot or
+ImmutableDB. Decodes blocks, applies them to an advancing ledger state,
+and tracks validation progress.</p>
+<h3 id="1351-state"><a class="header" href="#1351-state">13.5.1 State</a></h3>
+<pre><code>ChainValidator:
+  state            : LedgerState
+  blocks_applied   : N = 0
+  last_block_hash  : H | null = null
+  last_slot        : N = state.slot
+  last_block_number: N = 0
+</code></pre>
+<h3 id="1352-construction"><a class="header" href="#1352-construction">13.5.2 Construction</a></h3>
+<pre><code>from_snapshot(path, streaming=false) -&gt; ChainValidator:
+  sigma &lt;- load_snapshot(path, streaming)
+  return ChainValidator(sigma)
+</code></pre>
+<h3 id="1353-block-application"><a class="header" href="#1353-block-application">13.5.3 Block Application</a></h3>
+<pre><code>apply_raw_block(block_bytes : B) -&gt; ConwayBlock:
+  block &lt;- decode_block_from_wire(block_bytes)
+  require block is ConwayBlock
+  return apply_decoded_block(block)
+
+apply_decoded_block(block : ConwayBlock) -&gt; ConwayBlock:
+  state &lt;- apply_block(state, block)    -- may raise BlockValidationError
+  blocks_applied += 1
+  last_block_hash  &lt;- block.block_hash
+  last_slot        &lt;- block.slot
+  last_block_number &lt;- block.block_number
+  return block
+</code></pre>
+<h3 id="1354-bulk-validation-from-immutabledb"><a class="header" href="#1354-bulk-validation-from-immutabledb">13.5.4 Bulk Validation from ImmutableDB</a></h3>
+<pre><code>validate_from_immutable_db(db, from_slot, to_slot, progress_interval=1000) -&gt; N:
+  count &lt;- 0
+  for (slot, block_number, block_hash, raw) in db.iter_blocks(from_slot, to_slot):
+    apply_raw_block(raw)
+    count += 1
+    if count mod progress_interval = 0:
+      log("Validated {count} blocks (slot {slot}, block {block_number})")
+  return count
+</code></pre>
+<h3 id="1355-bulk-validation-from-files"><a class="header" href="#1355-bulk-validation-from-files">13.5.5 Bulk Validation from Files</a></h3>
+<pre><code>validate_from_files(block_dir, pattern="*.cbor") -&gt; N:
+  files &lt;- sort(glob(block_dir / pattern))
+  count &lt;- 0
+  for f in files:
+    raw &lt;- read_file(f)
+    apply_raw_block(raw)
+    count += 1
+  return count
+</code></pre>
+<hr>
+<h2 id="136-crash-recovery"><a class="header" href="#136-crash-recovery">13.6 Crash Recovery</a></h2>
+<p>On node startup, the system attempts to recover the most recent
+consistent state without requiring a full chain replay.</p>
+<h3 id="1361-recovery-sequence"><a class="header" href="#1361-recovery-sequence">13.6.1 Recovery Sequence</a></h3>
+<pre><code>initialize_state(initial_state, snapshot_path, genesis_dir, ledger_db):
+
+  -- Priority 1: Caller-provided state
+  if initial_state != null:
+    sigma &lt;- initial_state
+
+  -- Priority 2: LedgerDB checkpoint (crash recovery)
+  else:
+    cp &lt;- ledger_db.load_latest_checkpoint()
+    if cp != null:
+      (sigma, cp_slot) &lt;- cp
+      log("Resumed from checkpoint at slot {cp_slot}")
+
+  -- Priority 3: Snapshot file
+  else if snapshot_path != null:
+    sigma &lt;- load_snapshot(snapshot_path)
+    log("Snapshot loaded: epoch={sigma.epoch}, UTxO={|sigma.utxo|}")
+
+  -- Priority 4: Empty state with genesis params
+  else:
+    sigma &lt;- LedgerState()
+    if genesis_dir != null:
+      sigma.protocol_params &lt;- parse_protocol_params(
+        genesis_dir/shelley-genesis.json,
+        genesis_dir/alonzo-genesis.json,
+        genesis_dir/conway-genesis.json
+      )
+
+  return sigma
+</code></pre>
+<h3 id="1362-rollback-recovery"><a class="header" href="#1362-rollback-recovery">13.6.2 Rollback Recovery</a></h3>
+<p>When a ChainSync MsgRollBackward is received during live sync:</p>
+<pre><code>handle_rollback(rb_slot):
+  -- 1. Capture blocks that may need replay
+  replay_blocks &lt;- volatile_db.get_blocks_in_range(0, rb_slot)
+
+  -- 2. Truncate volatile storage past the rollback point
+  volatile_db.rollback_to(rb_slot)
+
+  -- 3. Restore ledger state from closest checkpoint
+  cp &lt;- ledger_db.load_checkpoint_before(rb_slot)
+  if cp != null:
+    (sigma, cp_slot) &lt;- cp
+
+    -- 4. Re-apply blocks between checkpoint and rollback point
+    for block_bytes in replay_blocks:
+      block &lt;- decode_block_from_wire(block_bytes)
+      if block is ConwayBlock
+         and block.slot &gt; cp_slot
+         and block.slot &lt;= rb_slot:
+        sigma &lt;- apply_block(sigma, block)
+</code></pre>
+<h3 id="1363-checkpoint-discipline"><a class="header" href="#1363-checkpoint-discipline">13.6.3 Checkpoint Discipline</a></h3>
+<pre><code>Checkpoint frequency: every checkpoint_interval blocks (default 50)
+
+if blocks_synced mod checkpoint_interval = 0:
+  ledger_db.save_checkpoint(sigma)
+
+Before reconnection after error:
+  if sigma.slot &gt; 0:
+    ledger_db.save_checkpoint(sigma)
+</code></pre>
+<hr>
+<h2 id="137-mempool"><a class="header" href="#137-mempool">13.7 Mempool</a></h2>
+<p>Bounded transaction pool holding unconfirmed transactions awaiting
+inclusion in a block. Thread-safe for concurrent access from the
+network layer and the block forging pipeline.</p>
+<h3 id="1371-state"><a class="header" href="#1371-state">13.7.1 State</a></h3>
+<pre><code>Mempool:
+  max_count    : N = 10,000
+  max_bytes    : N = 50,000,000    (50 MiB)
+  _lock        : Mutex
+  _txs         : OrderedDict[H, B]    -- tx_hash -&gt; raw CBOR, insertion order
+  _total_bytes : N = 0
+</code></pre>
+<p>The OrderedDict preserves insertion order for FIFO eviction semantics.</p>
+<h3 id="1372-admission-control"><a class="header" href="#1372-admission-control">13.7.2 Admission Control</a></h3>
+<p><strong>add(tx_id : H, tx_cbor : B):</strong></p>
+<pre><code>  acquire _lock:
+    if tx_id in _txs: return     -- idempotent
+
+    tx_size &lt;- |tx_cbor|
+
+    -- Evict oldest until space is available
+    while _total_bytes + tx_size &gt; max_bytes
+       or |_txs| &gt;= max_count:
+      if _txs = {}:
+        raise MempoolFull("cannot fit {tx_size}B tx")
+      (evicted_id, evicted_cbor) &lt;- _txs.pop_first()     -- FIFO
+      _total_bytes -= |evicted_cbor|
+
+    _txs[tx_id] &lt;- tx_cbor
+    _total_bytes += tx_size
+</code></pre>
+<h3 id="1373-removal"><a class="header" href="#1373-removal">13.7.3 Removal</a></h3>
+<p><strong>remove(tx_id : H) -&gt; Bool:</strong></p>
+<pre><code>  acquire _lock:
+    if tx_id in _txs:
+      _total_bytes -= |_txs[tx_id]|
+      delete _txs[tx_id]
+      return true
+    return false
+</code></pre>
+<p><strong>remove_confirmed(tx_ids : Set[H]) -&gt; N:</strong></p>
+<p>Bulk removal of transactions confirmed in a newly applied block.</p>
+<pre><code>  removed &lt;- 0
+  acquire _lock:
+    for tx_id in tx_ids:
+      if tx_id in _txs:
+        _total_bytes -= |_txs[tx_id]|
+        delete _txs[tx_id]
+        removed += 1
+  return removed
+</code></pre>
+<h3 id="1374-queries"><a class="header" href="#1374-queries">13.7.4 Queries</a></h3>
+<p><strong>get_tx_ids() -&gt; L[H]:</strong></p>
+<pre><code>  acquire _lock:
+    return list(keys(_txs))    -- in insertion order
+</code></pre>
+<p><strong>get_tx(tx_id : H) -&gt; B | null:</strong></p>
+<pre><code>  acquire _lock:
+    return _txs[tx_id]         -- null if absent
+</code></pre>
+<p><strong>has_tx(tx_id : H) -&gt; Bool:</strong></p>
+<pre><code>  acquire _lock:
+    return tx_id in _txs
+</code></pre>
+<p><strong>count() -&gt; N:</strong></p>
+<pre><code>  acquire _lock:
+    return |_txs|
+</code></pre>
+<p><strong>total_bytes() -&gt; N:</strong></p>
+<pre><code>  acquire _lock:
+    return _total_bytes
+</code></pre>
+<p><strong>snapshot() -&gt; L[(H, B)]:</strong></p>
+<p>Returns a consistent snapshot of all transactions for external
+consumers (e.g., block forging, TxSubmission2).</p>
+<pre><code>  acquire _lock:
+    return list(items(_txs))    -- [(tx_id, tx_cbor), ...]
+</code></pre>
+<p><strong>clear():</strong></p>
+<pre><code>  acquire _lock:
+    _txs.clear()
+    _total_bytes &lt;- 0
+</code></pre>
+<h3 id="1375-revalidation"><a class="header" href="#1375-revalidation">13.7.5 Revalidation</a></h3>
+<p>When the chain tip advances, mempool transactions whose inputs have
+been consumed must be evicted:</p>
+<pre><code>revalidate(sigma : LedgerState):
+  for (tx_id, tx_cbor) in snapshot():
+    if any input of tx not in sigma.utxo:
+      remove(tx_id)
+</code></pre>
+<h3 id="1376-capacity-bounds"><a class="header" href="#1376-capacity-bounds">13.7.6 Capacity Bounds</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>max_count</td><td>10,000 txs</td></tr>
+<tr><td>max_bytes</td><td>50,000,000 B</td></tr>
+<tr><td>Eviction</td><td>FIFO (oldest)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="1377-thread-safety"><a class="header" href="#1377-thread-safety">13.7.7 Thread Safety</a></h3>
+<p>All public operations acquire a threading.Lock before accessing shared
+state. This ensures correctness when the mempool is accessed
+concurrently from:</p>
+<ul>
+<li>Network threads (TxSubmission2 adding new transactions)</li>
+<li>Validation threads (block application removing confirmed transactions)</li>
+<li>Forging threads (snapshotting transactions for block assembly)</li>
+</ul>
+<hr>
+<h2 id="138-summary-of-sql-schemas"><a class="header" href="#138-summary-of-sql-schemas">13.8 Summary of SQL Schemas</a></h2>
+<h3 id="immutabledb"><a class="header" href="#immutabledb">ImmutableDB</a></h3>
+<pre><code class="language-sql">CREATE TABLE blocks (
+  slot         INTEGER PRIMARY KEY,
+  block_number INTEGER NOT NULL,
+  block_hash   BLOB    NOT NULL,
+  raw          BLOB    NOT NULL
+);
+CREATE INDEX idx_block_hash ON blocks(block_hash);
+</code></pre>
+<h3 id="ledgerdb"><a class="header" href="#ledgerdb">LedgerDB</a></h3>
+<pre><code class="language-sql">CREATE TABLE checkpoints (
+  slot       INTEGER PRIMARY KEY,
+  epoch      INTEGER NOT NULL,
+  utxo_count INTEGER NOT NULL,
+  data       BLOB    NOT NULL,
+  data_hash  TEXT
+);
+</code></pre>
+<p>Both databases use <code>PRAGMA journal_mode = WAL</code> for write-ahead logging,
+enabling concurrent readers during writes without blocking.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../spec/networking.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../architecture/overview.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../spec/networking.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../architecture/overview.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

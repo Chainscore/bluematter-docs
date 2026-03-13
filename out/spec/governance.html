@@ -1,0 +1,806 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Governance (Conway/Voltaire) - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="11-conway-governance"><a class="header" href="#11-conway-governance">11. Conway Governance</a></h1>
+<p>This section specifies the CIP-1694 on-chain governance framework as
+implemented in the Conway era. It covers the three governance bodies,
+seven action types, the proposal lifecycle, stake-weighted voting,
+enactment effects, and governance-related certificates.</p>
+<h2 id="notation"><a class="header" href="#notation">Notation</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Symbol</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td>sigma</td><td>Ledger state</td></tr>
+<tr><td>pi</td><td>Protocol parameters</td></tr>
+<tr><td>epsilon</td><td>Current epoch</td></tr>
+<tr><td>tau</td><td>Transaction</td></tr>
+<tr><td>G</td><td>Governance state (sigma.gov_state)</td></tr>
+<tr><td>P</td><td>Proposals map: M[(H, N), GovProposal]</td></tr>
+<tr><td>V</td><td>Votes map: M[(H, N), L[GovVote]]</td></tr>
+<tr><td>C</td><td>Committee map: M[B_28, N] (credential -&gt; expiry epoch)</td></tr>
+<tr><td>D</td><td>DRep registry: M[B_28, N] (credential -&gt; deposit)</td></tr>
+<tr><td>cred(addr)</td><td>Extract 28-byte credential from a 29-byte reward address: addr[1:29]</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="111-governance-bodies"><a class="header" href="#111-governance-bodies">11.1 Governance Bodies</a></h2>
+<p>Conway governance is a tricameral system. Every governance action
+requires approval from a subset of three bodies, each with its own
+voting mechanism:</p>
+<h3 id="1111-constitutional-committee-cc"><a class="header" href="#1111-constitutional-committee-cc">11.1.1 Constitutional Committee (CC)</a></h3>
+<pre><code>CC = { (cold_cred, expiry_epoch) | cold_cred in C }
+</code></pre>
+<p>A fixed-size committee of elected members, identified by cold
+credentials (key hash or script hash). Each member has an expiry
+epoch; after expiry, the member can no longer vote. CC votes are
+counted by <strong>head count</strong> (one member, one vote), not by stake.</p>
+<p>CC members delegate operational authority via hot keys
+(AuthCommitteeHot certificates). The committee can be dissolved
+by a NoConfidence action.</p>
+<h3 id="1112-delegated-representatives-dreps"><a class="header" href="#1112-delegated-representatives-dreps">11.1.2 Delegated Representatives (DReps)</a></h3>
+<pre><code>DReps = { (cred, deposit) | cred in D }
+</code></pre>
+<p>Any ADA holder may register as a DRep by posting a deposit.
+Stake holders delegate their voting power to DReps via VoteDeleg
+certificates. DRep votes are <strong>stake-weighted</strong>: a DRep’s voting
+power equals the total ADA delegated to them.</p>
+<h3 id="1113-stake-pool-operators-spos"><a class="header" href="#1113-stake-pool-operators-spos">11.1.3 Stake Pool Operators (SPOs)</a></h3>
+<pre><code>SPOs = { pool_id | pool_id in sigma.pools }
+</code></pre>
+<p>Registered stake pool operators vote with their pool’s total
+delegated stake. SPO votes are <strong>stake-weighted</strong> by pool stake.</p>
+<h3 id="1114-voter-requirements-by-action-type"><a class="header" href="#1114-voter-requirements-by-action-type">11.1.4 Voter Requirements by Action Type</a></h3>
+<pre><code>Action Type            | CC  | DRep | SPO
+-----------------------|-----|------|----
+ParameterChange        | YES | YES  | --
+HardForkInitiation     | YES | YES  | YES
+TreasuryWithdrawals    | YES | YES  | --
+NoConfidence           | --  | YES  | YES
+UpdateCommittee        | --  | YES  | YES
+NewConstitution        | YES | YES  | --
+InfoAction             | --  | --   | --
+</code></pre>
+<p>“YES” means the body must reach its threshold for the action to be
+ratified. “–” means the body’s votes are not required.</p>
+<hr>
+<h2 id="112-governance-actions"><a class="header" href="#112-governance-actions">11.2 Governance Actions</a></h2>
+<p>There are seven governance action types, identified by CBOR tag 0-6
+in the <code>proposal_procedures</code> transaction field.</p>
+<h3 id="1121-parameterchange-tag-0"><a class="header" href="#1121-parameterchange-tag-0">11.2.1 ParameterChange (tag 0)</a></h3>
+<p><strong>Purpose.</strong> Update one or more protocol parameters.</p>
+<p><strong>Payload.</strong> <code>[prev_action_id, parameter_update_map]</code></p>
+<p>The parameter update map uses CBOR integer keys corresponding to
+the Conway <code>ProtParamUpdate</code> CDDL:</p>
+<pre><code>Key | Parameter                    | Rational?
+----|------------------------------|----------
+ 0  | min_fee_a                    | No
+ 1  | min_fee_b                    | No
+ 2  | max_block_body_size          | No
+ 3  | max_tx_size                  | No
+ 4  | max_block_header_size        | No
+ 5  | stake_credential_deposit     | No
+ 6  | stake_pool_deposit           | No
+ 7  | pool_retirement_max_epoch    | No
+ 8  | optimal_pool_count           | No
+ 9  | pledge_influence             | Yes
+10  | monetary_expansion           | Yes
+11  | treasury_expansion           | Yes
+16  | min_pool_cost                | No
+17  | lovelace_per_utxo_byte       | No
+19  | price_mem                    | Yes
+20  | price_step                   | Yes
+23  | max_value_size               | No
+24  | collateral_percentage        | No
+25  | max_collateral_inputs        | No
+28  | committee_min_size           | No
+29  | committee_max_term_length    | No
+30  | gov_action_lifetime          | No
+31  | gov_action_deposit           | No
+32  | drep_deposit                 | No
+33  | drep_activity                | No
+34  | min_fee_ref_script_per_byte  | Yes
+</code></pre>
+<p>Rational parameters are encoded as <code>[numerator, denominator]</code> pairs.</p>
+<p><strong>Required voters.</strong> CC + DRep.</p>
+<h3 id="1122-hardforkinitiation-tag-1"><a class="header" href="#1122-hardforkinitiation-tag-1">11.2.2 HardForkInitiation (tag 1)</a></h3>
+<p><strong>Purpose.</strong> Signal readiness to transition to a new protocol version.</p>
+<p><strong>Payload.</strong> <code>[prev_action_id, [major, minor]]</code></p>
+<p><strong>Required voters.</strong> CC + DRep + SPO.</p>
+<p><strong>Enactment effect.</strong> None at the ledger level. The hard fork
+combinator handles the actual era transition.</p>
+<h3 id="1123-treasurywithdrawals-tag-2"><a class="header" href="#1123-treasurywithdrawals-tag-2">11.2.3 TreasuryWithdrawals (tag 2)</a></h3>
+<p><strong>Purpose.</strong> Transfer ADA from the treasury to specified reward accounts.</p>
+<p><strong>Payload.</strong> <code>[prev_action_id, {reward_addr: amount, ...}]</code></p>
+<p><strong>Required voters.</strong> CC + DRep.</p>
+<h3 id="1124-noconfidence-tag-3"><a class="header" href="#1124-noconfidence-tag-3">11.2.4 NoConfidence (tag 3)</a></h3>
+<p><strong>Purpose.</strong> Dissolve the constitutional committee (vote of no confidence).</p>
+<p><strong>Payload.</strong> <code>[prev_action_id]</code></p>
+<p><strong>Required voters.</strong> DRep + SPO.</p>
+<h3 id="1125-updatecommittee-tag-4"><a class="header" href="#1125-updatecommittee-tag-4">11.2.5 UpdateCommittee (tag 4)</a></h3>
+<p><strong>Purpose.</strong> Add or remove constitutional committee members and
+update the quorum threshold.</p>
+<p><strong>Payload.</strong> <code>[prev_action_id, members_to_remove, members_to_add, new_threshold]</code></p>
+<p>where:</p>
+<ul>
+<li><code>members_to_remove</code>: set of credentials to remove</li>
+<li><code>members_to_add</code>: <code>{credential: expiry_epoch, ...}</code></li>
+<li><code>new_threshold</code>: rational number</li>
+</ul>
+<p><strong>Required voters.</strong> DRep + SPO.</p>
+<h3 id="1126-newconstitution-tag-5"><a class="header" href="#1126-newconstitution-tag-5">11.2.6 NewConstitution (tag 5)</a></h3>
+<p><strong>Purpose.</strong> Adopt a new constitution (update the constitution hash).</p>
+<p><strong>Payload.</strong> <code>[prev_action_id, [anchor, script_hash?]]</code></p>
+<p><strong>Required voters.</strong> CC + DRep.</p>
+<h3 id="1127-infoaction-tag-6"><a class="header" href="#1127-infoaction-tag-6">11.2.7 InfoAction (tag 6)</a></h3>
+<p><strong>Purpose.</strong> Non-binding informational signal. Always ratified.</p>
+<p><strong>Payload.</strong> <code>[tag_6]</code></p>
+<p><strong>Required voters.</strong> None. InfoActions are always considered ratified
+upon submission. They serve as a signaling mechanism with no on-chain
+effect.</p>
+<hr>
+<h2 id="113-proposal-lifecycle"><a class="header" href="#113-proposal-lifecycle">11.3 Proposal Lifecycle</a></h2>
+<h3 id="1131-submission"><a class="header" href="#1131-submission">11.3.1 Submission</a></h3>
+<p>Proposals are submitted as part of a transaction’s <code>proposal_procedures</code>
+field (CBOR map key 20 in the transaction body).</p>
+<pre><code>submit(G, tau.proposal_procedures, tau.hash, epsilon, pi):
+  for idx, proposal_raw in enumerate(tau.proposal_procedures):
+    -- Parse: [deposit, return_addr, action, anchor]
+    deposit   = int(proposal_raw[0])
+    return_addr = proposal_raw[1]        -- B_29 reward address
+    action    = proposal_raw[2]          -- [tag, ...]
+    anchor    = proposal_raw[3]          -- off-chain metadata
+
+    action_type = classify(action[0])    -- tag 0-6 -&gt; GovActionType
+    action_id   = (tau.hash, idx)
+
+    proposal = GovProposal {
+      action_id    = action_id,
+      action_type  = action_type,
+      deposit      = deposit,
+      return_addr  = return_addr,
+      anchor       = anchor,
+      expires_epoch = epsilon + pi.gov_action_lifetime,
+      payload      = action,
+    }
+
+    G.proposals[action_id] = proposal
+</code></pre>
+<p>The deposit must satisfy <code>deposit &gt;= pi.gov_action_deposit</code>. The
+deposit is locked until the proposal is either enacted or expires.</p>
+<h3 id="1132-voting"><a class="header" href="#1132-voting">11.3.2 Voting</a></h3>
+<p>Votes are submitted via the <code>voting_procedures</code> field (CBOR map key 19
+in the transaction body).</p>
+<pre><code>vote(G, tau.voting_procedures, sigma):
+  for voter, actions in tau.voting_procedures:
+    (voter_type, voter_cred) = parse_voter(voter)
+    -- voter_type: "cc" (tag 0), "drep" (tag 1), "spo" (tag 2)
+
+    -- Eligibility check
+    if voter_type = "cc"   and voter_cred not in G.committee: skip
+    if voter_type = "drep"  and voter_cred not in G.dreps:     skip
+    if voter_type = "spo"   and voter_cred not in sigma.pools: skip
+
+    for action_id, vote_choice in actions:
+      -- vote_choice: 0 = No, 1 = Yes, 2 = Abstain
+      G.votes[action_id].append(GovVote {
+        voter_type, voter_cred, action_id, choice
+      })
+</code></pre>
+<h3 id="1133-epoch-boundary-processing"><a class="header" href="#1133-epoch-boundary-processing">11.3.3 Epoch Boundary Processing</a></h3>
+<p>At each epoch boundary, proposals are checked for ratification and
+expiry:</p>
+<pre><code>process_governance(sigma, G, epsilon):
+  enacted = []
+  to_remove = []
+
+  for (key, proposal) in G.proposals:
+
+    -- Check expiry
+    if proposal.expires_epoch is not None and epsilon &gt; proposal.expires_epoch:
+      to_remove.append(key)
+      -- Refund deposit to return address
+      cred = cred(proposal.return_addr)
+      if cred in sigma.accounts:
+        sigma.accounts[cred].rewards += proposal.deposit
+      else:
+        sigma.pots.treasury += proposal.deposit     -- unclaimed goes to treasury
+      continue
+
+    -- Check ratification
+    votes = G.votes.get(key, [])
+    if is_ratified(proposal, votes, sigma, pi):
+      enact(proposal, sigma)
+      enacted.append(proposal)
+      proposal.enacted_epoch = epsilon
+      G.enacted.append((epsilon, proposal))
+
+      -- Refund deposit to proposer
+      cred = cred(proposal.return_addr)
+      if cred in sigma.accounts:
+        sigma.accounts[cred].rewards += proposal.deposit
+
+      to_remove.append(key)
+
+  -- Clean up
+  for key in to_remove:
+    delete G.proposals[key]
+    delete G.votes[key]
+
+  return enacted
+</code></pre>
+<p><strong>Deposit handling.</strong> Enacted proposals refund the deposit to the
+proposer’s reward account. Expired proposals also refund to the
+reward account if the credential is registered; otherwise the deposit
+goes to the treasury.</p>
+<hr>
+<h2 id="114-stake-weighted-voting"><a class="header" href="#114-stake-weighted-voting">11.4 Stake-Weighted Voting</a></h2>
+<h3 id="1141-ratification-predicate"><a class="header" href="#1141-ratification-predicate">11.4.1 Ratification Predicate</a></h3>
+<pre><code>is_ratified(proposal, votes, sigma, pi):
+  -- InfoAction: always ratified
+  if proposal.action_type = InfoAction: return True
+  if votes is empty: return False
+
+  -- Tally votes
+  (cc_yes, cc_no) = (0, 0)
+  (drep_yes_stake, drep_total_stake) = (0, 0)
+  (spo_yes_stake, spo_total_stake) = (0, 0)
+
+  for vote in votes:
+    if vote.choice = Abstain: continue
+
+    match vote.voter_type:
+      "cc":
+        if vote.choice = Yes: cc_yes += 1
+        if vote.choice = No:  cc_no  += 1
+
+      "drep":
+        stake = drep_delegated_stake(sigma, vote.voter_cred)
+        drep_total_stake += stake
+        if vote.choice = Yes: drep_yes_stake += stake
+
+      "spo":
+        stake = pool_total_stake(sigma, vote.voter_cred)
+        spo_total_stake += stake
+        if vote.choice = Yes: spo_yes_stake += stake
+
+  -- Check thresholds (strict: must exceed, not just meet)
+  cc_threshold  = get_cc_threshold(proposal.action_type, pi)
+  drep_threshold = get_drep_threshold(proposal.action_type, pi)
+  spo_threshold  = get_spo_threshold(proposal.action_type, pi)
+
+  if cc_threshold is not None and cc_yes + cc_no &gt; 0:
+    if cc_yes / (cc_yes + cc_no) &lt;= cc_threshold: return False
+
+  if drep_threshold is not None:
+    if drep_total_stake &gt; 0:
+      if drep_yes_stake / drep_total_stake &lt;= drep_threshold: return False
+    elif drep_threshold &gt; 0:
+      return False               -- threshold required but no votes
+
+  if spo_threshold is not None:
+    if spo_total_stake &gt; 0:
+      if spo_yes_stake / spo_total_stake &lt;= spo_threshold: return False
+    elif spo_threshold &gt; 0:
+      return False               -- threshold required but no votes
+
+  -- Must have at least one YES vote from some body
+  return cc_yes &gt; 0 or drep_yes_stake &gt; 0 or spo_yes_stake &gt; 0
+</code></pre>
+<h3 id="1142-threshold-lookup"><a class="header" href="#1142-threshold-lookup">11.4.2 Threshold Lookup</a></h3>
+<p>Thresholds are per-action-type and come from protocol parameters.
+Default threshold is 1/2 (simple majority) when not specified.</p>
+<p><strong>DRep thresholds</strong> (from <code>pi.drep_voting_thresholds</code>):</p>
+<pre><code>Action Type            | Parameter Key
+-----------------------|----------------------------
+NoConfidence           | dvtMotionNoConfidence
+UpdateCommittee        | dvtCommitteeNormal
+NewConstitution        | dvtUpdateToConstitution
+HardForkInitiation     | dvtHardForkInitiation
+ParameterChange        | dvtPPGovGroup
+TreasuryWithdrawals    | dvtTreasuryWithdrawal
+</code></pre>
+<p><strong>SPO thresholds</strong> (from <code>pi.pool_voting_thresholds</code>):</p>
+<pre><code>Action Type            | Parameter Key
+-----------------------|----------------------------
+NoConfidence           | pvtMotionNoConfidence
+UpdateCommittee        | pvtCommitteeNormal
+HardForkInitiation     | pvtHardForkInitiation
+</code></pre>
+<p><strong>CC threshold:</strong> Currently a fixed default of 1/2. Future protocol
+parameter updates will make this configurable per-action-type.</p>
+<h3 id="1143-stake-computation"><a class="header" href="#1143-stake-computation">11.4.3 Stake Computation</a></h3>
+<p><strong>DRep stake.</strong> A DRep’s voting power is the total stake delegated to
+them by all delegators. In the current implementation, this is
+approximated by the DRep’s deposit plus delegator stake:</p>
+<pre><code>drep_delegated_stake(sigma, drep_cred):
+  if drep_cred in G.dreps and G.dreps[drep_cred] &gt; 0:
+    return G.dreps[drep_cred]       -- deposit as proxy
+  if drep_cred in sigma.accounts:
+    acct = sigma.accounts[drep_cred]
+    return acct.deposit + acct.rewards
+  return 1                           -- minimum weight
+</code></pre>
+<p><strong>SPO stake.</strong> A pool’s voting power is the sum of all delegated stake:</p>
+<pre><code>pool_total_stake(sigma, pool_id):
+  total = sum(acct.deposit + acct.rewards
+              for cred, acct in sigma.accounts
+              if acct.pool = pool_id)
+  return max(total, 1)               -- minimum weight
+</code></pre>
+<hr>
+<h2 id="115-enactment-effects"><a class="header" href="#115-enactment-effects">11.5 Enactment Effects</a></h2>
+<p>When a proposal is ratified, its effects are applied to the ledger state.
+Each action type has a specific enactment function.</p>
+<h3 id="1151-parameterchange"><a class="header" href="#1151-parameterchange">11.5.1 ParameterChange</a></h3>
+<pre><code>enact_parameter_change(sigma, payload):
+  -- payload = [prev_action_id, update_map]
+  update_map = payload[1]
+
+  overrides = {}
+  for (cbor_key, value) in update_map:
+    (field_name, is_rational) = PARAM_KEY_MAP[cbor_key]
+    if is_rational and value is [num, denom]:
+      value = (num, denom)
+    overrides[field_name] = value
+
+  sigma.protocol_params = sigma.protocol_params with overrides
+</code></pre>
+<p>Protocol parameters are immutable (frozen dataclass); updates create
+a new instance via <code>dataclasses.replace()</code>.</p>
+<h3 id="1152-treasurywithdrawals"><a class="header" href="#1152-treasurywithdrawals">11.5.2 TreasuryWithdrawals</a></h3>
+<pre><code>enact_treasury_withdrawals(sigma, payload):
+  -- payload = [prev_action_id, {reward_addr: amount, ...}]
+  withdrawals = payload[1]
+
+  for (reward_addr, amount) in withdrawals:
+    cred = cred(reward_addr)
+    if amount &gt; 0 and sigma.pots.treasury &gt;= amount:
+      sigma.pots.treasury -= amount
+      if cred in sigma.accounts:
+        sigma.accounts[cred].rewards += amount
+</code></pre>
+<p><strong>Conservation law.</strong> Treasury withdrawals preserve total ADA:
+the treasury decreases by exactly the amount credited to reward
+accounts. Withdrawals to unregistered credentials are silently
+ignored (treasury is not debited).</p>
+<h3 id="1153-noconfidence"><a class="header" href="#1153-noconfidence">11.5.3 NoConfidence</a></h3>
+<pre><code>enact_no_confidence(sigma):
+  sigma.gov_state.committee = {}
+</code></pre>
+<p>Dissolves the entire constitutional committee. All member credentials
+are removed. This is irreversible without a subsequent UpdateCommittee
+action.</p>
+<h3 id="1154-updatecommittee"><a class="header" href="#1154-updatecommittee">11.5.4 UpdateCommittee</a></h3>
+<pre><code>enact_update_committee(sigma, payload):
+  -- payload = [prev_action_id, to_remove, to_add, new_threshold]
+  to_remove = payload[1]      -- set of credentials
+  to_add    = payload[2]      -- {credential: expiry_epoch}
+
+  for cred in to_remove:
+    delete sigma.gov_state.committee[cred]
+
+  for (cred, expiry) in to_add:
+    sigma.gov_state.committee[cred] = expiry
+</code></pre>
+<h3 id="1155-newconstitution"><a class="header" href="#1155-newconstitution">11.5.5 NewConstitution</a></h3>
+<pre><code>enact_new_constitution(sigma, payload):
+  -- payload = [prev_action_id, [anchor, script_hash?]]
+  constitution = payload[1]
+
+  if constitution has script_hash at index 1:
+    sigma.gov_state.constitution_hash = constitution[1]
+</code></pre>
+<p>The constitution anchor (URL and hash of off-chain document) is
+recorded. If a guardrails script hash is provided, it becomes the
+new constitution script.</p>
+<h3 id="1156-hardforkinitiation"><a class="header" href="#1156-hardforkinitiation">11.5.6 HardForkInitiation</a></h3>
+<pre><code>enact_hard_fork(sigma, payload):
+  -- No ledger-level effect
+  -- The HFC handles the actual era transition
+  pass
+</code></pre>
+<h3 id="1157-infoaction"><a class="header" href="#1157-infoaction">11.5.7 InfoAction</a></h3>
+<pre><code>enact_info(sigma, payload):
+  -- No effect (non-binding signal)
+  pass
+</code></pre>
+<hr>
+<h2 id="116-governance-certificates"><a class="header" href="#116-governance-certificates">11.6 Governance Certificates</a></h2>
+<p>Conway introduces certificate types 7-18, of which types 14-18 are
+governance-specific.</p>
+<h3 id="1161-certificate-type-summary"><a class="header" href="#1161-certificate-type-summary">11.6.1 Certificate Type Summary</a></h3>
+<pre><code>Type | Name                | CBOR Layout                        | Effect
+-----|---------------------|------------------------------------|----------------------------------
+  0  | StakeReg            | [0, cred]                          | Register stake credential
+  1  | StakeUnreg          | [1, cred]                          | Deregister, refund deposit
+  2  | StakeDeleg          | [2, cred, pool_id]                 | Delegate stake to pool
+  3  | PoolReg             | [3, pool_params]                   | Register/update pool
+  4  | PoolRetire          | [4, pool_id, epoch]                | Schedule pool retirement
+  7  | RegCert             | [7, cred, deposit]                 | Conway registration (explicit deposit)
+  8  | UnregCert           | [8, cred, deposit]                 | Conway deregistration (explicit refund)
+  9  | VoteDeleg           | [9, cred, drep]                    | Delegate voting to DRep
+ 10  | StakeVoteDeleg      | [10, cred, pool_id, drep]          | Delegate stake + voting
+ 11  | StakeRegDeleg       | [11, cred, pool_id, deposit]       | Register + delegate stake
+ 12  | VoteRegDeleg        | [12, cred, drep, deposit]          | Register + delegate voting
+ 13  | StakeVoteRegDeleg   | [13, cred, pool_id, drep, deposit] | Register + delegate both
+ 14  | AuthCommitteeHot    | [14, cold_cred, hot_cred]          | CC hot key authorization
+ 15  | ResignCommitteeCold | [15, cold_cred, anchor?]           | CC member resignation
+ 16  | DRepReg             | [16, cred, deposit, anchor?]       | Register as DRep
+ 17  | DRepUnreg           | [17, cred, deposit]                | Deregister DRep
+ 18  | DRepUpdate          | [18, cred, anchor?]                | Update DRep metadata
+</code></pre>
+<p>Credentials are encoded as <code>[cred_type, cred_hash]</code> where
+<code>cred_type = 0</code> for key hash and <code>cred_type = 1</code> for script hash.
+The <code>cred_hash</code> is always B_28 (Blake2b-224).</p>
+<h3 id="1162-authcommitteehot-type-14"><a class="header" href="#1162-authcommitteehot-type-14">11.6.2 AuthCommitteeHot (Type 14)</a></h3>
+<pre><code>process_auth_committee_hot(sigma, [14, cold_cred, hot_cred]):
+  cred = extract_key(cold_cred)
+  sigma.gov_state.committee[cred] = 0     -- mark as active
+</code></pre>
+<p>Delegates the CC cold key’s voting authority to a hot key. The hot
+key can then be used for online voting without exposing the cold key.</p>
+<h3 id="1163-resigncommitteecold-type-15"><a class="header" href="#1163-resigncommitteecold-type-15">11.6.3 ResignCommitteeCold (Type 15)</a></h3>
+<pre><code>process_resign_committee(sigma, [15, cold_cred, anchor?]):
+  cred = extract_key(cold_cred)
+  delete sigma.gov_state.committee[cred]
+</code></pre>
+<p>A CC member voluntarily resigns. The credential is removed from the
+committee. The optional anchor provides metadata about the resignation.</p>
+<h3 id="1164-drepreg-type-16"><a class="header" href="#1164-drepreg-type-16">11.6.4 DRepReg (Type 16)</a></h3>
+<pre><code>process_drep_reg(sigma, [16, cred, deposit, anchor?]):
+  key = extract_key(cred)
+  sigma.gov_state.dreps[key] = deposit
+</code></pre>
+<p>Registers a new DRep. The deposit is locked and refunded upon
+deregistration. The optional anchor points to off-chain metadata
+(name, platform, etc.).</p>
+<h3 id="1165-drepunreg-type-17"><a class="header" href="#1165-drepunreg-type-17">11.6.5 DRepUnreg (Type 17)</a></h3>
+<pre><code>process_drep_unreg(sigma, [17, cred, deposit]):
+  key = extract_key(cred)
+  delete sigma.gov_state.dreps[key]
+</code></pre>
+<p>Deregisters a DRep. The deposit specified in the certificate is
+refunded. All delegations to this DRep become inactive.</p>
+<h3 id="1166-drepupdate-type-18"><a class="header" href="#1166-drepupdate-type-18">11.6.6 DRepUpdate (Type 18)</a></h3>
+<pre><code>process_drep_update(sigma, [18, cred, anchor?]):
+  -- No state change required
+  -- The anchor update is recorded off-chain
+  pass
+</code></pre>
+<p>Updates DRep metadata. No on-chain state change; the new anchor
+is visible in transaction history.</p>
+<hr>
+<h2 id="117-governance-state"><a class="header" href="#117-governance-state">11.7 Governance State</a></h2>
+<p>The governance state is maintained as part of the ledger state:</p>
+<pre><code>GovState = {
+  proposals        : M[(H, N), GovProposal],     -- active proposals
+  votes            : M[(H, N), L[GovVote]],       -- votes per proposal
+  committee        : M[B_28, N],                   -- CC members: cred -&gt; expiry
+  constitution_hash: H?,                           -- current constitution
+  dreps            : M[B_28, N],                   -- DRep registry: cred -&gt; deposit
+  enacted          : L[(N, GovProposal)],          -- history: (epoch, proposal)
+}
+</code></pre>
+<p>where the proposal/vote key <code>(H, N)</code> is <code>(tx_hash, proposal_index)</code>.</p>
+<h3 id="1171-govproposal"><a class="header" href="#1171-govproposal">11.7.1 GovProposal</a></h3>
+<pre><code>GovProposal = {
+  action_id     : (H, N),           -- (tx_hash, index)
+  action_type   : GovActionType,    -- enum 0-6
+  deposit       : N,                -- lovelace deposited
+  return_addr   : B_29,             -- reward address for deposit refund
+  anchor        : B?,               -- off-chain metadata reference
+  enacted_epoch : N?,               -- epoch when enacted (None if pending)
+  expires_epoch : N?,               -- epoch when proposal expires
+  payload       : Any,              -- action-specific CBOR data
+}
+</code></pre>
+<h3 id="1172-govvote"><a class="header" href="#1172-govvote">11.7.2 GovVote</a></h3>
+<pre><code>GovVote = {
+  voter_type       : {"cc", "drep", "spo"},
+  voter_credential : B_28,
+  action_id        : (H, N),
+  choice           : {No = 0, Yes = 1, Abstain = 2},
+  anchor           : B?,            -- optional vote rationale
+}
+</code></pre>
+<h3 id="1173-vote-choice-encoding"><a class="header" href="#1173-vote-choice-encoding">11.7.3 Vote Choice Encoding</a></h3>
+<pre><code>CBOR value | Choice
+-----------|--------
+    0      | No
+    1      | Yes
+    2      | Abstain
+</code></pre>
+<p>Unrecognized values default to Abstain.</p>
+<h3 id="1174-voter-type-encoding"><a class="header" href="#1174-voter-type-encoding">11.7.4 Voter Type Encoding</a></h3>
+<pre><code>CBOR tag | Voter Type
+---------|----------
+   0     | CC (Constitutional Committee)
+   1     | DRep (Delegated Representative)
+   2     | SPO (Stake Pool Operator)
+</code></pre>
+<hr>
+<h2 id="118-governance-action-chaining"><a class="header" href="#118-governance-action-chaining">11.8 Governance Action Chaining</a></h2>
+<p>Several governance action types include a <code>prev_action_id</code> field
+that references a previous governance action of the same type. This
+creates a chain of related actions:</p>
+<pre><code>ParameterChange:     prev must be ParameterChange or null
+HardForkInitiation:  prev must be HardForkInitiation or null
+TreasuryWithdrawals: prev must be TreasuryWithdrawals or null
+NoConfidence:        prev must be NoConfidence or UpdateCommittee or null
+UpdateCommittee:     prev must be UpdateCommittee or NoConfidence or null
+NewConstitution:     prev must be NewConstitution or null
+InfoAction:          no chaining
+</code></pre>
+<p>A null <code>prev_action_id</code> indicates the action is the first of its kind
+or does not depend on a previous action. The chaining mechanism ensures
+that conflicting governance actions are ordered and only one path
+through the action chain is enacted.</p>
+<hr>
+<h2 id="119-invariants"><a class="header" href="#119-invariants">11.9 Invariants</a></h2>
+<p>The governance system maintains the following invariants:</p>
+<p><strong>I1 - Deposit conservation.</strong> For every proposal, exactly one of:
+(a) the deposit is refunded to the return address upon enactment,
+(b) the deposit is refunded upon expiry, or
+(c) the deposit goes to the treasury if the credential is unregistered.</p>
+<p><strong>I2 - Single ratification.</strong> Each proposal is ratified at most once.
+Once enacted, it is removed from the active proposals set.</p>
+<p><strong>I3 - Monotonic enacted history.</strong> The enacted list is append-only
+and ordered by epoch.</p>
+<p><strong>I4 - Committee consistency.</strong> After NoConfidence, the committee is
+empty. AuthCommitteeHot adds members. ResignCommitteeCold removes them.
+These are the only operations that modify the committee set.</p>
+<p><strong>I5 - DRep registry consistency.</strong> DRepReg adds entries. DRepUnreg
+removes them. No other operations modify the DRep registry.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../spec/consensus.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../spec/networking.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../spec/consensus.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../spec/networking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

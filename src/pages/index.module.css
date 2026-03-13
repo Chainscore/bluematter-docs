@@ -1,0 +1,301 @@
+/* ═══════════════════════════════════════════════════════════════
+   BLUEMATTER LANDING — solid black, massive type, disruptive
+   ═══════════════════════════════════════════════════════════════ */
+
+.page {
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── HERO ────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  background: #000;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+
+.heroInner {
+  max-width: 900px;
+  text-align: center;
+}
+
+.heroTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 0 2rem;
+}
+
+.heroTitle {
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  margin: 0 0 2rem;
+  color: #fff;
+}
+
+.heroSub {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 560px;
+  margin: 0 auto 3.5rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2.2rem;
+  background: #fff;
+  color: #000;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 2px solid #fff;
+}
+
+.btnPrimary:hover {
+  background: transparent;
+  color: #fff;
+  text-decoration: none;
+  transform: scale(1.02);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2.2rem;
+  background: transparent;
+  color: #fff;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.btnGhost:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  text-decoration: none;
+  transform: scale(1.02);
+}
+
+/* ── CAPABILITIES ────────────────────────────────────────────── */
+
+.caps {
+  padding: 8rem 2rem;
+  background: #000;
+}
+
+.capsInner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.capsTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 0 1.5rem;
+}
+
+.capsTitle {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 4rem;
+  max-width: 600px;
+}
+
+.capsTitle em {
+  font-style: italic;
+  color: #4d8bff;
+}
+
+.capsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.capCard {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.capCard:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #0d0d0d;
+}
+
+.capIcon {
+  color: #4d8bff;
+  margin-bottom: 1.5rem;
+}
+
+.capName {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+.capDesc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 360px;
+}
+
+.capNum {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 2rem;
+  font-size: 4rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.03);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* ── EXPLORE ─────────────────────────────────────────────────── */
+
+.explore {
+  padding: 6rem 2rem 8rem;
+  background: #000;
+}
+
+.exploreInner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.exploreCard {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.exploreCard:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.exploreCard:hover {
+  text-decoration: none;
+  color: #fff;
+  padding-left: 1rem;
+}
+
+.exploreCard > svg:first-child {
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.exploreCard > div {
+  flex: 1;
+}
+
+.exploreCard h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.exploreCard p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+.exploreCard > svg:last-child {
+  color: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.exploreCard:hover > svg:last-child {
+  color: #4d8bff;
+  transform: translateX(4px);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .capsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 8rem 1.5rem 5rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btnPrimary,
+  .btnGhost {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .exploreCard {
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,782 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Node Orchestration - Bluematter - Cardano Node Implementation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Complete specification and architecture of an independent Cardano full-node in Python">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "../searchindex-c9460557.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-71458fb4.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Bluematter - Cardano Node Implementation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="node-module--orchestration--lifecycle"><a class="header" href="#node-module--orchestration--lifecycle">Node Module – Orchestration &amp; Lifecycle</a></h1>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The node module wires together networking, ledger validation, storage, mempool,
+and observability into a running Cardano node. It handles startup, live chain sync,
+block serving, block forging, crash recovery, and graceful shutdown.</p>
+<p><strong>Package:</strong> <code>bluematter.node</code></p>
+<h2 id="files"><a class="header" href="#files">Files</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>File</th><th>Purpose</th><th>Key Exports</th></tr>
+</thead>
+<tbody>
+<tr><td><code>cli.py</code></td><td>CLI entry points (<code>python -m bluematter</code>)</td><td><code>main()</code>, subcommands: <code>sync</code>, <code>batch-sync</code>, <code>decode-block</code>, <code>info</code></td></tr>
+<tr><td><code>config.py</code></td><td>Node configuration from YAML/JSON</td><td><code>NodeConfig</code>, <code>load_config()</code></td></tr>
+<tr><td><code>sync.py</code></td><td>Live sync pipeline (connect, stream headers, fetch+apply blocks)</td><td><code>live_sync()</code>, <code>multi_peer_sync()</code>, <code>SyncPipeline</code>, <code>SyncResult</code></td></tr>
+<tr><td><code>server.py</code></td><td>Inbound relay server (serve blocks to downstream peers)</td><td><code>RelayServer</code></td></tr>
+<tr><td><code>forging.py</code></td><td>Block forging (assemble + sign new blocks)</td><td><code>forge_block()</code>, <code>check_leadership()</code>, <code>ForgeKeys</code>, <code>ForgedBlock</code></td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="cli-entry-points-clipy"><a class="header" href="#cli-entry-points-clipy">CLI Entry Points (<code>cli.py</code>)</a></h2>
+<p><code>python -m bluematter &lt;command&gt;</code></p>
+<h3 id="sync--live-chain-sync"><a class="header" href="#sync--live-chain-sync"><code>sync</code> – Live Chain Sync</a></h3>
+<pre><code>python -m bluematter sync --network preprod
+python -m bluematter sync --snapshot snap.cbor --genesis-dir ./genesis
+python -m bluematter sync --peer host:port --max-blocks 100
+</code></pre>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>--network</code> (<code>preprod</code> | <code>preview</code>): selects default peer and network magic</li>
+<li><code>--peer host:port</code>: override the default peer</li>
+<li><code>--snapshot</code>: path to <code>.cbor</code> or <code>.cbor.gz</code> snapshot for initial state</li>
+<li><code>--genesis-dir</code>: directory containing <code>shelley-genesis.json</code>, <code>alonzo-genesis.json</code>, <code>conway-genesis.json</code></li>
+<li><code>--max-blocks</code>: stop after N blocks (None = run forever)</li>
+<li><code>--data-dir</code>: directory for ImmutableDB and LedgerDB persistence</li>
+<li><code>--checkpoint-interval</code>: save ledger checkpoint every N blocks (default 50)</li>
+<li><code>--log-level</code>: <code>DEBUG</code> | <code>INFO</code> | <code>WARNING</code></li>
+</ul>
+<p>Default peers:</p>
+<ul>
+<li>preprod: <code>preprod-node.world.dev.cardano.org:30000</code></li>
+<li>preview: <code>preview-node.play.dev.cardano.org:3001</code></li>
+</ul>
+<p>Handles SIGINT/SIGTERM for graceful shutdown (cancels all asyncio tasks).</p>
+<h3 id="batch-sync--batch-sync-with-auto-reconnect"><a class="header" href="#batch-sync--batch-sync-with-auto-reconnect"><code>batch-sync</code> – Batch Sync with Auto-Reconnect</a></h3>
+<pre><code>python -m bluematter batch-sync --network preprod --batch-size 200
+</code></pre>
+<p>Delegates to <code>scripts/batch_sync.py</code>. Arguments: <code>--snapshot</code>, <code>--batch-size</code>,
+<code>--max-blocks</code>, <code>--max-retries</code>.</p>
+<h3 id="decode-block--decode-a-single-block-file"><a class="header" href="#decode-block--decode-a-single-block-file"><code>decode-block</code> – Decode a Single Block File</a></h3>
+<pre><code>python -m bluematter decode-block block.cbor
+</code></pre>
+<p>Reads a CBOR block file, decodes it via <code>decode_block_from_wire()</code>, and prints:</p>
+<ul>
+<li>For <code>ConwayBlock</code>: slot, block_number, transaction count, block_hash, body_size</li>
+<li>For <code>OpaqueBlock</code>: era name, block_hash, raw_size</li>
+</ul>
+<h3 id="info--show-node-information"><a class="header" href="#info--show-node-information"><code>info</code> – Show Node Information</a></h3>
+<p>Prints version (<code>v0.1.0</code>), supported eras (Conway), supported protocols, and
+crypto primitives.</p>
+<h2 id="node-configuration-configpy"><a class="header" href="#node-configuration-configpy">Node Configuration (<code>config.py</code>)</a></h2>
+<h3 id="nodeconfig"><a class="header" href="#nodeconfig">NodeConfig</a></h3>
+<p>All configurable settings, stored as a dataclass with sensible defaults:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>network</code></td><td>str</td><td><code>"preprod"</code></td><td>Network name</td></tr>
+<tr><td><code>network_magic</code></td><td>int</td><td><code>1</code></td><td>Network magic number</td></tr>
+<tr><td><code>peers</code></td><td>list[tuple[str,int]]</td><td><code>[]</code></td><td>Static peer list</td></tr>
+<tr><td><code>listen_host</code></td><td>str</td><td><code>"0.0.0.0"</code></td><td>Server listen address</td></tr>
+<tr><td><code>listen_port</code></td><td>int</td><td><code>3001</code></td><td>Server listen port</td></tr>
+<tr><td><code>max_inbound_connections</code></td><td>int</td><td><code>20</code></td><td>Maximum inbound connections</td></tr>
+<tr><td><code>data_dir</code></td><td>str|None</td><td><code>None</code></td><td>Storage directory (None = in-memory)</td></tr>
+<tr><td><code>checkpoint_interval</code></td><td>int</td><td><code>50</code></td><td>Blocks between ledger checkpoints</td></tr>
+<tr><td><code>genesis_dir</code></td><td>str|None</td><td><code>None</code></td><td>Genesis JSON directory</td></tr>
+<tr><td><code>snapshot_path</code></td><td>str|None</td><td><code>None</code></td><td>Initial snapshot file</td></tr>
+<tr><td><code>mempool_max_count</code></td><td>int</td><td><code>10_000</code></td><td>Maximum mempool transactions</td></tr>
+<tr><td><code>mempool_max_bytes</code></td><td>int</td><td><code>50_000_000</code></td><td>Maximum mempool size (50 MB)</td></tr>
+<tr><td><code>max_blocks</code></td><td>int|None</td><td><code>None</code></td><td>Block limit (None = forever)</td></tr>
+<tr><td><code>security_param</code></td><td>int</td><td><code>2160</code></td><td>Ouroboros security parameter (k)</td></tr>
+<tr><td><code>log_level</code></td><td>str</td><td><code>"INFO"</code></td><td>Logging level</td></tr>
+<tr><td><code>log_format</code></td><td>str</td><td><code>"%(asctime)s ..."</code></td><td>Log format string</td></tr>
+<tr><td><code>metrics_enabled</code></td><td>bool</td><td><code>False</code></td><td>Enable Prometheus metrics HTTP server</td></tr>
+<tr><td><code>metrics_host</code></td><td>str</td><td><code>"0.0.0.0"</code></td><td>Metrics server bind address</td></tr>
+<tr><td><code>metrics_port</code></td><td>int</td><td><code>9090</code></td><td>Metrics server port</td></tr>
+<tr><td><code>server_enabled</code></td><td>bool</td><td><code>False</code></td><td>Enable inbound relay server</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong><code>NodeConfig.defaults(network)</code></strong> – factory that populates network_magic and default
+peer list from built-in network definitions (preprod, preview, mainnet).</p>
+<h3 id="load_configpath"><a class="header" href="#load_configpath"><code>load_config(path)</code></a></h3>
+<p>Loads from JSON or YAML file. YAML requires the optional <code>PyYAML</code> dependency; falls
+back to JSON if not installed. Uses a whitelist of known field names (from dataclass
+fields) – unknown keys are logged as warnings and ignored. Supports hyphenated keys
+(converted to underscores).</p>
+<h2 id="sync-pipeline--the-core-loop-syncpy"><a class="header" href="#sync-pipeline--the-core-loop-syncpy">Sync Pipeline – The Core Loop (<code>sync.py</code>)</a></h2>
+<h3 id="live_sync"><a class="header" href="#live_sync"><code>live_sync()</code></a></h3>
+<p>The primary sync function. Connects to a single peer and follows the chain tip.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>peer_host</code>, <code>peer_port</code>, <code>network_magic</code> – connection target</li>
+<li><code>initial_state</code> – starting <code>LedgerState</code> (overrides snapshot/checkpoint)</li>
+<li><code>snapshot_path</code> – path to <code>.cbor</code>/<code>.cbor.gz</code> snapshot</li>
+<li><code>genesis_dir</code> – genesis file directory for protocol parameters</li>
+<li><code>intersect_slot</code>, <code>intersect_hash</code> – known chain point to start from</li>
+<li><code>max_blocks</code> – stop after N blocks (None = forever)</li>
+<li><code>checkpoint_interval</code> – save checkpoint every N blocks</li>
+<li><code>data_dir</code> – persistent storage directory (None = in-memory)</li>
+</ul>
+<p><strong>Initialization sequence:</strong></p>
+<ol>
+<li>Open <code>ImmutableDB</code> and <code>LedgerDB</code> (SQLite, or in-memory if no data_dir)</li>
+<li>Create <code>VolatileDB</code> (always in-memory) and <code>NonceState</code></li>
+<li>Recover state, in priority order:
+a. Use <code>initial_state</code> if provided
+b. Load latest <code>LedgerDB</code> checkpoint (crash recovery)
+c. Load snapshot from file
+d. Create empty <code>LedgerState</code></li>
+<li>Load protocol parameters from genesis files if <code>genesis_dir</code> is provided and
+state has no protocol params</li>
+</ol>
+<p><strong>Reconnect loop:</strong></p>
+<p>Wraps <code>_sync_session()</code> in a retry loop with exponential backoff (1s initial,
+doubling up to 60s, max 100 retries). Between retries, saves a checkpoint.
+If <code>max_blocks</code> is set, does not retry on failure.</p>
+<h3 id="_sync_session"><a class="header" href="#_sync_session"><code>_sync_session()</code></a></h3>
+<p>A single sync session against one peer. Returns <code>True</code> on clean exit, <code>False</code> to retry.</p>
+<p><strong>Connection setup:</strong></p>
+<ol>
+<li>TCP connect with 15s timeout</li>
+<li>Create <code>Multiplexer</code> (initiator mode)</li>
+<li>Register protocol buffers for Handshake, ChainSync, BlockFetch, KeepAlive</li>
+<li>Start mux <code>read_loop()</code> as background task</li>
+<li>Perform handshake (15s timeout)</li>
+<li>Signal Antithesis setup_complete (if available)</li>
+<li>Start keepalive background task (1s initial delay, 30s interval)</li>
+</ol>
+<p><strong>Intersection finding:</strong></p>
+<p>If <code>intersect_slot</code>/<code>intersect_hash</code> are provided, intersects there directly.
+Otherwise, discovers the chain tip first (via <code>MsgFindIntersect</code> at origin), then
+re-intersects at the discovered tip.</p>
+<p><strong>Main sync loop:</strong></p>
+<p>For each iteration until <code>max_blocks</code> is reached:</p>
+<ol>
+<li><strong>Request next header</strong> – send <code>MsgRequestNext</code> on ChainSync</li>
+<li><strong>Handle response:</strong>
+<ul>
+<li><code>MsgAwaitReply</code> (tag 1): log “at chain tip”, continue waiting</li>
+<li><code>MsgRollBackward</code> (tag 3): rollback volatile DB, reload best LedgerDB
+checkpoint at or before the rollback slot, re-apply blocks between the
+checkpoint and the rollback point from volatile storage</li>
+<li><code>MsgRollForward</code> (tag 2): proceed to block processing</li>
+</ul>
+</li>
+<li><strong>Decode header</strong> – extract <code>(slot, block_hash, era_tag)</code> from the era-tagged
+header envelope. Skip non-Conway blocks (era_tag != 6).</li>
+<li><strong>BlockFetch</strong> – fetch the block body via <code>fetch_range(pt, pt)</code> (single block)</li>
+<li><strong>Decode block</strong> – <code>decode_block_from_wire(block_bytes)</code></li>
+<li><strong>Header validation</strong> – structural checks (slot ordering, block number).
+KES/VRF deferred.</li>
+<li><strong>Apply block</strong> – <code>apply_block(state, block)</code> runs in asyncio executor to avoid
+blocking the event loop. On failure, halts the sync.</li>
+<li><strong>Store in VolatileDB</strong> – add the block with slot, hash, prev_hash, raw bytes</li>
+<li><strong>Nonce evolution</strong> – extract VRF output from header, compute tagged nonce,
+update <code>NonceState</code></li>
+<li><strong>Graduate old blocks</strong> – when volatile DB exceeds 100 blocks, graduate blocks
+older than <code>tip - 2000</code> slots to ImmutableDB</li>
+<li><strong>Checkpoint</strong> – save LedgerDB checkpoint every <code>checkpoint_interval</code> blocks</li>
+<li><strong>Progress logging</strong> – every 5 seconds: block number, slot, tx count, epoch,
+UTxO count, blocks/second</li>
+</ol>
+<p><strong>Cleanup:</strong>
+Cancels keepalive and read_loop tasks, closes the mux and TCP writer.</p>
+<h3 id="multi_peer_sync"><a class="header" href="#multi_peer_sync"><code>multi_peer_sync()</code></a></h3>
+<p>Sync from multiple peers with automatic failover. Uses <code>PeerSelector</code> for scoring.
+Tries each peer up to 3 times. On failure, marks the peer’s error and moves to the
+next candidate.</p>
+<h3 id="syncpipeline"><a class="header" href="#syncpipeline"><code>SyncPipeline</code></a></h3>
+<p>Legacy class interface (used by tests). Wraps a <code>ChainValidator</code> with async callbacks
+for <code>on_roll_forward</code> and <code>on_roll_backward</code>, plus a block fetch queue.</p>
+<h3 id="syncresult"><a class="header" href="#syncresult"><code>SyncResult</code></a></h3>
+<p>Stats from a sync session:</p>
+<ul>
+<li><code>blocks_synced: int</code></li>
+<li><code>validation_errors: int</code></li>
+<li><code>negotiated_version: int</code></li>
+<li><code>elapsed_seconds: float</code></li>
+</ul>
+<h2 id="server-mode-serverpy"><a class="header" href="#server-mode-serverpy">Server Mode (<code>server.py</code>)</a></h2>
+<h3 id="relayserver"><a class="header" href="#relayserver">RelayServer</a></h3>
+<p>Accepts inbound TCP connections and serves as a Cardano relay node.</p>
+<p><strong>Constructor parameters:</strong></p>
+<ul>
+<li><code>network_magic</code> – for handshake validation</li>
+<li><code>host</code>, <code>port</code> – listen address (default <code>0.0.0.0:3001</code>)</li>
+<li><code>immutable_db</code>, <code>volatile_db</code> – block storage for serving</li>
+<li><code>chain_tip_slot</code>, <code>chain_tip_hash</code>, <code>chain_tip_block</code> – current chain tip</li>
+<li><code>max_inbound_connections</code> – connection limit (default 20)</li>
+</ul>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>start()</code> – create asyncio TCP server</li>
+<li><code>serve_forever()</code> – start + serve until cancelled</li>
+<li><code>stop()</code> – close the server</li>
+<li><code>update_tip(slot, block_hash, block_number)</code> – update chain tip (called after
+each new block is applied)</li>
+</ul>
+<p><strong>Inbound connection handling:</strong></p>
+<ol>
+<li>Enforce max connection limit (reject with close if exceeded)</li>
+<li>30-minute idle timeout per connection</li>
+<li>Create <code>Multiplexer</code> in responder mode</li>
+<li>Register protocol buffers for Handshake, ChainSync, BlockFetch, KeepAlive</li>
+<li>Run all protocol handlers concurrently via <code>asyncio.gather()</code></li>
+</ol>
+<p><strong>Handshake responder (<code>_respond_handshake</code>):</strong></p>
+<ul>
+<li>Receives <code>MsgProposeVersions</code>, finds best common version from NTN_VERSIONS</li>
+<li>Validates peer’s network magic</li>
+<li>Sends <code>MsgAcceptVersion</code> or <code>MsgRefuse</code></li>
+</ul>
+<p><strong>ChainSync server (<code>_serve_chainsync</code>):</strong></p>
+<ul>
+<li><code>MsgFindIntersect</code>: checks provided points against VolatileDB and ImmutableDB,
+returns <code>MsgIntersectFound</code> or <code>MsgIntersectNotFound</code></li>
+<li><code>MsgRequestNext</code>: responds with <code>MsgAwaitReply</code> (does not proactively push headers)</li>
+<li>5-minute timeout between messages</li>
+</ul>
+<p><strong>BlockFetch server (<code>_serve_blockfetch</code>):</strong></p>
+<ul>
+<li><code>MsgRequestRange(from, to)</code>: fetches blocks from VolatileDB first, then ImmutableDB.
+Sends <code>MsgStartBatch</code> + <code>MsgBlock*</code> + <code>MsgBatchDone</code>, or <code>MsgNoBlocks</code> if empty.</li>
+<li><code>MsgClientDone</code>: ends the protocol</li>
+<li>5-minute timeout between messages</li>
+</ul>
+<p><strong>KeepAlive server (<code>_serve_keepalive</code>):</strong></p>
+<ul>
+<li>Echoes back <code>MsgKeepAliveResponse</code> with the same cookie</li>
+<li>Exits on <code>MsgDone</code> (tag 2) or timeout</li>
+</ul>
+<h2 id="block-forging-forgingpy"><a class="header" href="#block-forging-forgingpy">Block Forging (<code>forging.py</code>)</a></h2>
+<h3 id="forgekeys"><a class="header" href="#forgekeys">ForgeKeys</a></h3>
+<p>Cryptographic keys required for block production:</p>
+<ul>
+<li><code>cold_sk</code> / <code>cold_vk</code> – pool operator Ed25519 signing/verification keys</li>
+<li><code>vrf_sk</code> / <code>vrf_vk</code> – VRF secret/verification keys</li>
+<li><code>kes_sk</code> / <code>kes_vk</code> – KES signing/verification keys</li>
+<li><code>opcert_counter</code> – operational certificate sequence number</li>
+<li><code>kes_period</code> – KES period at which the key was issued</li>
+</ul>
+<h3 id="check_leadershipkeys-slot-epoch_nonce-pool_sigma-active_slot_coeff005"><a class="header" href="#check_leadershipkeys-slot-epoch_nonce-pool_sigma-active_slot_coeff005"><code>check_leadership(keys, slot, epoch_nonce, pool_sigma, active_slot_coeff=0.05)</code></a></h3>
+<p>Delegates to <code>consensus.leader.is_slot_leader()</code>. Returns
+<code>(is_leader, vrf_proof, vrf_output)</code>.</p>
+<h3 id="forge_blockkeys-state-mempool-slot-block_number-prev_hash-vrf_proof-vrf_output-max_block_body_size65536"><a class="header" href="#forge_blockkeys-state-mempool-slot-block_number-prev_hash-vrf_proof-vrf_output-max_block_body_size65536"><code>forge_block(keys, state, mempool, slot, block_number, prev_hash, vrf_proof, vrf_output, max_block_body_size=65536)</code></a></h3>
+<p>Assembles a new Conway block:</p>
+<ol>
+<li><strong>Select transactions</strong> – iterate mempool in FIFO order, accumulate up to
+<code>max_block_body_size</code> bytes</li>
+<li><strong>Encode block body</strong> – CBOR-encode tx_bodies, tx_witnesses (empty, pre-validated),
+auxiliary_data (empty), invalid_txs (empty)</li>
+<li><strong>Compute body hash</strong> – <code>blake2b_256(h1 + h2 + h3 + h4)</code> where each <code>h_i</code> is the
+blake2b_256 of the respective body component</li>
+<li><strong>Build operational certificate</strong> – sign <code>(kes_vk || counter || kes_period)</code> with
+the cold key. <code>opcert = [kes_vk, counter, kes_period, signature]</code></li>
+<li><strong>Build header body</strong> – 10-element CBOR array:
+<code>[block_number, slot, prev_hash, cold_vk, vrf_vk, [vrf_output, vrf_proof],  body_size, body_hash, opcert, [10, 0]]</code>
+(protocol version 10.0 = Conway)</li>
+<li><strong>KES-sign header body</strong> – compute current KES period from slot, call
+<code>kes_sign(offset, kes_sk, header_body_cbor)</code></li>
+<li><strong>Assemble full block</strong> – <code>[header_body, kes_signature]</code> is the header;
+<code>[header, tx_bodies, tx_witnesses, {}, []]</code> is the inner block;
+wrap with Conway era tag 7 and tag-24 envelope</li>
+</ol>
+<p>Returns <code>ForgedBlock(slot, block_number, vrf_proof, vrf_output, tx_count, raw)</code>.</p>
+<h2 id="storage-layer"><a class="header" href="#storage-layer">Storage Layer</a></h2>
+<h3 id="immutabledb-storageimmutablepy--sqlite"><a class="header" href="#immutabledb-storageimmutablepy--sqlite">ImmutableDB (<code>storage/immutable.py</code>) – SQLite</a></h3>
+<p>Append-only store for finalized blocks that will never be rolled back.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-sql">blocks(slot INTEGER PRIMARY KEY, block_number INTEGER NOT NULL,
+       block_hash BLOB NOT NULL, raw BLOB NOT NULL)
+-- Index: idx_block_hash ON blocks(block_hash)
+-- PRAGMA journal_mode=WAL
+</code></pre>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>append(slot, block_number, block_hash, raw)</code> – insert a finalized block. Raises
+<code>ValueError</code> on duplicate slot.</li>
+<li><code>get_by_slot(slot)</code> – returns <code>(block_number, block_hash, raw)</code> or <code>None</code></li>
+<li><code>get_by_hash(block_hash)</code> – returns <code>(slot, block_number, raw)</code> or <code>None</code></li>
+<li><code>tip()</code> – returns the highest <code>(slot, block_number, block_hash)</code> or <code>None</code></li>
+<li><code>iter_blocks(from_slot, to_slot)</code> – iterate blocks in slot order, yielding
+<code>(slot, block_number, block_hash, raw)</code></li>
+<li><code>count()</code> – total block count</li>
+<li><code>close()</code> – close the SQLite connection</li>
+</ul>
+<p>Supports both file-backed and in-memory (<code>:memory:</code>) modes. Uses WAL journal mode
+for concurrent read/write performance.</p>
+<h3 id="volatiledb-storagevolatilepy--in-memory"><a class="header" href="#volatiledb-storagevolatilepy--in-memory">VolatileDB (<code>storage/volatile.py</code>) – In-Memory</a></h3>
+<p>In-memory store for recent blocks within the security parameter (k=2160) that may
+still be rolled back.</p>
+<p><strong>VolatileBlock</strong> (frozen dataclass): <code>slot</code>, <code>block_number</code>, <code>block_hash</code>, <code>prev_hash</code>, <code>raw</code></p>
+<p><strong>Indexing:</strong> dual dict – <code>_by_hash: dict[bytes, VolatileBlock]</code> and
+<code>_by_slot: dict[int, list[bytes]]</code>. Supports multiple blocks per slot for fork handling.</p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>add(block)</code> – store a block</li>
+<li><code>get_by_hash(hash)</code> / <code>get_by_slot(slot)</code> – lookup</li>
+<li><code>get_all_at_slot(slot)</code> – all blocks at a slot (fork support)</li>
+<li><code>tip()</code> – highest-slot block</li>
+<li><code>rollback_to(slot)</code> – remove all blocks with slot &gt; given slot, returns removed
+blocks in descending order (for undo)</li>
+<li><code>get_chain(tip_hash)</code> – trace chain backward via prev_hash links, returns
+chronological order</li>
+<li><code>graduate(up_to_slot)</code> – remove and return blocks with slot &lt;= cutoff (for
+promotion to ImmutableDB), ascending order</li>
+<li><code>get_blocks_in_range(from_slot, to_slot)</code> – raw bytes for replay after rollback</li>
+<li><code>count()</code> / <code>all_blocks()</code> – enumeration</li>
+</ul>
+<h3 id="ledgerdb-storageledger_dbpy--sqlite--pickle"><a class="header" href="#ledgerdb-storageledger_dbpy--sqlite--pickle">LedgerDB (<code>storage/ledger_db.py</code>) – SQLite + Pickle</a></h3>
+<p>Persistent ledger state checkpoints for crash recovery.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-sql">checkpoints(slot INTEGER PRIMARY KEY, epoch INTEGER NOT NULL,
+            utxo_count INTEGER NOT NULL, data BLOB NOT NULL,
+            data_hash TEXT)
+-- PRAGMA journal_mode=WAL
+</code></pre>
+<p><strong>HMAC Authentication:</strong>
+Checkpoint data is pickle-serialized, then HMAC-SHA256 signed with a node-local
+secret key. Key is sourced from (in order):</p>
+<ol>
+<li><code>BLUEMATTER_HMAC_KEY</code> environment variable (hex)</li>
+<li><code>~/.bluematter/hmac.key</code> file</li>
+<li>Auto-generated 32-byte random key (persisted to disk)</li>
+</ol>
+<p>Supports legacy SHA-256 hex digest checkpoints (old format) – accepts with a
+warning and re-signs on next save.</p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>save_checkpoint(state, slot=None)</code> – serialize state with pickle, HMAC-sign,
+store as INSERT OR REPLACE</li>
+<li><code>load_latest_checkpoint()</code> – returns <code>(state, slot)</code> for the most recent checkpoint</li>
+<li><code>load_checkpoint(slot)</code> – load a specific checkpoint by slot</li>
+<li><code>load_checkpoint_before(slot)</code> – load the most recent checkpoint at or before the
+given slot (used for rollback recovery)</li>
+<li><code>list_checkpoints()</code> – returns <code>[(slot, epoch, utxo_count), ...]</code></li>
+<li><code>prune(keep_latest=3)</code> – remove old checkpoints, keeping the N most recent</li>
+<li><code>count()</code> / <code>close()</code> – utility</li>
+</ul>
+<h3 id="chainvalidator-storagechainpy"><a class="header" href="#chainvalidator-storagechainpy">ChainValidator (<code>storage/chain.py</code>)</a></h3>
+<p>Sequential block validation pipeline that applies blocks to advance a <code>LedgerState</code>.</p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>from_snapshot(path, streaming=False)</code> – factory from snapshot file</li>
+<li><code>apply_raw_block(block_bytes)</code> – decode wire-format block, apply to state</li>
+<li><code>apply_decoded_block(block)</code> – apply a decoded <code>ConwayBlock</code></li>
+<li><code>validate_from_immutable_db(db, from_slot, to_slot)</code> – validate a range from ImmutableDB</li>
+<li><code>validate_from_files(block_dir, pattern)</code> – validate from a directory of CBOR files</li>
+</ul>
+<p>Tracks: <code>blocks_applied</code>, <code>last_block_hash</code>, <code>last_slot</code>, <code>last_block_number</code>,
+<code>current_epoch</code>, <code>utxo_count</code>.</p>
+<h2 id="mempool"><a class="header" href="#mempool">Mempool</a></h2>
+<h3 id="mempool-mempoolpoolpy"><a class="header" href="#mempool-mempoolpoolpy">Mempool (<code>mempool/pool.py</code>)</a></h3>
+<p>Bounded transaction pool with FIFO eviction and thread-safe access.</p>
+<p><strong>Design:</strong></p>
+<ul>
+<li>Backed by <code>OrderedDict[bytes, bytes]</code> (tx_id -&gt; raw_cbor) for insertion-order
+preservation</li>
+<li>Thread-safe via <code>threading.Lock</code> (shared between network and validation threads)</li>
+<li>Bounded by <code>max_count</code> (default 10,000) and <code>max_bytes</code> (default 50 MB)</li>
+<li>FIFO eviction: when full, evicts oldest transactions until the new tx fits</li>
+</ul>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>add(tx_id, tx_cbor)</code> – add a tx; evicts oldest if at capacity. No-op if already
+present. Raises <code>MempoolFull</code> if a single tx exceeds the pool’s byte limit.</li>
+<li><code>remove(tx_id)</code> / <code>remove_confirmed(tx_ids)</code> – remove individual or batch</li>
+<li><code>get_tx_ids()</code> – all IDs in insertion order</li>
+<li><code>get_tx(tx_id)</code> – raw CBOR by ID</li>
+<li><code>has_tx(tx_id)</code> – membership check</li>
+<li><code>snapshot()</code> – atomic copy of all <code>(tx_id, tx_cbor)</code> pairs</li>
+<li><code>count</code> / <code>total_bytes</code> – current size</li>
+<li><code>clear()</code> – remove all transactions</li>
+</ul>
+<h3 id="mempool-validation-mempoolvalidationpy"><a class="header" href="#mempool-validation-mempoolvalidationpy">Mempool Validation (<code>mempool/validation.py</code>)</a></h3>
+<p>Lightweight pre-admission checks (not full ledger validation):</p>
+<p><strong><code>validate_tx_for_mempool(tx, state, pp)</code></strong> – returns list of error strings (empty = valid):</p>
+<ul>
+<li>All inputs exist in UTxO</li>
+<li>No duplicate inputs within the tx</li>
+<li>Fee &gt;= min fee (if protocol params available): <code>min_fee_a * tx_size + min_fee_b</code></li>
+<li>Tx size &lt;= <code>max_tx_size</code> (if protocol params available)</li>
+</ul>
+<p><strong><code>revalidate_mempool(mempool_txs, state)</code></strong> – after a new block is applied, checks
+all mempool txs against the updated UTxO. Returns list of tx_ids that are now invalid
+(inputs no longer in UTxO) and should be evicted.</p>
+<h2 id="observability-observabilitymetricspy"><a class="header" href="#observability-observabilitymetricspy">Observability (<code>observability/metrics.py</code>)</a></h2>
+<h3 id="metric-types"><a class="header" href="#metric-types">Metric Types</a></h3>
+<ul>
+<li><strong>Counter</strong> – monotonically increasing integer. Thread-safe via lock. Methods: <code>inc(amount)</code>, <code>reset()</code>.</li>
+<li><strong>Gauge</strong> – float value that can go up and down. Thread-safe. Methods: <code>set(value)</code>, <code>inc(amount)</code>, <code>dec(amount)</code>.</li>
+</ul>
+<h3 id="nodemetrics"><a class="header" href="#nodemetrics">NodeMetrics</a></h3>
+<p>Global metrics registry (<code>METRICS</code> singleton):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metric</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>blocks_applied</code></td><td>Counter</td><td>Total blocks applied to ledger</td></tr>
+<tr><td><code>blocks_failed</code></td><td>Counter</td><td>Blocks that failed validation</td></tr>
+<tr><td><code>txs_processed</code></td><td>Counter</td><td>Total transactions processed</td></tr>
+<tr><td><code>chain_tip_slot</code></td><td>Gauge</td><td>Current chain tip slot</td></tr>
+<tr><td><code>chain_tip_block</code></td><td>Gauge</td><td>Current chain tip block number</td></tr>
+<tr><td><code>current_epoch</code></td><td>Gauge</td><td>Current epoch</td></tr>
+<tr><td><code>utxo_size</code></td><td>Gauge</td><td>Number of UTxO entries</td></tr>
+<tr><td><code>peer_count</code></td><td>Gauge</td><td>Number of connected peers</td></tr>
+<tr><td><code>headers_received</code></td><td>Counter</td><td>Total headers received via ChainSync</td></tr>
+<tr><td><code>bytes_received</code></td><td>Counter</td><td>Total bytes received from network</td></tr>
+<tr><td><code>mempool_tx_count</code></td><td>Gauge</td><td>Transactions in mempool</td></tr>
+<tr><td><code>mempool_bytes</code></td><td>Gauge</td><td>Total bytes in mempool</td></tr>
+<tr><td><code>sync_progress</code></td><td>Gauge</td><td>Sync progress (0.0 to 1.0)</td></tr>
+<tr><td><code>blocks_per_second</code></td><td>Gauge</td><td>Block processing rate</td></tr>
+</tbody>
+</table>
+</div>
+<p>Plus a computed <code>uptime_seconds</code> gauge.</p>
+<p><strong>Output formats:</strong></p>
+<ul>
+<li><code>to_prometheus()</code> – Prometheus exposition format with <code># HELP</code>, <code># TYPE</code>, and
+metric lines prefixed with <code>bluematter_</code></li>
+<li><code>to_json()</code> – JSON object with metric names as keys</li>
+</ul>
+<h3 id="serve_metricshost-port"><a class="header" href="#serve_metricshost-port"><code>serve_metrics(host, port)</code></a></h3>
+<p>Simple asyncio HTTP server for Prometheus scraping:</p>
+<ul>
+<li>Listens on <code>host:port</code> (default <code>0.0.0.0:9090</code>)</li>
+<li>Serves only <code>GET /metrics</code> (returns 404 for all other paths)</li>
+<li>5-second timeout on request reading</li>
+<li>8 KB header limit to prevent abuse</li>
+<li>Returns <code>Content-Type: text/plain; version=0.0.4</code> (Prometheus format)</li>
+</ul>
+<h2 id="node-lifecycle-diagram"><a class="header" href="#node-lifecycle-diagram">Node Lifecycle Diagram</a></h2>
+<pre><code>STARTUP
+   |
+   v
+Load Config (NodeConfig / CLI args)
+   |
+   v
+Initialize Storage
+   +-- ImmutableDB (SQLite / in-memory)
+   +-- LedgerDB (SQLite / in-memory)
+   +-- VolatileDB (in-memory)
+   |
+   v
+Recover Ledger State
+   +-- 1. Use provided initial_state?
+   +-- 2. Load LedgerDB checkpoint? (crash recovery)
+   +-- 3. Load snapshot file?
+   +-- 4. Create empty LedgerState
+   |
+   v
+Load Protocol Params from Genesis
+   |
+   v
+RECONNECT LOOP (up to 100 retries, exponential backoff)
+   |
+   v
+TCP Connect + Handshake (15s timeout)
+   |
+   v
+Register Protocol Buffers
+   |
+   v
+Start Background Tasks
+   +-- Mux read_loop
+   +-- KeepAlive (1s delay, 30s interval)
+   |
+   v
+Find Intersection (ChainSync)
+   |
+   v
+MAIN SYNC LOOP
+   |
+   +---&gt; Request Next Header (ChainSync)
+   |        |
+   |        +-- RollBackward? --&gt; Rollback VolatileDB
+   |        |                     Reload checkpoint
+   |        |                     Re-apply blocks
+   |        |
+   |        +-- RollForward? --&gt; Decode header
+   |                             Skip non-Conway
+   |                             |
+   |                             v
+   |                        Fetch Block Body (BlockFetch)
+   |                             |
+   |                             v
+   |                        Decode + Validate + Apply Block
+   |                         (in executor to avoid blocking)
+   |                             |
+   |                             v
+   |                        Store in VolatileDB
+   |                        Graduate old blocks --&gt; ImmutableDB
+   |                        Periodic checkpoint --&gt; LedgerDB
+   |                        Update nonce state
+   |                             |
+   +----&lt;------------------------+
+   |
+   v
+On disconnect: save checkpoint, retry
+   |
+   v
+OPTIONAL: Server Mode (RelayServer)
+   +-- Accept inbound connections
+   +-- Serve ChainSync headers
+   +-- Serve BlockFetch blocks
+   +-- Respond KeepAlive
+   |
+   v
+OPTIONAL: Block Forging
+   +-- Check slot leadership (VRF)
+   +-- Select txs from mempool
+   +-- Assemble + sign block
+   +-- Propagate to peers
+   |
+   v
+SHUTDOWN (SIGINT/SIGTERM)
+   +-- Cancel all tasks
+   +-- Close mux + TCP
+   +-- Close databases
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/network.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/network.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
