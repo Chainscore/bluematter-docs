@@ -145,6 +145,59 @@ function Docs() {
   );
 }
 
+/* ── PIPELINE ─────────────────────────────────────────────────── */
+
+const pipeline = [
+  { color: '#0a1628', label: 'Network', detail: 'TCP connect, mux framing, handshake v13/v14', link: '/docs/architecture/network' },
+  { color: '#0c1f3d', label: 'ChainSync', detail: 'Header streaming, intersection, rollback handling', link: '/docs/spec/networking' },
+  { color: '#0e2854', label: 'BlockFetch', detail: 'Range requests, batch retrieval, era-tagged blocks', link: '/docs/spec/networking' },
+  { color: '#10326b', label: 'Decode', detail: 'CBOR schema, byte-preserving walk, ConwayBlock', link: '/docs/architecture/codec' },
+  { color: '#133d82', label: 'Consensus', detail: 'VRF proof, KES sig, leader check, nonce evolution', link: '/docs/spec/consensus' },
+  { color: '#164899', label: 'Validate', detail: '19 UTxO rules, witness sigs, script data hash', link: '/docs/spec/transactions' },
+  { color: '#1953b0', label: 'Plutus', detail: 'V1/V2/V3 CEK eval, ScriptContext, cost models', link: '/docs/spec/scripts' },
+  { color: '#1c5ec7', label: 'Apply', detail: 'Consume inputs, add outputs, collect fees, certs', link: '/docs/spec/ledger-state' },
+  { color: '#2069de', label: 'Epoch', detail: 'Rewards, pool retirement, snapshot rotation', link: '/docs/spec/epoch' },
+  { color: '#2575f5', label: 'Storage', detail: 'VolatileDB, ImmutableDB, LedgerDB checkpoints', link: '/docs/spec/storage' },
+];
+
+function Pipeline() {
+  const [active, setActive] = React.useState<number | null>(null);
+  return (
+    <section className={styles.pipeline}>
+      <div className={styles.pipeInner}>
+        <p className={styles.tag}>BLOCK PIPELINE</p>
+        <h2 className={styles.pipeTitle}>From TCP byte to ledger state.</h2>
+        <p className={styles.pipeSub}>Every block flows through 10 stages. Hover to explore each module.</p>
+      </div>
+      <div className={styles.strip}>
+        {pipeline.map((p, i) => (
+          <Link
+            key={p.label}
+            to={useBaseUrl(p.link)}
+            className={`${styles.cell} ${active === i ? styles.cellActive : ''}`}
+            style={{ background: p.color }}
+            onMouseEnter={() => setActive(i)}
+            onMouseLeave={() => setActive(null)}
+          >
+            <span className={styles.cellLabel}>{p.label}</span>
+          </Link>
+        ))}
+      </div>
+      <div className={styles.pipeDetail}>
+        {active !== null ? (
+          <>
+            <span className={styles.pipeDetailNum}>0{active + 1}</span>
+            <h3>{pipeline[active].label}</h3>
+            <p>{pipeline[active].detail}</p>
+          </>
+        ) : (
+          <p className={styles.pipeHint}>Hover a stage above</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ── FOOTER ───────────────────────────────────────────────────── */
 
 function Footer() {
@@ -199,6 +252,7 @@ export default function Home(): React.ReactNode {
         <main>
           <Hero />
           <Stack />
+          <Pipeline />
           <Docs />
         </main>
         <Footer />

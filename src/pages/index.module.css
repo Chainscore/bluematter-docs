@@ -323,6 +323,120 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── PIPELINE ────────────────────────────────────────────────── */
+
+.pipeline {
+  padding: 6rem 0 4rem;
+  background: #000;
+}
+
+.pipeInner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.pipeTitle {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+
+.pipeSub {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 0 3rem;
+}
+
+.strip {
+  display: flex;
+  width: 100%;
+  height: 80px;
+}
+
+.cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #fff;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.cell:first-child {
+  border-radius: 0;
+}
+
+.cell:last-child {
+  border-radius: 0;
+}
+
+.cell:hover {
+  text-decoration: none;
+  color: #fff;
+}
+
+.cellLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.cell:hover .cellLabel,
+.cellActive .cellLabel {
+  opacity: 1;
+}
+
+.cellActive {
+  flex: 3;
+}
+
+.pipeDetail {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.pipeDetailNum {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.06);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.pipeDetail h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+}
+
+.pipeDetail p {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+.pipeHint {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.15);
+  margin: 0;
+}
+
 /* ── DOCS ────────────────────────────────────────────────────── */
 
 .docs {
