@@ -148,51 +148,42 @@ function Docs() {
 /* ── PIPELINE ─────────────────────────────────────────────────── */
 
 const pipeline = [
-  { color: '#0a1628', label: 'Network', detail: 'TCP connect, mux framing, handshake v13/v14', link: '/docs/architecture/network' },
-  { color: '#0c1f3d', label: 'ChainSync', detail: 'Header streaming, intersection, rollback handling', link: '/docs/spec/networking' },
-  { color: '#0e2854', label: 'BlockFetch', detail: 'Range requests, batch retrieval, era-tagged blocks', link: '/docs/spec/networking' },
-  { color: '#10326b', label: 'Decode', detail: 'CBOR schema, byte-preserving walk, ConwayBlock', link: '/docs/architecture/codec' },
-  { color: '#133d82', label: 'Consensus', detail: 'VRF proof, KES sig, leader check, nonce evolution', link: '/docs/spec/consensus' },
-  { color: '#164899', label: 'Validate', detail: '19 UTxO rules, witness sigs, script data hash', link: '/docs/spec/transactions' },
-  { color: '#1953b0', label: 'Plutus', detail: 'V1/V2/V3 CEK eval, ScriptContext, cost models', link: '/docs/spec/scripts' },
-  { color: '#1c5ec7', label: 'Apply', detail: 'Consume inputs, add outputs, collect fees, certs', link: '/docs/spec/ledger-state' },
-  { color: '#2069de', label: 'Epoch', detail: 'Rewards, pool retirement, snapshot rotation', link: '/docs/spec/epoch' },
-  { color: '#2575f5', label: 'Storage', detail: 'VolatileDB, ImmutableDB, LedgerDB checkpoints', link: '/docs/spec/storage' },
+  { color: '#081020', accent: '#1a3060', label: 'Network', sub: 'TCP + Mux', link: '/docs/architecture/network' },
+  { color: '#0a1630', accent: '#1e3d70', label: 'ChainSync', sub: 'Headers', link: '/docs/spec/networking' },
+  { color: '#0d1d40', accent: '#224a80', label: 'BlockFetch', sub: 'Bodies', link: '/docs/spec/networking' },
+  { color: '#102550', accent: '#285890', label: 'Decode', sub: 'CBOR', link: '/docs/architecture/codec' },
+  { color: '#132d60', accent: '#2e66a0', label: 'Consensus', sub: 'VRF + KES', link: '/docs/spec/consensus' },
+  { color: '#163670', accent: '#3574b0', label: 'Validate', sub: '19 Rules', link: '/docs/spec/transactions' },
+  { color: '#1a3f80', accent: '#3c82c0', label: 'Plutus', sub: 'CEK Machine', link: '/docs/spec/scripts' },
+  { color: '#1e4890', accent: '#4490d0', label: 'Apply', sub: 'State Update', link: '/docs/spec/ledger-state' },
+  { color: '#2252a0', accent: '#4c9ee0', label: 'Epoch', sub: 'Rewards', link: '/docs/spec/epoch' },
+  { color: '#265cb0', accent: '#55acf0', label: 'Storage', sub: 'Persist', link: '/docs/spec/storage' },
 ];
 
 function Pipeline() {
   const [active, setActive] = React.useState<number | null>(null);
   return (
     <section className={styles.pipeline}>
-      <div className={styles.pipeInner}>
-        <p className={styles.tag}>BLOCK PIPELINE</p>
-        <h2 className={styles.pipeTitle}>From TCP byte to ledger state.</h2>
-        <p className={styles.pipeSub}>Every block flows through 10 stages. Hover to explore each module.</p>
-      </div>
       <div className={styles.strip}>
         {pipeline.map((p, i) => (
           <Link
             key={p.label}
             to={useBaseUrl(p.link)}
-            className={`${styles.cell} ${active === i ? styles.cellActive : ''}`}
-            style={{ background: p.color }}
+            className={`${styles.cell} ${active === i ? styles.cellActive : ''} ${active !== null && active !== i ? styles.cellDim : ''}`}
+            style={{
+              '--cell-bg': p.color,
+              '--cell-accent': p.accent,
+            } as React.CSSProperties}
             onMouseEnter={() => setActive(i)}
             onMouseLeave={() => setActive(null)}
           >
-            <span className={styles.cellLabel}>{p.label}</span>
+            <div className={styles.cellContent}>
+              <span className={styles.cellNum}>{String(i + 1).padStart(2, '0')}</span>
+              <span className={styles.cellName}>{p.label}</span>
+              <span className={styles.cellSub}>{p.sub}</span>
+            </div>
           </Link>
         ))}
-      </div>
-      <div className={styles.pipeDetail}>
-        {active !== null ? (
-          <>
-            <span className={styles.pipeDetailNum}>0{active + 1}</span>
-            <h3>{pipeline[active].label}</h3>
-            <p>{pipeline[active].detail}</p>
-          </>
-        ) : (
-          <p className={styles.pipeHint}>Hover a stage above</p>
-        )}
       </div>
     </section>
   );

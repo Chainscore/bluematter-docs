@@ -326,54 +326,37 @@
 /* ── PIPELINE ────────────────────────────────────────────────── */
 
 .pipeline {
-  padding: 6rem 0 4rem;
   background: #000;
-}
-
-.pipeInner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.pipeTitle {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin: 0 0 0.5rem;
-}
-
-.pipeSub {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 0 0 3rem;
+  padding: 0;
 }
 
 .strip {
   display: flex;
   width: 100%;
-  height: 80px;
+  min-height: 220px;
 }
 
 .cell {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  transition: all 0.3s ease;
+  padding: 1.5rem 0.5rem;
+  background: var(--cell-bg);
   text-decoration: none;
   color: #fff;
   position: relative;
   cursor: pointer;
   overflow: hidden;
+  transition: flex 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cell:first-child {
-  border-radius: 0;
-}
-
-.cell:last-child {
-  border-radius: 0;
+.cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 100%);
+  transition: opacity 0.4s;
 }
 
 .cell:hover {
@@ -381,60 +364,70 @@
   color: #fff;
 }
 
-.cellLabel {
-  font-size: 0.65rem;
+.cellActive {
+  flex: 4;
+}
+
+.cellActive::before {
+  opacity: 0.3;
+}
+
+.cellDim {
+  filter: brightness(0.6);
+}
+
+.cellContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cellNum {
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.15em;
   opacity: 0;
-  transition: opacity 0.2s;
+  color: rgba(255, 255, 255, 0.3);
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s;
+  transform: translateY(8px);
+}
+
+.cellActive .cellNum {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cellName {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cellActive .cellName {
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.cellSub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  transition: all 0.3s;
+  transform: translateY(6px);
   white-space: nowrap;
 }
 
-.cell:hover .cellLabel,
-.cellActive .cellLabel {
+.cellActive .cellSub {
   opacity: 1;
-}
-
-.cellActive {
-  flex: 3;
-}
-
-.pipeDetail {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem 2rem 0;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.pipeDetailNum {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.06);
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.pipeDetail h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0 0 0.2rem;
-}
-
-.pipeDetail p {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin: 0;
-}
-
-.pipeHint {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.15);
-  margin: 0;
+  transform: translateY(0);
 }
 
 /* ── DOCS ────────────────────────────────────────────────────── */
