@@ -45,7 +45,9 @@ function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.grain} />
-      <div className={styles.heroGlow} />
+      <div className={styles.blob1} />
+      <div className={styles.blob2} />
+      <div className={styles.blob3} />
       <div className={styles.heroInner}>
         <p className={styles.kicker}>Independent Cardano Full-Node</p>
         <h1 className={styles.title}>BlueMatter</h1>
