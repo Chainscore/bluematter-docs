@@ -25,8 +25,8 @@ function Nav() {
         BlueMatter
       </Link>
       <div className={styles.navLinks}>
-        <Link to={useBaseUrl('/docs/intro')} className={styles.navLink}>Docs</Link>
-        <Link to={useBaseUrl('/docs/spec/notation')} className={styles.navLink}>Spec</Link>
+        <Link to={useBaseUrl('/knowledge/intro')} className={styles.navLink}>Docs</Link>
+        <Link to={useBaseUrl('/spec/notation')} className={styles.navLink}>Spec</Link>
         <Link
           className={styles.navBtn}
           href="https://github.com/Chainscore/BlueMatter-docs"
@@ -57,7 +57,7 @@ function Hero() {
           One Cardano node.
         </p>
         <div className={styles.ctas}>
-          <Link className={styles.btnWhite} to={useBaseUrl('/docs/intro')}>
+          <Link className={styles.btnWhite} to={useBaseUrl('/knowledge/intro')}>
             <BookOpen size={18} />
             Read the Spec
             <ArrowRight size={16} />
@@ -115,19 +115,19 @@ function Docs() {
       <div className={styles.docsInner}>
         <p className={styles.tag}>DOCUMENTATION</p>
         <div className={styles.docsGrid}>
-          <Link className={styles.dCard} to={useBaseUrl('/docs/cardano/research')}>
+          <Link className={styles.dCard} to={useBaseUrl('/knowledge/research')}>
             <span className={styles.dLabel}>01</span>
             <h3>Knowledge Base</h3>
             <p>Ouroboros papers, hard fork history, node architecture, networking protocols</p>
             <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
           </Link>
-          <Link className={styles.dCard} to={useBaseUrl('/docs/spec/notation')}>
+          <Link className={styles.dCard} to={useBaseUrl('/spec/notation')}>
             <span className={styles.dLabel}>02</span>
             <h3>Specification</h3>
             <p>14 chapters defining every data type, validation rule, and state transition</p>
             <span className={styles.dLink}>Explore <ArrowRight size={14} /></span>
           </Link>
-          <Link className={styles.dCard} to={useBaseUrl('/docs/architecture/overview')}>
+          <Link className={styles.dCard} to={useBaseUrl('/bluematter/overview')}>
             <span className={styles.dLabel}>03</span>
             <h3>BlueMatter</h3>
             <p>Call flows, module map, storage tiers, sync pipeline</p>
@@ -142,16 +142,16 @@ function Docs() {
 /* ── PIPELINE ─────────────────────────────────────────────────── */
 
 const pipeline = [
-  { color: '#081020', accent: '#1a3060', label: 'Network', sub: 'TCP + Mux', link: '/docs/architecture/network' },
-  { color: '#0a1630', accent: '#1e3d70', label: 'ChainSync', sub: 'Headers', link: '/docs/spec/networking' },
-  { color: '#0d1d40', accent: '#224a80', label: 'BlockFetch', sub: 'Bodies', link: '/docs/spec/networking' },
-  { color: '#102550', accent: '#285890', label: 'Decode', sub: 'CBOR', link: '/docs/architecture/codec' },
-  { color: '#132d60', accent: '#2e66a0', label: 'Consensus', sub: 'VRF + KES', link: '/docs/spec/consensus' },
-  { color: '#163670', accent: '#3574b0', label: 'Validate', sub: '19 Rules', link: '/docs/spec/transactions' },
-  { color: '#1a3f80', accent: '#3c82c0', label: 'Plutus', sub: 'CEK Machine', link: '/docs/spec/scripts' },
-  { color: '#1e4890', accent: '#4490d0', label: 'Apply', sub: 'State Update', link: '/docs/spec/ledger-state' },
-  { color: '#2252a0', accent: '#4c9ee0', label: 'Epoch', sub: 'Rewards', link: '/docs/spec/epoch' },
-  { color: '#265cb0', accent: '#55acf0', label: 'Storage', sub: 'Persist', link: '/docs/spec/storage' },
+  { color: '#081020', accent: '#1a3060', label: 'Network', sub: 'TCP + Mux', link: '/bluematter/network' },
+  { color: '#0a1630', accent: '#1e3d70', label: 'ChainSync', sub: 'Headers', link: '/spec/networking' },
+  { color: '#0d1d40', accent: '#224a80', label: 'BlockFetch', sub: 'Bodies', link: '/spec/networking' },
+  { color: '#102550', accent: '#285890', label: 'Decode', sub: 'CBOR', link: '/bluematter/codec' },
+  { color: '#132d60', accent: '#2e66a0', label: 'Consensus', sub: 'VRF + KES', link: '/spec/consensus' },
+  { color: '#163670', accent: '#3574b0', label: 'Validate', sub: '19 Rules', link: '/spec/transactions' },
+  { color: '#1a3f80', accent: '#3c82c0', label: 'Plutus', sub: 'CEK Machine', link: '/spec/scripts' },
+  { color: '#1e4890', accent: '#4490d0', label: 'Apply', sub: 'State Update', link: '/spec/ledger-state' },
+  { color: '#2252a0', accent: '#4c9ee0', label: 'Epoch', sub: 'Rewards', link: '/spec/epoch' },
+  { color: '#265cb0', accent: '#55acf0', label: 'Storage', sub: 'Persist', link: '/spec/storage' },
 ];
 
 function Pipeline() {
@@ -197,9 +197,9 @@ function Footer() {
         </div>
         <div className={styles.footCol}>
           <h4>Documentation</h4>
-          <Link to={useBaseUrl('/docs/intro')}>Introduction</Link>
-          <Link to={useBaseUrl('/docs/spec/notation')}>Specification</Link>
-          <Link to={useBaseUrl('/docs/architecture/overview')}>Architecture</Link>
+          <Link to={useBaseUrl('/knowledge/intro')}>Introduction</Link>
+          <Link to={useBaseUrl('/spec/notation')}>Specification</Link>
+          <Link to={useBaseUrl('/bluematter/overview')}>Architecture</Link>
         </div>
         <div className={styles.footCol}>
           <h4>Links</h4>

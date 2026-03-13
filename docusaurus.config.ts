@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 const config: Config = {
-  title: 'Bluematter',
+  title: 'BlueMatter',
   tagline: 'Cardano Node Implementation',
   favicon: 'img/favicon.ico',
 
@@ -50,20 +50,47 @@ const config: Config = {
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts',
-          routeBasePath: '/docs',
-          remarkPlugins: [remarkMath],
-          rehypePlugins: [rehypeKatex],
-        },
-        pages: {
+          id: 'knowledge',
+          path: 'knowledge-base',
+          routeBasePath: '/knowledge',
+          sidebarPath: './sidebarsKnowledge.ts',
           remarkPlugins: [remarkMath],
           rehypePlugins: [rehypeKatex],
         },
         blog: false,
+        pages: {
+          remarkPlugins: [remarkMath],
+          rehypePlugins: [rehypeKatex],
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
       } satisfies Preset.Options,
+    ],
+  ],
+
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'specification',
+        path: 'specification',
+        routeBasePath: '/spec',
+        sidebarPath: './sidebarsSpec.ts',
+        remarkPlugins: [remarkMath],
+        rehypePlugins: [rehypeKatex],
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'bluematter',
+        path: 'bluematter-arch',
+        routeBasePath: '/bluematter',
+        sidebarPath: './sidebarsArch.ts',
+        remarkPlugins: [remarkMath],
+        rehypePlugins: [rehypeKatex],
+      },
     ],
   ],
 
@@ -75,10 +102,19 @@ const config: Config = {
       title: 'BlueMatter',
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'specSidebar',
+          to: '/knowledge/intro',
+          label: 'Knowledge Base',
           position: 'left',
-          label: 'Docs',
+        },
+        {
+          to: '/spec/notation',
+          label: 'Specification',
+          position: 'left',
+        },
+        {
+          to: '/bluematter/overview',
+          label: 'BlueMatter',
+          position: 'left',
         },
         {
           href: 'https://github.com/Chainscore/bluematter-docs',
@@ -89,7 +125,7 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
-      copyright: `Bluematter - Independent Cardano Node Implementation`,
+      copyright: `BlueMatter - Independent Cardano Node Implementation`,
     },
     prism: {
       theme: prismThemes.github,
