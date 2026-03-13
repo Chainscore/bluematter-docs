@@ -25,18 +25,6 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.navHidden {
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.navVisible {
-  transform: translateY(0);
-  opacity: 1;
 }
 
 .navLogo {
@@ -94,25 +82,70 @@
   justify-content: center;
   padding: 4rem 2rem;
   position: relative;
-  background: #050510;
+  background: #060612;
   overflow: hidden;
 }
 
-/* Single subtle ambient glow - no blobs, no boundaries */
-.blob1 { display: none; }
-.blob2 { display: none; }
-.blob3 {
+.blob1, .blob2, .blob3 {
   position: absolute;
-  inset: -20%;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(25, 50, 140, 0.25) 0%, transparent 70%);
-  animation: breathe 10s ease-in-out infinite;
+  border-radius: 50%;
 }
 
-@keyframes breathe {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
+/* Deep blue pool - bottom left */
+.blob1 {
+  width: 80vw;
+  height: 80vw;
+  max-width: 900px;
+  max-height: 900px;
+  bottom: -40%;
+  left: -20%;
+  background: #0a1830;
+  filter: blur(120px);
+  animation: drift1 25s ease-in-out infinite;
+}
+
+/* Bright accent - top right */
+.blob2 {
+  width: 50vw;
+  height: 50vw;
+  max-width: 600px;
+  max-height: 600px;
+  top: -20%;
+  right: -15%;
+  background: #0e2450;
+  filter: blur(100px);
+  animation: drift2 30s ease-in-out infinite;
+}
+
+/* Small warm highlight */
+.blob3 {
+  width: 30vw;
+  height: 30vw;
+  max-width: 350px;
+  max-height: 350px;
+  top: 30%;
+  left: 40%;
+  background: #162050;
+  filter: blur(90px);
+  animation: drift3 20s ease-in-out infinite;
+}
+
+@keyframes drift1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5vw, -5vh); }
+}
+
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-4vw, 4vh); }
+}
+
+@keyframes drift3 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-6vw, 3vh); }
+  66% { transform: translate(4vw, -5vh); }
 }
 
 /* Film grain overlay */
