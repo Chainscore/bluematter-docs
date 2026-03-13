@@ -24,9 +24,15 @@
 }
 
 .navbar__title {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.03em;
+  display: none;
+}
+
+.navbar__logo img {
+  height: 28px !important;
+}
+
+[data-theme='dark'] .navbar__logo img {
+  filter: invert(1);
 }
 
 .markdown > h1:first-child {

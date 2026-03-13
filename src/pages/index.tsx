@@ -22,7 +22,7 @@ function Nav() {
   return (
     <nav className={styles.nav}>
       <Link to={useBaseUrl('/')} className={styles.navLogo}>
-        BlueMatter
+        <span className={styles.handwritten}>BlueMatter</span>
       </Link>
       <div className={styles.navLinks}>
         <Link to={useBaseUrl('/docs/intro')} className={styles.navLink}>Docs</Link>
@@ -140,7 +140,7 @@ function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footInner}>
         <div className={styles.footLeft}>
-          <span className={styles.footLogo}>BlueMatter</span>
+          <span className={`${styles.footLogo} ${styles.handwritten}`}>BlueMatter</span>
           <p className={styles.footDesc}>
             Cardano full-node combining C-backed cryptography with Python's readability. By Chainscore Labs.
           </p>
