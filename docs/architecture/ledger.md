@@ -1,4 +1,4 @@
-# Ledger Module -- State Machine & Validation
+# Ledger
 
 ## Overview
 

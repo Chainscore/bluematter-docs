@@ -51,10 +51,7 @@ function Hero() {
           <span className={styles.badgeDot} />
           Cardano Full-Node
         </div>
-        <h1 className={styles.title}>
-          <span className={styles.titleSolid}>Blue</span>
-          <span className={styles.titleOutline}>matter</span>
-        </h1>
+        <h1 className={styles.title}>BlueMatter</h1>
         <p className={styles.sub}>
           C performance. Python clarity.
           <br />

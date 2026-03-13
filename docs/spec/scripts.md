@@ -1,4 +1,4 @@
-# 6. Script Validation
+# Scripts
 
 This chapter specifies the Plutus smart contract execution model as implemented
 by the Bluematter node. Cardano's scripting layer uses a two-phase validation

@@ -1,4 +1,4 @@
-# Network Module -- Ouroboros Mini-Protocols
+# Network
 
 ## Overview
 

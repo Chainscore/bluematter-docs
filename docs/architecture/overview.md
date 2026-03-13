@@ -1,4 +1,4 @@
-# Bluematter Architecture Overview
+# Overview
 
 Bluematter is an independent Cardano full-node implementation in pure Python.
 It implements the Ouroboros Praos consensus protocol, the Conway-era ledger

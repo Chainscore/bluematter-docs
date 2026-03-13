@@ -1,4 +1,4 @@
-# Node Module -- Orchestration & Lifecycle
+# Node
 
 ## Overview
 

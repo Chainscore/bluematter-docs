@@ -1,4 +1,4 @@
-# Cardano Node (Haskell) Architecture: Deep Technical Reference
+# Haskell Node Architecture
 
 This document provides a detailed technical reference of the Cardano Haskell node
 (`cardano-node`) architecture, intended for implementers building alternative node

@@ -1,4 +1,4 @@
-# 11. Conway Governance
+# Governance
 
 This section specifies the CIP-1694 on-chain governance framework as
 implemented in the Conway era. It covers the three governance bodies,

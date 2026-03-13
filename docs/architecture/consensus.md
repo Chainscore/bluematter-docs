@@ -1,4 +1,4 @@
-# Consensus Module -- Ouroboros Praos
+# Consensus
 
 ## Overview
 

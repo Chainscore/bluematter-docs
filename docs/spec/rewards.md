@@ -1,4 +1,4 @@
-# 9 Reward Calculation
+# Rewards
 
 This chapter specifies the Ouroboros Praos reward distribution mechanism,
 implementing the RUPD (Reward Update) rule from the Shelley formal

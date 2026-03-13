@@ -1,4 +1,4 @@
-# Bluematter - Complete Call Flows (Function-by-Function)
+# Call Flows
 
 Every function call in the main sync path, traced from CLI entry to disk write.
 Shows exact arguments, return values, and where each call happens.

@@ -1,4 +1,4 @@
-# 8 Epoch Boundary Transitions
+# Epoch Boundary
 
 This chapter specifies the TICK and NEWEPOCH rules that govern state changes
 at epoch boundaries. These transitions control reward distribution, stake

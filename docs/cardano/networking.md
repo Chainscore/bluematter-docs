@@ -1,4 +1,4 @@
-# Cardano Ouroboros Networking Protocols
+# Networking Protocols
 
 Comprehensive reference for the Ouroboros network layer used in Cardano.
 Based on the [Ouroboros Network Specification](https://ouroboros-network.cardano.intersectmbo.org/pdfs/network-spec/network-spec.pdf),

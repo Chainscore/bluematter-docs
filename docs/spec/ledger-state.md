@@ -1,4 +1,4 @@
-# 4. Ledger State and Block Application
+# Ledger State
 
 This chapter defines the ledger state type, the block and transaction
 application rules, and the multi-asset value algebra that underlies ADA

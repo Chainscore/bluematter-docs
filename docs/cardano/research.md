@@ -1,4 +1,4 @@
-# Cardano Research Papers and Foundational Design Documents
+# Research & Foundations
 
 A comprehensive reference covering the academic research that underpins the Cardano
 blockchain, from the founding vision through the Ouroboros consensus protocol family,

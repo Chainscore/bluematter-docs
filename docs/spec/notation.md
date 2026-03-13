@@ -1,4 +1,4 @@
-# 0. Notation and Conventions
+# Notation
 
 This chapter establishes the notation, type conventions, and inference rule
 format used throughout this specification. We aim for precision without

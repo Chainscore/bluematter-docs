@@ -1,4 +1,4 @@
-# 5. Transaction Validation
+# Transactions
 
 This chapter defines the two phases of transaction validation: Phase-1
 (structural UTxO rules) and Phase-1W (witness rules).  Phase-2 (Plutus

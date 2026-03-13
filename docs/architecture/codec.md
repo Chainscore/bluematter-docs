@@ -1,4 +1,4 @@
-# Codec Module -- Wire Format & Deserialization
+# Codec
 
 ## Overview
 

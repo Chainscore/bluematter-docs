@@ -1,4 +1,4 @@
-# 1. Cryptographic Primitives
+# Cryptography
 
 Cardano's Ouroboros Praos consensus relies on four cryptographic
 primitives: collision-resistant hashing, digital signatures, verifiable

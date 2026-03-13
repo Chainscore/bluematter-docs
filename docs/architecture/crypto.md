@@ -1,4 +1,4 @@
-# Crypto Module -- Cryptographic Primitives
+# Crypto
 
 ## Overview
 
