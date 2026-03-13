@@ -58,8 +58,9 @@
 
 .navbar__title {
   font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
 }
 
 /* Sidebar - clean dark */
@@ -251,6 +252,20 @@ html:not([data-theme='dark']) {
 /* Emphasis color for teal accent (like ChainScore green) */
 .markdown strong {
   color: inherit;
+}
+
+/* Doc page headings - tighter */
+.markdown > h1:first-child {
+  font-size: 1.8rem !important;
+}
+
+.markdown h2 {
+  font-size: 1.3rem !important;
+  margin-top: 2rem;
+}
+
+.markdown h3 {
+  font-size: 1.05rem !important;
 }
 
 /* Wider content */
